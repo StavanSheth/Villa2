@@ -1,0 +1,146 @@
+{
+  "url": "http://localhost:3002",
+  "title": "Admin Dashboard - Mavon",
+  "elements": [
+    {
+      "tagName": "A",
+      "text": "Dashboard",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".group.flex.items-center.px-4.py-3.text-sm.font-medium.rounded-2xl.transition-all.duration-300.hover:bg-white/10.hover:text-gold.text-[var(--text-sec-dark)]"
+    },
+    {
+      "tagName": "A",
+      "text": "Villas",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".group.flex.items-center.px-4.py-3.text-sm.font-medium.rounded-2xl.transition-all.duration-300.hover:bg-white/10.hover:text-gold.text-[var(--text-sec-dark)]"
+    },
+    {
+      "tagName": "A",
+      "text": "Bookings",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".group.flex.items-center.px-4.py-3.text-sm.font-medium.rounded-2xl.transition-all.duration-300.hover:bg-white/10.hover:text-gold.text-[var(--text-sec-dark)]"
+    },
+    {
+      "tagName": "A",
+      "text": "Users",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".group.flex.items-center.px-4.py-3.text-sm.font-medium.rounded-2xl.transition-all.duration-300.hover:bg-white/10.hover:text-gold.text-[var(--text-sec-dark)]"
+    },
+    {
+      "tagName": "BUTTON",
+      "text": "",
+      "name": "",
+      "type": "button",
+      "role": "",
+      "testid": "",
+      "label": "Switch to Morning mode",
+      "selector": ".pointer-events-auto.relative.flex.items-center.rounded-full.cursor-pointer.select-none.transition-all.duration-500.shadow-inner.bg-white/15.border.border-white/25.hover:border-white/40.shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]."
+    },
+    {
+      "tagName": "INPUT",
+      "text": "Search (Ctrl + K)...",
+      "name": "",
+      "type": "text",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".pl-10.pr-4.py-2.rounded-full.text-sm.transition-all.duration-300.w-64.focus:w-80.bg-white/5.border.border-white/10.focus:border-gold/50.text-[var(--text-dark)].focus:outline-none.focus:ring-1.focus:ring-gold/30"
+    },
+    {
+      "tagName": "A",
+      "text": "Manage Villas\n\nEdit villa details, pricing, add-ons",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Manage Staff\n\nAdd/remove staff, assign permissions",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Manage Customers\n\nView customer profiles and history",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Pricing Rules\n\nSeasonal pricing and coupon management",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Reviews\n\nModerate pending reviews",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Refunds\n\nProcess refund requests",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Reports\n\nRevenue, occupancy, and analytics",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    },
+    {
+      "tagName": "A",
+      "text": "Audit Logs\n\nSystem activity and staff actions",
+      "name": "",
+      "type": "",
+      "role": "",
+      "testid": "",
+      "label": "",
+      "selector": ".card.group.hover:border-[#D4AF37]/40.transition-all"
+    }
+  ]
+}

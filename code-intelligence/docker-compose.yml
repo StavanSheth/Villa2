@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  codegraph-postgres:
+    image: postgres:15
+    container_name: codegraph-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: codegraph
+    ports:
+      - "5433:5432"
+    volumes:
+      - codegraph-pg-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  codegraph-neo4j:
+    image: neo4j:5.12
+    container_name: codegraph-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - codegraph-neo4j-data:/data
+    restart: unless-stopped
+
+volumes:
+  codegraph-pg-data:
+  codegraph-neo4j-data:

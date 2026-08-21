@@ -1,0 +1,13 @@
+{
+  "name": "@villa-platform/validation",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "type": "module",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

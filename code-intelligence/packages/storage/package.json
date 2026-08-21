@@ -1,0 +1,17 @@
+{
+  "name": "@codegraph/storage",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@codegraph/shared": "workspace:*",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.2",
+    "typescript": "^5.2.2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@codegraph/parser",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@codegraph/shared": "workspace:*",
+    "ts-morph": "^20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

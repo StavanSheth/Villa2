@@ -1,0 +1,18 @@
+
+import { describe, it } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'yaml';
+
+const yamlPath = path.join(__dirname, '../scenario-matrix.yaml');
+const parsed = yaml.parse(fs.readFileSync(yamlPath, 'utf8'));
+// Filter for scenarios that are auto-generated
+const myScenarios = parsed.scenarios.filter((s: any) => s.category === 'database' && s.actor.includes('system_generator'));
+
+if (myScenarios.length > 0) {
+  describe('Generated Permutations: DATABASE', () => {
+    for (const scenario of myScenarios) {
+      it.todo(`${scenario.id}: ${scenario.name}`);
+    }
+  });
+}

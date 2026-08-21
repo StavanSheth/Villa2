@@ -1,0 +1,31 @@
+[
+  {
+    "name": "postgres_latency",
+    "listen": "0.0.0.0:25432",
+    "upstream": "enterprise-medusa-db:5432",
+    "enabled": true,
+    "toxics": [
+      {
+        "type": "latency",
+        "attributes": {
+          "latency": 2000,
+          "jitter": 500
+        }
+      }
+    ]
+  },
+  {
+    "name": "redis_offline",
+    "listen": "0.0.0.0:26379",
+    "upstream": "enterprise-medusa-redis:6379",
+    "enabled": false,
+    "toxics": [
+      {
+        "type": "timeout",
+        "attributes": {
+          "timeout": 1
+        }
+      }
+    ]
+  }
+]

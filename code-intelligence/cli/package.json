@@ -1,0 +1,20 @@
+{
+  "name": "@codegraph/cli",
+  "version": "1.0.0",
+  "bin": {
+    "codegraph": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@codegraph/shared": "workspace:*",
+    "@codegraph/parser": "workspace:*",
+    "@codegraph/graph": "workspace:*",
+    "@codegraph/storage": "workspace:*",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

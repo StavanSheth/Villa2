@@ -1,0 +1,16 @@
+{
+  "name": "@codegraph/graph",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@codegraph/shared": "workspace:*",
+    "neo4j-driver": "^5.12.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

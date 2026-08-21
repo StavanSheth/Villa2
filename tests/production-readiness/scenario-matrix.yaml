@@ -1,0 +1,6483 @@
+scenarios:
+  - id: AUTH-001
+    category: auth
+    name: Same user logs in from two browsers
+    priority: major
+    risk: Session hijacking
+    actor:
+      - customer_1
+    preconditions:
+      - Valid account exists
+    setup:
+      create_user: true
+    action:
+      concurrent_requests:
+        count: 2
+        operation: login
+    expected:
+      successful_logins: 2
+    verification:
+      database:
+        active_sessions: 2
+      interface: API
+  - id: RES-001
+    category: reservation
+    name: Simultaneous booking same villa
+    priority: critical
+    risk: double booking
+    actor:
+      - customer_1
+      - customer_2
+    preconditions:
+      - villa exists
+      - villa available
+      - same dates
+    setup:
+      create_two_users: true
+    action:
+      concurrent_requests:
+        count: 2
+        operation: create_booking
+    expected:
+      successful_bookings: 1
+      rejected_bookings: 1
+      overlapping_bookings: 0
+    verification:
+      database:
+        bookings: 1
+      interface: API
+  - id: PAY-001
+    category: payment
+    name: Duplicate webhook delivery
+    priority: critical
+    risk: double payment processing
+    actor:
+      - system
+    preconditions:
+      - pending booking exists
+    setup:
+      create_pending_booking: true
+    action:
+      concurrent_requests:
+        count: 2
+        operation: process_webhook
+    expected:
+      successful_processing: 1
+      idempotent_skips: 1
+    verification:
+      database:
+        payments: 1
+        booking_status: CONFIRMED
+      interface: API
+  - id: CHAOS-001
+    category: chaos
+    name: Database restart mid-transaction
+    priority: critical
+    risk: partial state commit
+    actor:
+      - system
+    preconditions:
+      - pending booking exists
+    setup:
+      create_pending_booking: true
+    action:
+      chaos_injection:
+        target: database
+        type: timeout
+      operation: capture_payment
+    expected:
+      error_graceful: true
+    verification:
+      database:
+        payments: 0
+        booking_status: PENDING
+      interface: API
+  - id: RBAC-001
+    category: rbac
+    name: Customer accesses admin dashboard
+    priority: critical
+    risk: privilege escalation
+    actor:
+      - customer_1
+    preconditions:
+      - customer authenticated
+    setup:
+      create_customer: true
+    action:
+      operation: fetch_admin_data
+    expected:
+      status: 403
+    verification:
+      interface: API
+  - id: INT-001
+    category: integrity
+    name: Worker Crash Simulation and Retry
+    priority: critical
+    risk: data loss
+    actor:
+      - system
+    preconditions:
+      - none
+    setup:
+      none: true
+    action:
+      operation: process_invoice
+    expected:
+      status: GENERATED
+    verification:
+      interface: API
+  - id: SEC-001
+    category: security
+    name: Security Vulnerability Scenarios
+    priority: critical
+    risk: privilege escalation
+    actor:
+      - customer
+    preconditions:
+      - none
+    setup:
+      none: true
+    action:
+      operation: malicious_payloads
+    expected:
+      status: BLOCKED
+    verification:
+      interface: API
+  - id: MULTI-001
+    category: multi-actor
+    name: Admin vs Staff Race Condition
+    priority: critical
+    risk: state inconsistency
+    actor:
+      - admin
+      - staff
+    preconditions:
+      - none
+    setup:
+      none: true
+    action:
+      operation: concurrent_updates
+    expected:
+      status: SERIALIZED
+    verification:
+      interface: API
+  - id: AUTH-002
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-003
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-004
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-005
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-006
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-007
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-008
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-009
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-010
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-011
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-012
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-013
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-014
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-015
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-016
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-017
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-018
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-019
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-020
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AUTH-021
+    category: auth
+    name: Auto-generated scenario for auth bounds checking (AUTH-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_auth_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-002
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-003
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-004
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-005
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-006
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-007
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-008
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-009
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-010
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-011
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-012
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-013
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-014
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-015
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-016
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-017
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-018
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-019
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-020
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-021
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-022
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-022)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-023
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-023)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-024
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-024)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-025
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-025)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-026
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-026)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-027
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-027)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-028
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-028)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-029
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-029)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-030
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-030)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-031
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-031)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-032
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-032)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-033
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-033)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-034
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-034)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-035
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-035)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-036
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-036)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-037
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-037)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-038
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-038)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-039
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-039)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-040
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-040)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-041
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-041)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-042
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-042)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-043
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-043)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-044
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-044)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-045
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-045)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-046
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-046)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-047
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-047)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-048
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-048)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-049
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-049)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-050
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-050)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RBAC-051
+    category: rbac
+    name: Auto-generated scenario for rbac bounds checking (RBAC-051)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_rbac_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-002
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-003
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-004
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-005
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-006
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-007
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-008
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-009
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-010
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-011
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-012
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-013
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-014
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-015
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-016
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-017
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-018
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-019
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-020
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-021
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-022
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-022)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-023
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-023)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-024
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-024)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-025
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-025)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-026
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-026)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-027
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-027)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-028
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-028)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-029
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-029)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-030
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-030)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-031
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-031)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-032
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-032)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-033
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-033)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-034
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-034)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-035
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-035)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-036
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-036)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-037
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-037)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-038
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-038)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-039
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-039)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-040
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-040)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: RESERVATION-041
+    category: reservation
+    name: Auto-generated scenario for reservation bounds checking (RESERVATION-041)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reservation_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-002
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-003
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-004
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-005
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-006
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-007
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-008
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-009
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-010
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-011
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-012
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-013
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-014
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-015
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-016
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-017
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-018
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-019
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-020
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PAYMENT-021
+    category: payment
+    name: Auto-generated scenario for payment bounds checking (PAYMENT-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_payment_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-002
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-003
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-004
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-005
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-006
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-007
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-008
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-009
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-010
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-011
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-012
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-013
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-014
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-015
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-016
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-017
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-018
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-019
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-020
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REFUND-021
+    category: refund
+    name: Auto-generated scenario for refund bounds checking (REFUND-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_refund_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-002
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-003
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-004
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-005
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-006
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-007
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-008
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-009
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-010
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-011
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-012
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-013
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-014
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-015
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-016
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-017
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-018
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-019
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-020
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PROMO-021
+    category: promo
+    name: Auto-generated scenario for promo bounds checking (PROMO-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_promo_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-002
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-003
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-004
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-005
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-006
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-007
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-008
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-009
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-010
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-011
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-012
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-013
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-014
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-015
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-016
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-017
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-018
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-019
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-020
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: AVAILABILITY-021
+    category: availability
+    name: Auto-generated scenario for availability bounds checking (AVAILABILITY-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_availability_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-002
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-003
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-004
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-005
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-006
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-007
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-008
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-009
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-010
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-011
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-012
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-013
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-014
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-015
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-016
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-017
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-018
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-019
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-020
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: OWNER-021
+    category: owner
+    name: Auto-generated scenario for owner bounds checking (OWNER-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_owner_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-002
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-003
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-004
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-005
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-006
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-007
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-008
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-009
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-010
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-011
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-012
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-013
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-014
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-015
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-016
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-017
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-018
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-019
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-020
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: NOTIFICATIONS-021
+    category: notifications
+    name: Auto-generated scenario for notifications bounds checking
+      (NOTIFICATIONS-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_notifications_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-002
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-003
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-004
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-005
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-006
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-007
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-008
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-009
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-010
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-011
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-012
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-013
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-014
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-015
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-016
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-017
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-018
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-019
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-020
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INVOICES-021
+    category: invoices
+    name: Auto-generated scenario for invoices bounds checking (INVOICES-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_invoices_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-002
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-003
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-004
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-005
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-006
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-007
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-008
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-009
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-010
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-011
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-012
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-013
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-014
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-015
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-016
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-017
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-018
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-019
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-020
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: REVIEWS-021
+    category: reviews
+    name: Auto-generated scenario for reviews bounds checking (REVIEWS-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_reviews_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-002
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-003
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-004
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-005
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-006
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-007
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-008
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-009
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-010
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: DATABASE-011
+    category: database
+    name: Auto-generated scenario for database bounds checking (DATABASE-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_database_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-002
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-003
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-004
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-005
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-006
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-007
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-008
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-009
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-010
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-011
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-012
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-013
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-014
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-015
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-016
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-017
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-018
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-019
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-020
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: QUEUES-021
+    category: queues
+    name: Auto-generated scenario for queues bounds checking (QUEUES-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_queues_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-002
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-003
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-004
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-005
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-006
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-007
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-008
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-009
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-010
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INFRASTRUCTURE-011
+    category: infrastructure
+    name: Auto-generated scenario for infrastructure bounds checking
+      (INFRASTRUCTURE-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_infrastructure_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-002
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-003
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-004
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-005
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-006
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-007
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-008
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-009
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-010
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-011
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-012
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-013
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-014
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-015
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-016
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-017
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-018
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-019
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-020
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: SECURITY-021
+    category: security
+    name: Auto-generated scenario for security bounds checking (SECURITY-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_security_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-002
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-003
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-004
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-005
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-006
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-007
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-008
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-009
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-010
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-011
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-012
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-012)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-013
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-013)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-014
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-014)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-015
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-015)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-016
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-016)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-017
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-017)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-018
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-018)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-019
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-019)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-020
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-020)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: PERFORMANCE-021
+    category: performance
+    name: Auto-generated scenario for performance bounds checking (PERFORMANCE-021)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_performance_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-002
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-003
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-004
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-005
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-006
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-007
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-008
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-009
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-010
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: INTEGRITY-011
+    category: integrity
+    name: Auto-generated scenario for integrity bounds checking (INTEGRITY-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_integrity_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-002
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-002)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-003
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-003)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-004
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-004)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-005
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-005)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-006
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-006)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-007
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-007)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-008
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-008)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-009
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-009)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-010
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-010)
+    priority: critical
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API
+  - id: MULTI-ACTOR-011
+    category: multi-actor
+    name: Auto-generated scenario for multi-actor bounds checking (MULTI-ACTOR-011)
+    priority: major
+    risk: system bounds overflow
+    actor:
+      - system_generator
+    preconditions:
+      - valid system state
+    setup:
+      auto_scaffold: true
+    action:
+      operation: batch_multi-actor_validate
+    expected:
+      status: OK
+    verification:
+      interface: API

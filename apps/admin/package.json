@@ -1,0 +1,32 @@
+{
+  "name": "@villa-platform/admin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3002",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@villa-platform/auth": "workspace:*",
+    "@villa-platform/database": "workspace:*",
+    "@villa-platform/middleware": "workspace:*",
+    "@villa-platform/ui": "workspace:*",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.30.0",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.6.3"
+  }
+}

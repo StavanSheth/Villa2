@@ -1,0 +1,462 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  firebaseUid     String            @unique
+  email           String            @unique
+  firstName       String
+  lastName        String
+  isLocked        Boolean           @default(false)
+  lockedUntil     DateTime?
+  emailVerified   Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  walletBalance   Decimal           @default(0)
+  auditLogs       AuditLog[]        @relation("UserAudit")
+  bookings        Booking[]
+  loginAttempts   LoginAttempt[]
+  passwordHistory PasswordHistory[]
+  reviews         Review[]
+  sessions        Session[]
+  roles           UserRole[]
+  villas          Villa[]           @relation("VillaOwner")
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  permissions RolePermission[]
+  users       UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Permission {
+  id     String           @id @default(uuid())
+  action String
+  object String
+  roles  RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  ipAddress    String
+  userAgent    String
+  browser      String?
+  country      String?
+  timezone     String?
+  isRevoked    Boolean  @default(false)
+  expiresAt    DateTime
+  lastActiveAt DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  userId    String?
+  email     String
+  ipAddress String
+  userAgent String
+  success   Boolean
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  userId    String?
+  role      String?
+  ipAddress String
+  browser   String?
+  device    String?
+  sessionId String?
+  action    String
+  resource  String
+  oldValue  Json?
+  newValue  Json?
+  user      User?    @relation("UserAudit", fields: [userId], references: [id])
+}
+
+model CasbinRule {
+  id    Int     @id @default(autoincrement())
+  ptype String
+  v0    String?
+  v1    String?
+  v2    String?
+  v3    String?
+  v4    String?
+  v5    String?
+}
+
+model Villa {
+  id                   String                @id @default(uuid())
+  name                 String
+  description          String
+  basePrice            Decimal
+  capacity             Int
+  bedrooms             Int
+  bathrooms            Int
+  amenities            String[]
+  images               String[]
+  isActive             Boolean               @default(true)
+  ownerId              String?
+  bookings             Booking[]
+  cancellationPolicies CancellationPolicy[]
+  pricingRules         PricingRule[]
+  refundPolicies       RefundPolicy[]
+  reviews              Review[]
+  owner                User?                 @relation("VillaOwner", fields: [ownerId], references: [id])
+  bookingSettings      VillaBookingSettings?
+}
+
+model Booking {
+  id                   String               @id @default(uuid())
+  bookingCode          String               @unique
+  userId               String
+  villaId              String
+  checkIn              DateTime
+  checkOut             DateTime
+  totalGuests          Int
+  status               String
+  paymentType          String?
+  specialReqs          String?
+  nightlyBreakdown     Json?
+  servicesSnapshot     Json?
+  cleaningFee          Decimal              @default(1500)
+  platformFee          Decimal              @default(0)
+  gstAmount            Decimal              @default(0)
+  discountAmount       Decimal              @default(0)
+  promoCodeId          String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  assignedCaretakerId  String?
+  assignedStaffId      String?
+  bookingReason        String?
+  bookingSource        String               @default("WEBSITE")
+  bookingType          String               @default("NORMAL")
+  cancellationRefund   Decimal?
+  createdByRole        String?
+  createdByUserId      String?
+  guestProfileId       String?
+  idempotencyKey       String?              @unique
+  internalNotes        String?
+  paymentRequired      Boolean              @default(true)
+  refundPolicySnapshot Json?
+  amountToBePaid       Decimal              @default(0)
+  currency             String               @default("INR")
+  currentTotal         Decimal              @default(0)
+  pendingRefund        Decimal              @default(0)
+  totalAdvancePaid     Decimal              @default(0)
+  totalBalancePaid     Decimal              @default(0)
+  totalPaid            Decimal              @default(0)
+  totalRefunded        Decimal              @default(0)
+  promoCode            PromoCode?           @relation(fields: [promoCodeId], references: [id])
+  user                 User                 @relation(fields: [userId], references: [id])
+  villa                Villa                @relation(fields: [villaId], references: [id])
+  events               BookingEvent[]
+  services             BookingService[]
+  invoices             Invoice[]
+  orderTransactions    OrderTransaction[]
+  transactions         PaymentTransaction[]
+  promoUsages          PromoUsage[]
+  reviews              Review[]
+  segments             StaySegment[]
+
+  @@index([villaId, bookingType])
+  @@index([createdByUserId])
+}
+
+model StaySegment {
+  id             String           @id @default(uuid())
+  bookingId      String
+  checkIn        DateTime
+  checkOut       DateTime
+  status         String           @default("ACTIVE")
+  adults         Int              @default(1)
+  children       Int              @default(0)
+  staySubtotal   Decimal          @default(0)
+  BookingService BookingService[]
+  booking        Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model PaymentTransaction {
+  id             String   @id @default(uuid())
+  bookingId      String
+  amount         Decimal
+  method         String
+  status         String
+  referenceId    String?
+  receiptUrl     String?
+  verifiedBy     String?
+  createdAt      DateTime @default(now())
+  idempotencyKey String?  @unique
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model Invoice {
+  id          String        @id @default(uuid())
+  invoiceNo   String        @unique
+  bookingId   String
+  issueDate   DateTime      @default(now())
+  dueDate     DateTime
+  subtotal    Decimal
+  taxAmount   Decimal
+  totalAmount Decimal
+  pdfUrl      String?
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+  items       InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  description String
+  quantity    Int
+  unitPrice   Decimal
+  total       Decimal
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  villaId   String
+  bookingId String?
+  rating    Int
+  comment   String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  villa     Villa    @relation(fields: [villaId], references: [id])
+}
+
+model PricingRule {
+  id        String    @id @default(uuid())
+  villaId   String
+  type      String
+  startDate DateTime?
+  endDate   DateTime?
+  price     Decimal
+  minNights Int       @default(1)
+  villa     Villa     @relation(fields: [villaId], references: [id])
+}
+
+model PromoCode {
+  id            String       @id @default(uuid())
+  code          String       @unique
+  description   String?
+  type          String
+  value         Decimal
+  minBookingAmt Decimal?
+  maxDiscount   Decimal?
+  minNights     Int?
+  maxNights     Int?
+  startDate     DateTime?
+  expiryDate    DateTime?
+  usageLimit    Int?
+  usagePerUser  Int          @default(1)
+  usageCount    Int          @default(0)
+  villaIds      String[]
+  status        String
+  bookings      Booking[]
+  promoUsages   PromoUsage[]
+}
+
+model ServiceDef {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  category    String?
+  type        String
+  chargeType  String
+  price       Decimal @default(0)
+  taxable     Boolean @default(true)
+  isActive    Boolean @default(true)
+}
+
+model BookingService {
+  id          String       @id @default(uuid())
+  bookingId   String
+  serviceId   String
+  name        String
+  quantity    Int          @default(1)
+  totalPrice  Decimal
+  serviceType String       @default("PAID")
+  stayId      String?
+  unitPrice   Decimal      @default(0)
+  booking     Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  StaySegment StaySegment? @relation(fields: [stayId], references: [id], onDelete: Cascade)
+}
+
+model BookingEvent {
+  id        String   @id @default(uuid())
+  bookingId String
+  actorId   String
+  actorRole String
+  action    String
+  oldState  String?
+  newState  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model OrderTransaction {
+  bookingId            String
+  srNo                 Int
+  transactionTime      DateTime
+  actionType           String
+  actorRole            String
+  previousState        String
+  newState             String
+  paymentType          String
+  refundTier           String
+  refundStatus         String
+  previousOrderTotal   Decimal
+  orderValueDelta      Decimal
+  newOrderTotal        Decimal
+  previousTotalPaid    Decimal
+  advancePaymentDelta  Decimal
+  balancePaymentDelta  Decimal
+  refundDueDelta       Decimal
+  refundPaidDelta      Decimal
+  newTotalPaid         Decimal
+  newTotalRefunded     Decimal
+  newAdvancePaid       Decimal
+  newRemainingAmount   Decimal
+  newPendingRefund     Decimal
+  newAmountToBePaid    Decimal
+  snapshotStaySegments Json?
+  snapshotServices     Json?
+  snapshotGuests       Json?
+  transactionId        String   @id @default(uuid())
+  booking              Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model ReservationLock {
+  id         String   @id @default(uuid())
+  villaId    String
+  customerId String
+  checkIn    DateTime
+  checkOut   DateTime
+  status     String   @default("LOCKED")
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([villaId, checkIn, checkOut])
+  @@index([expiresAt])
+}
+
+model CancellationPolicy {
+  id            String  @id @default(uuid())
+  villaId       String
+  hoursBefore   Int
+  refundPercent Decimal
+  description   String?
+  villa         Villa   @relation(fields: [villaId], references: [id], onDelete: Cascade)
+
+  @@unique([villaId, hoursBefore])
+}
+
+model PromoUsage {
+  id         String    @id @default(uuid())
+  promoId    String
+  customerId String
+  bookingId  String
+  usedAt     DateTime  @default(now())
+  booking    Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  promo      PromoCode @relation(fields: [promoId], references: [id], onDelete: Cascade)
+
+  @@unique([promoId, customerId])
+}
+
+model RefundPolicy {
+  id                String       @id @default(uuid())
+  villaId           String
+  name              String       @default("Default Policy")
+  refundType        String
+  refundGatewayFee  Boolean      @default(true)
+  refundGst         Boolean      @default(true)
+  refundPlatformFee Boolean      @default(true)
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  villa             Villa        @relation(fields: [villaId], references: [id], onDelete: Cascade)
+  slabs             RefundSlab[]
+
+  @@index([villaId, isActive])
+}
+
+model RefundSlab {
+  id             String       @id @default(uuid())
+  refundPolicyId String
+  minHoursBefore Int
+  maxHoursBefore Int
+  refundPercent  Decimal
+  policy         RefundPolicy @relation(fields: [refundPolicyId], references: [id], onDelete: Cascade)
+
+  @@unique([refundPolicyId, minHoursBefore, maxHoursBefore])
+  @@index([refundPolicyId])
+}
+
+model VillaBookingSettings {
+  id                     String  @id @default(uuid())
+  villaId                String  @unique
+  allowOfflineBooking    Boolean @default(true)
+  allowMaintenanceBlock  Boolean @default(true)
+  allowPrivateGuest      Boolean @default(true)
+  allowVipBooking        Boolean @default(true)
+  requireInvoice         Boolean @default(false)
+  requireCustomerProfile Boolean @default(false)
+  villa                  Villa   @relation(fields: [villaId], references: [id], onDelete: Cascade)
+}
+
+model GuestProfile {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  notes     String?
+  createdBy String
+  createdAt DateTime @default(now())
+}

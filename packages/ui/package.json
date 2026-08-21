@@ -1,0 +1,12 @@
+{
+  "name": "@villa-platform/ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "dependencies": {
+    "@villa-platform/hooks": "workspace:*",
+    "@villa-platform/rbac": "workspace:*",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.30.0"
+  }
+}

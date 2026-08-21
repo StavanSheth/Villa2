@@ -1,0 +1,25 @@
+name = "mavon-api"
+main = "src/index.ts"
+compatibility_date = "2024-10-22"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Ensure these are set via GitHub Actions or locally in .dev.vars
+# DATABASE_URL = "postgresql://..."
+# JWT_SECRET = "mavon_super_secret_jwt_key_for_edge_verification"
+# FIREBASE_PROJECT_ID = "demo-mavon"
+
+[observability]
+enabled = true
+
+[triggers]
+crons = ["*/5 * * * *"] # Run every 5 minutes to clean up abandoned bookings
+
+[[queues.producers]]
+queue = "booking-queue"
+binding = "BOOKING_QUEUE"
+
+[[queues.consumers]]
+queue = "booking-queue"
+max_batch_size = 10
+max_batch_timeout = 5
