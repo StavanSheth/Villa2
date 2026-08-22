@@ -55,6 +55,11 @@ export default async function CustomersPage() {
       gstAmount: Number(booking.gstAmount),
       discountAmount: Number(booking.discountAmount),
       cancellationRefund: booking.cancellationRefund ? Number(booking.cancellationRefund) : null,
+      amountToBePaid: booking.amountToBePaid ? Number(booking.amountToBePaid) : 0,
+      pendingRefund: booking.pendingRefund ? Number(booking.pendingRefund) : 0,
+      totalAdvancePaid: booking.totalAdvancePaid ? Number(booking.totalAdvancePaid) : 0,
+      totalBalancePaid: booking.totalBalancePaid ? Number(booking.totalBalancePaid) : 0,
+      totalRefunded: booking.totalRefunded ? Number(booking.totalRefunded) : 0,
       villa: booking.villa ? {
         ...booking.villa,
         basePrice: Number(booking.villa.basePrice)

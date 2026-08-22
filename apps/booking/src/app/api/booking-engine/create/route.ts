@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma, calculateBookingPrice } from '@villa-platform/database';
 import { processLedgerTransaction } from '../../../../../../../packages/database/queries/ledger';
+import { calcOrderTotal, FinancialState, buildSnapshotStaySegments, buildSnapshotGuests, buildSnapshotServices } from '../../../../../../../packages/database/queries/financial-engine';
 import crypto from 'node:crypto';
 
 export async function POST(req: Request) {
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
       promoCode,
       bookingReason,
       internalNotes,
+      segments, // Support for complex segmented payload
     } = body;
 
     let villa = await prisma.villa.findFirst({
@@ -74,24 +76,70 @@ export async function POST(req: Request) {
       if (resolvedPromo?.status !== 'ACTIVE') resolvedPromo = null;
     }
 
-    const start = new Date(checkIn || Date.now() + 86400000 * 7);
-    const end = new Date(checkOut || Date.now() + 86400000 * 10);
+    let start = new Date(checkIn || (segments ? segments[0].checkIn : Date.now() + 86400000 * 7));
+    let end = new Date(checkOut || (segments ? segments[segments.length-1].checkOut : Date.now() + 86400000 * 10));
 
-    const pricing = calculateBookingPrice({
-      checkIn: start,
-      checkOut: end,
-      selectedDates: selectedDates || [],
-      pricingRules: villa.pricingRules,
-      services: requestedServices,
-      guests: numGuests || 2,
-      dailyGuestsCount,
-      promoCode: resolvedPromo,
+    // Check for overlapping bookings to prevent double-booking
+    const overlappingBookings = await prisma.booking.findMany({
+      where: {
+        villaId: villa.id,
+        status: { notIn: ['CANCELLED', 'ARCHIVED', 'DRAFT'] },
+        OR: [
+          {
+            checkIn: { lt: end },
+            checkOut: { gt: start }
+          }
+        ]
+      }
     });
+
+    if (overlappingBookings.length > 0) {
+      return NextResponse.json({ error: 'The selected dates overlap with an existing booking.' }, { status: 409 });
+    }
+
+    let orderTotal = 0;
+    let cleaningFee = 1500;
+    let discount = 0;
+    let finalNightlyBreakdown = [];
+    let finalServiceBreakdown = [];
+    let stateForEngine: FinancialState | null = null;
+    let gstAmount = 0;
+
+    // Use Advanced Financial Engine if segments are provided
+    if (segments && Array.isArray(segments)) {
+      stateForEngine = {
+        segments,
+        cleaningFee,
+        discount,
+        totalPaid: 0, advancePaid: 0, balancePaid: 0, totalRefunded: 0, pendingRefund: 0, status: 'DRAFT'
+      };
+      orderTotal = calcOrderTotal(stateForEngine);
+      // Flat values for legacy compatibility
+      gstAmount = Math.round(orderTotal - (orderTotal / 1.18)); // Reverse engineer GST for now
+    } else {
+      // Legacy basic pricing calculation
+      const pricing = calculateBookingPrice({
+        checkIn: start,
+        checkOut: end,
+        selectedDates: selectedDates || [],
+        pricingRules: villa.pricingRules,
+        services: requestedServices,
+        guests: numGuests || 2,
+        dailyGuestsCount,
+        promoCode: resolvedPromo,
+      });
+      orderTotal = pricing.total;
+      cleaningFee = pricing.cleaningFee;
+      discount = pricing.discount;
+      gstAmount = pricing.gst;
+      finalNightlyBreakdown = pricing.nightlyBreakdown as any;
+      finalServiceBreakdown = pricing.serviceBreakdown as any;
+    }
 
     const bookingCode = `MVN-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const initialStatus = paymentRequired ? (paymentType === 'ADVANCE' ? 'ADVANCE_PAID' : 'AWAITING_PAYMENT') : 'CONFIRMED';
     const targetPaidAmount = paymentRequired 
-      ? (paymentType === 'ADVANCE' ? Math.round(pricing.total * 0.33) : pricing.total) 
+      ? (paymentType === 'ADVANCE' ? Math.round(orderTotal * 0.33) : orderTotal) 
       : 0;
 
     // Wallet Deductions
@@ -135,35 +183,57 @@ export async function POST(req: Request) {
           paymentRequired: paymentRequired ?? true,
           bookingReason: bookingReason || null,
           internalNotes: internalNotes || null,
-          nightlyBreakdown: pricing.nightlyBreakdown as any,
-          servicesSnapshot: pricing.serviceBreakdown as any,
-          cleaningFee: pricing.cleaningFee,
-          platformFee: pricing.platformFee,
-          gstAmount: pricing.gst,
-          discountAmount: pricing.discount,
+          nightlyBreakdown: finalNightlyBreakdown,
+          servicesSnapshot: finalServiceBreakdown,
+          cleaningFee,
+          platformFee: 0,
+          gstAmount,
+          discountAmount: discount,
           promoCodeId: resolvedPromo?.id || null,
           idempotencyKey: `idemp-engine-${crypto.randomUUID()}`,
         }
       });
 
-      const snapshotStaySegments = [{ 
-        checkIn: start.toISOString().split('T')[0], 
-        checkOut: end.toISOString().split('T')[0] 
-      }];
-      const snapshotGuests: Record<string, any> = {};
-      pricing.nightlyBreakdown.forEach((n: any) => {
-        snapshotGuests[n.date] = { adults: numGuests || 2, children: 0 };
-      });
-      const snapshotServices: Record<string, any> = {};
-      if (requestedServices.length > 0) {
-        const startDateStr = start.toISOString().split('T')[0];
-        snapshotServices[startDateStr] = requestedServices.map((s: any) => `${s.name} ×${s.quantity || 1}`);
+      let snapshotStaySegments = [];
+      let snapshotGuests: Record<string, any> = {};
+      let snapshotServices: Record<string, any> = {};
+
+      if (stateForEngine) {
+        snapshotStaySegments = buildSnapshotStaySegments(stateForEngine);
+        snapshotGuests = buildSnapshotGuests(stateForEngine);
+        snapshotServices = buildSnapshotServices(stateForEngine);
+
+        // Also physically save segments to DB if using advanced engine
+        await tx.staySegment.createMany({
+          data: stateForEngine.segments.map((s: any) => ({
+            bookingId: newBooking.id,
+            checkIn: new Date(s.checkIn),
+            checkOut: new Date(s.checkOut),
+            status: s.status,
+            adults: s.guests[0]?.adults || 2,
+            children: s.guests[0]?.children || 0,
+            staySubtotal: s.accommodation
+          }))
+        });
+
+      } else {
+        snapshotStaySegments = [{ 
+          checkIn: start.toISOString().split('T')[0], 
+          checkOut: end.toISOString().split('T')[0] 
+        }];
+        finalNightlyBreakdown.forEach((n: any) => {
+          snapshotGuests[n.date] = { adults: numGuests || 2, children: 0 };
+        });
+        if (requestedServices.length > 0) {
+          const startDateStr = start.toISOString().split('T')[0];
+          snapshotServices[startDateStr] = requestedServices.map((s: any) => `${s.name} ×${s.quantity || 1}`);
+        }
       }
 
       await processLedgerTransaction(tx as any, newBooking.id, {
         actionType: 'CREATE',
         actorRole: mode === 'OWNER' ? 'OWNER' : 'CUSTOMER',
-        orderValueDelta: pricing.total,
+        orderValueDelta: orderTotal,
         advancePaymentDelta: paymentType === 'ADVANCE' || paymentType === 'FULL' ? finalPaidAmount : 0,
         balancePaymentDelta: 0,
         paymentType: finalPaidAmount > 0 ? (paymentType || 'FULL') : 'N/A',
@@ -178,7 +248,6 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       booking,
-      pricing,
       walletUsed,
     });
   } catch (error: any) {

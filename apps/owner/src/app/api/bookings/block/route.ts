@@ -13,11 +13,29 @@ export async function POST(req: Request) {
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
 
-    // Ponytail: For prototype, just fetch the first owner user. 
-    // In production, this would be derived from the auth middleware.
-    const user = await prisma.user.findFirst();
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+    // Extract user from JWT token
+    const cookieHeader = req.headers.get('cookie') || '';
+    const matchAccess = cookieHeader.match(/access_token=([^;]+)/);
+    
+    let userId;
+    if (matchAccess) {
+      try {
+        const token = matchAccess[1];
+        const payloadBase64 = token.split('.')[1];
+        const payload = JSON.parse(atob(payloadBase64));
+        
+        if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+          return NextResponse.json({ error: 'Token expired' }, { status: 401 });
+        }
+        
+        userId = payload.id;
+      } catch (e) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      }
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized: User not found in token' }, { status: 401 });
     }
 
     const block = await prisma.$transaction(async (tx) => {
@@ -56,7 +74,7 @@ export async function POST(req: Request) {
       const newBlock = await tx.booking.create({
         data: {
           bookingCode,
-          userId: user.id,
+          userId: userId,
           villaId,
           checkIn: checkInDate,
           checkOut: checkOutDate,
@@ -71,7 +89,7 @@ export async function POST(req: Request) {
       await tx.bookingEvent.create({
         data: {
           bookingId: newBlock.id,
-          actorId: user.id,
+          actorId: userId,
           actorRole: 'OWNER',
           action: 'CREATE_BLOCK',
           newState: 'BLOCKED',

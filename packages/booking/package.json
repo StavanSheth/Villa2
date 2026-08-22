@@ -4,6 +4,7 @@
   "private": true,
   "main": "index.ts",
   "dependencies": {
-    "@villa-platform/cache": "workspace:*"
+    "@villa-platform/cache": "workspace:*",
+    "@villa-platform/database": "workspace:*"
   }
 }

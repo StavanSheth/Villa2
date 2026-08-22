@@ -66,31 +66,18 @@ export default async function OwnerDashboardPage() {
   const totalRevenue = activeBookings.reduce((sum, b) => sum + Number(b.totalPaid || 0), 0);
   const totalBookings = activeBookings.length;
   const totalGuests = activeBookings.reduce((sum, b) => sum + b.totalGuests, 0);
-  const totalRefunds = allBookings.reduce((sum, b) => sum + Number(b.cancellationRefund || 0), 0);
-
-  const totalRefundsToInitiate = allBookings.reduce((sum, b) => {
-    let pendingRefundAmount = 0;
-    for (const evt of (b.events || [])) {
-      if (['CANCELLED', 'CANCELLATION_REQUESTED', 'EDIT_BOOKING', 'EDIT_DATES'].includes(evt.action)) {
-        pendingRefundAmount += Number((evt.metadata as any)?.refundAmount) || 0;
-      } else if (['REFUND_PROCESSED', 'REFUND_PROCESSED_MANUAL'].includes(evt.action)) {
-        const amt = Number((evt.metadata as any)?.amount) || Number((evt.metadata as any)?.refundAmount) || pendingRefundAmount;
-        pendingRefundAmount = Math.max(0, pendingRefundAmount - amt);
-      }
-    }
-    if (pendingRefundAmount === 0 && b.status === 'CANCELLED' && Number(b.cancellationRefund) > 0) {
-      if (!b.events?.some((e: any) => ['REFUND_PROCESSED', 'REFUND_PROCESSED_MANUAL'].includes(e.action))) {
-        pendingRefundAmount = Number(b.cancellationRefund);
-      }
-    }
-    return sum + pendingRefundAmount;
-  }, 0);
+  const totalRefunds = allBookings.reduce((sum, b) => sum + Number((b as any).totalRefunded || 0), 0);
+  const totalRefundsToInitiate = allBookings.reduce((sum, b) => sum + Number((b as any).pendingRefund || 0), 0);
 
   // Separate upcoming check-ins
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const upcomingCheckIns = activeBookings.filter(b => new Date(b.checkIn) >= startOfToday).slice(0, 5);
-  const pendingActions = allBookings.filter(b => b.status === 'AWAITING_PAYMENT' || (b.refundPolicySnapshot && (b.refundPolicySnapshot as any).status === 'PENDING_OWNER_SELECTION'));
+  const pendingActions = allBookings.filter(b => 
+    b.status === 'AWAITING_PAYMENT' || 
+    (b.refundPolicySnapshot && (b.refundPolicySnapshot as any).status === 'PENDING_OWNER_SELECTION') ||
+    Number((b as any).pendingRefund || 0) > 0
+  );
 
   return (
     <div className="space-y-8 p-4 md:p-8 min-h-screen text-white">

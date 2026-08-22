@@ -17,24 +17,26 @@ export async function processBookingQueue(batch: any, env: any) {
         }
 
         // Cancel booking in DB
-        await prisma.booking.update({
+        const updatedBooking = await prisma.booking.update({
           where: { id: bookingId },
           data: { status: 'CANCELLED' }
         });
 
         // Release Inventory Lock
-        const dateRange = `${booking.startDate.toISOString().split('T')[0]}_${booking.endDate.toISOString().split('T')[0]}`;
-        await releaseBookingLock(booking.villaId, dateRange);
+        const dateRange = `${updatedBooking.checkIn.toISOString().split('T')[0]}_${updatedBooking.checkOut.toISOString().split('T')[0]}`;
+        await releaseBookingLock(updatedBooking.villaId, dateRange);
 
         // TODO: Call Razorpay API to cancel payment intent if AWAITING_PAYMENT
         
-        // Log Audit
-        await prisma.auditLog.create({
+        // Log Audit to BookingEvent instead of AuditLog for correct history
+        await prisma.bookingEvent.create({
           data: {
+            bookingId: bookingId,
+            actorId: updatedBooking.userId,
+            actorRole: 'SYSTEM',
             action: 'CANCEL_ABANDONED',
-            resource: 'Booking',
-            userId: booking.customerId,
-            role: 'SYSTEM',
+            oldState: booking.status,
+            newState: 'CANCELLED',
           }
         });
 

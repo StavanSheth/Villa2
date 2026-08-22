@@ -83,8 +83,8 @@ export default function CustomerDashboardHome() {
 
   const activeBookingRaw = validBookings[0];
   
-  // Calculate total advance paid and payment left for all upcoming valid bookings
-  const totalAdvancePaid = validBookings.reduce((sum, b) => sum + (Number(b.totalAdvancePaid) || 0), 0);
+  // Calculate total paid and payment left for all upcoming valid bookings
+  const totalPaid = validBookings.reduce((sum, b) => sum + (Number(b.totalPaid) || 0), 0);
   const totalPaymentLeft = validBookings.reduce((sum, b) => sum + (Number(b.amountToBePaid) || 0), 0);
 
   const totalRefundsToCollect = bookings.reduce((sum, b) => sum + (Number(b.pendingRefund) || 0), 0);
@@ -117,8 +117,8 @@ export default function CustomerDashboardHome() {
           variant={totalRefundsToCollect > 0 ? "warning" : "default"}
         />
         <StatCard 
-          title="Total Advance Paid"
-          value={`₹${totalAdvancePaid.toLocaleString()}`}
+          title="Total Paid"
+          value={`₹${totalPaid.toLocaleString()}`}
           subtitle="Across all upcoming stays"
           icon={CreditCard}
           variant="primary"

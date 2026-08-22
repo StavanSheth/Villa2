@@ -14,7 +14,7 @@ export async function GET(
 
     const villa = await prisma.villa.findFirst({
       where: {
-        OR: [{ id: identifier }, { slug: identifier }],
+        id: identifier,
         isActive: true,
       },
       include: {

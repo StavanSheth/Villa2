@@ -1,5 +1,6 @@
 import React from 'react';
 import { prisma } from '@villa-platform/database';
+import { calculateLedgerTotals, formatCurrency } from '@villa-platform/database';
 import Link from 'next/link';
 
 import { Edit3, Activity } from 'lucide-react';
@@ -119,12 +120,13 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Payment Type</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Refund Tier</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Refund Status</th>
+                      <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider whitespace-nowrap">Action Amount</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider min-w-[200px]">Services</th>
-                      <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Action Amount</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Balance</th>
-                      <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Advance Paid</th>
+                      <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Total Paid</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Remaining Amount</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Refund Amount</th>
+                      <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Refund Paid</th>
                       <th className="p-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">Amount To Be Paid</th>
                     </tr>
                   </thead>
@@ -144,7 +146,7 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                         if (!segments || !Array.isArray(segments) || segments.length === 0) return '-';
                         return segments.map((seg: any, i: number) => (
                           <div key={i} className="mb-2 whitespace-pre-wrap">
-                            <span className="font-medium text-white">{formatShortDate(seg.checkIn)}</span> – <span className="font-medium text-white">{formatShortDate(seg.checkOut)}</span>
+                            <span className="font-medium text-white">{formatShortDate(seg.checkIn)}</span>–<span className="font-medium text-white">{formatShortDate(seg.checkOut)}</span>
                           </div>
                         ));
                       };
@@ -162,14 +164,14 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                         if (!services || typeof services !== 'object' || Object.keys(services).length === 0) return '-';
                         return Object.entries(services).map(([date, svcs]: [string, any], i) => (
                           <div key={i} className="mb-2 whitespace-pre-wrap">
-                            <span className="font-medium text-white">{formatShortDate(date)}:</span> {Array.isArray(svcs) ? svcs.join(', ') : '-'}
+                            <span className="font-medium text-white">{formatShortDate(date)}:</span>
+                            {Array.isArray(svcs) ? svcs.map((svc: string, j: number) => <div key={j} className="ml-2">{svc}</div>) : '-'}
                           </div>
                         ));
                       };
 
                       const renderAmt = (val: number) => {
-                        const num = Number(val);
-                        return <div className="whitespace-nowrap">{num < 0 ? `-₹${Math.abs(num).toLocaleString()}` : `₹${num.toLocaleString()}`}</div>;
+                        return <div className="whitespace-nowrap">{formatCurrency(val)}</div>;
                       };
 
                       return (
@@ -201,7 +203,7 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                                   {formatDateStr(tx.transactionTime)}
                                 </td>
                                 <td className="p-3 text-xs align-top">
-                                  <div className="font-bold text-white">{tx.actionType.replace(/_/g, ' ')}<br/><span className="text-[10px] uppercase text-white/50">{tx.actorRole}</span></div>
+                                  <div className="font-bold text-white whitespace-nowrap">{tx.actionType.replace(/_/g, ' ')}<br/><span className="text-[10px] uppercase text-white/50">{tx.actorRole}</span></div>
                                 </td>
                                 <td className="p-3 text-xs text-white/70 align-top whitespace-nowrap">
                                   {tx.previousState ? `${tx.previousState.replace(/_/g, ' ')} → ${tx.newState.replace(/_/g, ' ')}` : tx.newState || '-'}
@@ -221,23 +223,26 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                                 <td className="p-3 text-xs text-white/70 align-top whitespace-nowrap">
                                   {tx.refundStatus.replace(/_/g, ' ')}
                                 </td>
-                                <td className="p-3 text-xs text-white/70 min-w-[200px] max-w-[300px] align-top whitespace-pre-wrap">
-                                  {renderServices(tx.snapshotServices)}
-                                </td>
                                 <td className="p-3 text-xs font-bold text-white align-top whitespace-nowrap">
                                   {actionAmountStr}
                                 </td>
+                                <td className="p-3 text-xs text-white/70 min-w-[200px] max-w-[300px] align-top whitespace-pre-wrap">
+                                  {renderServices(tx.snapshotServices)}
+                                </td>
                                 <td className="p-3 text-xs text-white/70 text-right align-top">
-                                  {renderAmt(Number(tx.newAmountToBePaid) - Number(tx.newPendingRefund))}
+                                  {renderAmt(Number(tx.newOrderTotal) - (Number(tx.newTotalPaid) - Number(tx.newTotalRefunded)))}
                                 </td>
                                 <td className="p-3 text-xs text-white/70 text-right whitespace-nowrap align-top">
-                                  {renderAmt(Number(tx.newAdvancePaid))}
+                                  {renderAmt(Number(tx.newTotalPaid))}
                                 </td>
                                 <td className="p-3 text-xs text-white/70 text-right whitespace-nowrap align-top">
                                   {renderAmt(Number(tx.newRemainingAmount))}
                                 </td>
                                 <td className="p-3 text-xs text-white/70 text-right whitespace-nowrap align-top">
                                   {renderAmt(Number(tx.newPendingRefund))}
+                                </td>
+                                <td className="p-3 text-xs text-white/70 text-right whitespace-nowrap align-top">
+                                  {renderAmt(Number(tx.newTotalRefunded))}
                                 </td>
                                 <td className="p-3 text-xs text-white/70 text-right whitespace-nowrap align-top">
                                   {renderAmt(Number(tx.newAmountToBePaid))}
@@ -253,30 +258,33 @@ export default async function CustomerBookingDetailsPage({ params }: { params: P
                               <div className="text-white/50 uppercase">Balance</div>
                               <div className="font-bold text-white text-lg">
                                 {(() => {
-                                  const renderAmt = (val: number) => {
-                                    const num = Number(val);
-                                    return <div className="whitespace-nowrap">{num < 0 ? `-₹${Math.abs(num).toLocaleString()}` : `₹${num.toLocaleString()}`}</div>;
-                                  };
-                                  return renderAmt(Number(booking.currentTotal) - Number(booking.totalPaid) + Number(booking.totalRefunded));
+                                  const { balance } = calculateLedgerTotals(booking);
+                                  return renderAmt(balance);
                                 })()}
                               </div>
                             </td>
                             <td className="p-4 text-right text-xs">
-                              <div className="text-white/50 uppercase">Advance Paid</div>
+                              <div className="text-white/50 uppercase">Total Paid</div>
                               <div className="font-bold text-white">
-                                ₹{Number(booking.totalAdvancePaid).toLocaleString()}
+                                ₹{Number(booking.totalPaid).toLocaleString()}
                               </div>
                             </td>
                             <td className="p-4 text-right text-xs">
                               <div className="text-white/50 uppercase">Remaining Amount</div>
                               <div className="font-bold text-white">
-                                ₹{(Number(booking.currentTotal) - Number(booking.totalAdvancePaid)).toLocaleString()}
+                                ₹{calculateLedgerTotals(booking).remainingAmount.toLocaleString()}
                               </div>
                             </td>
                             <td className="p-4 text-right text-xs">
                               <div className="text-white/50 uppercase">Pending Refund</div>
                               <div className="font-bold text-red-400">
-                                ₹{Number(booking.pendingRefund).toLocaleString()}
+                                ₹{calculateLedgerTotals(booking).pendingRefund.toLocaleString()}
+                              </div>
+                            </td>
+                            <td className="p-4 text-right text-xs">
+                              <div className="text-white/50 uppercase">Refund Paid</div>
+                              <div className="font-bold text-white">
+                                ₹{Number((booking as any).totalRefunded || 0).toLocaleString()}
                               </div>
                             </td>
                             <td className="p-4 text-right text-xs">

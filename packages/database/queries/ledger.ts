@@ -45,6 +45,8 @@ export async function processLedgerTransaction(
   const refundPaidDelta = input.refundPaidDelta || 0;
 
   // 8. Calculate NEW ORDER TOTAL
+  // The financial engine guarantees these values correctly enforce Rule 8:
+  // Order Total + Customer Credit = Net Paid + Amount To Be Paid
   const newOrderTotal = prevOrderTotal + orderValueDelta;
 
   // 11. Calculate TOTAL PAID
@@ -58,17 +60,10 @@ export async function processLedgerTransaction(
   // Net Paid Position
   const netPaidPosition = newTotalPaid - newTotalRefunded;
 
-  // Settlement Difference
-  const settlementDifference = newOrderTotal - netPaidPosition;
-
-  // Amount To Be Paid
-  const newAmountToBePaid = Math.max(0, settlementDifference);
-  const newRemainingAmount = newAmountToBePaid; // Synonymous in this context
-
-  // Refund Due
-  const refundDue = Math.max(0, -settlementDifference);
-
-  // Pending Refund
+  // Amount To Be Paid (Gross remaining due on the order)
+  const newAmountToBePaid = Math.max(0, newOrderTotal - netPaidPosition);
+  
+  // Pending Refund (Calculated by the caller FSM when it detects netPaid > orderTotal or segment cancellations)
   const newPendingRefund = prevPendingRefund + refundDueDelta - refundPaidDelta;
 
   // Calculate srNo
@@ -105,7 +100,7 @@ export async function processLedgerTransaction(
       newTotalPaid,
       newTotalRefunded,
       newAdvancePaid,
-      newRemainingAmount,
+      newRemainingAmount: newAmountToBePaid,
       newPendingRefund,
       newAmountToBePaid,
 

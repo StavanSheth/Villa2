@@ -51,6 +51,7 @@ export async function POST(req: Request) {
             email: 'demo@mavon.online',
             firstName: 'Demo',
             lastName: 'Guest',
+            firebaseUid: 'demo-uid',
           }
         });
       }

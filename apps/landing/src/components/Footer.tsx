@@ -1,4 +1,4 @@
-import { Sparkles, MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-react';
+import { Sparkles, MapPin, Phone, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface FooterProps {
@@ -58,28 +58,7 @@ export default function Footer({ isDark = true, onOpenBooking }: FooterProps) {
             </p>
 
             <div className="flex items-center gap-4">
-              <a
-                href="#home"
-                aria-label="Instagram"
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                  isDark
-                    ? 'bg-white/5 border border-white/15 text-white/70 hover:text-gold hover:border-gold'
-                    : 'bg-black/5 border border-black/15 text-black/70 hover:text-gold hover:border-gold'
-                }`}
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="#home"
-                aria-label="Facebook"
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                  isDark
-                    ? 'bg-white/5 border border-white/15 text-white/70 hover:text-gold hover:border-gold'
-                    : 'bg-black/5 border border-black/15 text-black/70 hover:text-gold hover:border-gold'
-                }`}
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
+              {/* Social links disabled temporarily due to missing icons */}
             </div>
           </motion.div>
 

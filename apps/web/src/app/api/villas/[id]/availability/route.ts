@@ -15,9 +15,7 @@ export async function GET(
     const monthStr = searchParams.get("month"); // e.g. "2026-08"
 
     const villa = await prisma.villa.findFirst({
-      where: {
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
+      where: { id: identifier },
       select: { id: true },
     });
 
@@ -28,28 +26,17 @@ export async function GET(
       );
     }
 
-    // Fetch existing active bookings for this villa
+    // Fetch existing active bookings for this villa, including BLOCKED by owner
     const activeBookings = await prisma.booking.findMany({
       where: {
         villaId: villa.id,
         status: {
-          in: ["ADVANCE_PAID", "CONFIRMED", "CHECKED_IN"],
+          in: ["ADVANCE_PAID", "CONFIRMED", "CHECKED_IN", "BLOCKED"],
         },
       },
       select: {
         checkIn: true,
         checkOut: true,
-      },
-    });
-
-    // Fetch explicit blocked dates in VillaAvailability
-    const blockedDates = await prisma.villaAvailability.findMany({
-      where: {
-        villaId: villa.id,
-        isBlocked: true,
-      },
-      select: {
-        date: true,
       },
     });
 
@@ -61,7 +48,7 @@ export async function GET(
           checkIn: b.checkIn.toISOString().split("T")[0],
           checkOut: b.checkOut.toISOString().split("T")[0],
         })),
-        blockedDates: blockedDates.map((d) => d.date.toISOString().split("T")[0]),
+        blockedDates: [], // Kept for backwards compatibility if frontend expects it
       },
     });
   } catch (error) {

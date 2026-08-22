@@ -11,6 +11,7 @@
   "dependencies": {
     "@villa-platform/auth": "workspace:*",
     "@villa-platform/database": "workspace:*",
+    "@villa-platform/booking-logic": "workspace:*",
     "@villa-platform/middleware": "workspace:*",
     "@villa-platform/ui": "workspace:*",
     "clsx": "^2.1.1",

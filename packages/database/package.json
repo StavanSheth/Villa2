@@ -7,7 +7,7 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx seed/index.ts"
+    "db:seed": "tsx seed/index.ts && tsx seed-7.ts && tsx seed-stress-scenarios.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"

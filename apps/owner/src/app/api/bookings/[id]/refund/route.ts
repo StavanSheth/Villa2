@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@villa-platform/database';
 import { requireAuth } from '../../../../../lib/auth';
+import { CancellationService } from '@villa-platform/booking-logic';
 
 export async function POST(
   request: NextRequest,
@@ -46,21 +47,10 @@ export async function POST(
 
     // Process refund logic (in real world, this would call Razorpay/Stripe API)
     
-    // Log the event
-    await prisma.bookingEvent.create({
-      data: {
-        bookingId: booking.id,
-        actorId: auth.userId,
-        actorRole: auth.role || 'OWNER',
-        action: 'REFUND_PROCESSED_MANUAL',
-        oldState: booking.status,
-        newState: booking.status,
-        metadata: {
-          refundAmount: amount,
-          reason: 'Manual Refund Initiation',
-          status: 'REFUNDED'
-        }
-      }
+    const result = await CancellationService.processRefund({
+      bookingId: booking.id,
+      actorId: auth.userId,
+      refundAmount: amount
     });
 
     return NextResponse.json({ success: true, refundedAmount: amount });

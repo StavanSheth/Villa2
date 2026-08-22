@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
 import { prisma, validateTransition } from '@villa-platform/database';
 import { processLedgerTransaction } from '../../../../../../../packages/database/queries/ledger';
+import { CancellationService } from '@villa-platform/booking-logic';
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return handleBookingUpdate(req, params);
+  return handleBookingUpdate(req, { params });
 }
 
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return handleBookingUpdate(req, params);
+  return handleBookingUpdate(req, { params });
 }
 
 async function handleBookingUpdate(
@@ -44,37 +45,15 @@ async function handleBookingUpdate(
         return NextResponse.json({ error: fsmResult.error || 'Invalid state transition' }, { status: 400 });
       }
 
-      const updatedBooking = await prisma.$transaction(async (tx) => {
-        const updated = await tx.booking.update({
-          where: { id: booking.id },
-          data: { status: fsmResult.newState }
-        });
-
-        await tx.bookingEvent.create({
-          data: {
-            bookingId: booking.id,
-            actorId: 'owner-session',
-            actorRole: 'OWNER',
-            action: 'CANCEL',
-            oldState: booking.status,
-            newState: fsmResult.newState,
-            metadata: metadata || { notes: notes || 'Cancelled by Owner' }
-          }
-        });
-
-        // Use the new ledger system
-        await processLedgerTransaction(tx as any, booking.id, {
-          actionType: 'CANCEL',
-          actorRole: 'OWNER',
-          orderValueDelta: 0,
-          advancePaymentDelta: 0,
-          balancePaymentDelta: 0,
-        });
-
-        return updated;
+      const result = await CancellationService.cancelBooking({
+        bookingId: booking.id,
+        action: 'CANCEL',
+        actorRole: 'OWNER',
+        actorId: 'owner-session',
+        metadata: metadata || { notes: notes || 'Cancelled by Owner' }
       });
 
-      return NextResponse.json(updatedBooking);
+      return NextResponse.json(result.booking);
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

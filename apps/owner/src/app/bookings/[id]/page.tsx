@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { User, CreditCard, History, Edit, XCircle, Plus, Sparkles, DollarSign } from 'lucide-react';
-import { prisma } from '@villa-platform/database';
+import { prisma, calculateLedgerTotals, formatCurrency } from '@villa-platform/database';
 import { formatBookingSegments } from '@villa-platform/ui/booking';
 import { BookingActions } from './BookingActions';
 import { RefundAction } from './RefundAction';
@@ -109,9 +109,10 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider min-w-[200px]">Services</th>
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider whitespace-nowrap">Action Amount</th>
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Balance</th>
-                    <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Advance Paid</th>
+                    <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Total Paid</th>
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Remaining Amount</th>
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Refund Amount</th>
+                    <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Refund Paid</th>
                     <th className="p-3 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Amount To Be Paid</th>
                   </tr>
                 </thead>
@@ -131,7 +132,7 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                       if (!segments || !Array.isArray(segments) || segments.length === 0) return '-';
                       return segments.map((seg: any, i: number) => (
                         <div key={i} className="mb-2 whitespace-pre-wrap">
-                          <span className="font-medium text-[var(--text-dark)]">{formatShortDate(seg.checkIn)}</span> – <span className="font-medium text-[var(--text-dark)]">{formatShortDate(seg.checkOut)}</span>
+                          <span className="font-medium text-[var(--text-dark)]">{formatShortDate(seg.checkIn)}</span>–<span className="font-medium text-[var(--text-dark)]">{formatShortDate(seg.checkOut)}</span>
                         </div>
                       ));
                     };
@@ -149,7 +150,8 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                       if (!services || typeof services !== 'object' || Object.keys(services).length === 0) return '-';
                       return Object.entries(services).map(([date, svcs]: [string, any], i) => (
                         <div key={i} className="mb-2 whitespace-pre-wrap">
-                          <span className="font-medium text-[var(--text-dark)]">{formatShortDate(date)}:</span> {Array.isArray(svcs) ? svcs.join(', ') : '-'}
+                          <span className="font-medium text-[var(--text-dark)]">{formatShortDate(date)}:</span>
+                          {Array.isArray(svcs) ? svcs.map((svc: string, j: number) => <div key={j} className="ml-2">{svc}</div>) : '-'}
                         </div>
                       ));
                     };
@@ -160,8 +162,8 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                       e.action === tx.actionType && new Date(e.createdAt).getTime() === new Date(tx.transactionTime).getTime()
                     );
 
-                    if (correspondingEvent?.metadata?.actionAmountStr) {
-                      actionAmountStr = correspondingEvent.metadata.actionAmountStr;
+                    if ((correspondingEvent?.metadata as any)?.actionAmountStr) {
+                      actionAmountStr = (correspondingEvent?.metadata as any).actionAmountStr;
                     } else if (tx.actionType === 'BOOKING_CREATED' || tx.actionType === 'CREATE') {
                       actionAmountStr = `₹${Number(tx.newOrderTotal).toLocaleString()}`;
                     } else if (tx.actionType === 'ADVANCE_PAYMENT' || tx.actionType === 'PAYMENT' || tx.actionType === 'REFUND_PROCESSED_MANUAL' || tx.actionType === 'REFUND') {
@@ -188,7 +190,7 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                           {formatDateStr(tx.transactionTime)}
                         </td>
                         <td className="p-3 text-xs align-top">
-                          <div className="font-bold text-[var(--text-dark)]">{tx.actionType.replace(/_/g, ' ')}<br/><span className="text-[10px] uppercase text-[var(--text-sec-dark)]">{tx.actorRole}</span></div>
+                          <div className="font-bold text-[var(--text-dark)] whitespace-nowrap">{tx.actionType.replace(/_/g, ' ')}<br/><span className="text-[10px] uppercase text-[var(--text-sec-dark)]">{tx.actorRole}</span></div>
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] align-top whitespace-nowrap">
                           {tx.previousState ? `${tx.previousState.replace(/_/g, ' ')} → ${tx.newState.replace(/_/g, ' ')}` : tx.newState || '-'}
@@ -215,16 +217,19 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                           {actionAmountStr}
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right align-top">
-                          {renderAmt(Number(tx.newAmountToBePaid) - Number(tx.newPendingRefund))}
+                          {renderAmt(Number(tx.newOrderTotal) - (Number(tx.newTotalPaid) - Number(tx.newTotalRefunded)))}
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right whitespace-nowrap align-top">
-                          {renderAmt(Number(tx.newAdvancePaid))}
+                          {renderAmt(Number(tx.newTotalPaid))}
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right whitespace-nowrap align-top">
                           {renderAmt(Number(tx.newRemainingAmount))}
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right whitespace-nowrap align-top">
                           {renderAmt(Number(tx.newPendingRefund))}
+                        </td>
+                        <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right whitespace-nowrap align-top">
+                          {renderAmt(Number(tx.newTotalRefunded))}
                         </td>
                         <td className="p-3 text-xs text-[var(--text-sec-dark)] text-right whitespace-nowrap align-top">
                           {renderAmt(Number(tx.newAmountToBePaid))}
@@ -241,29 +246,35 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
                       <div className="font-bold text-[var(--text-dark)] text-lg">
                         {(() => {
                           const renderAmt = (val: number) => {
-                            const num = Number(val);
-                            return <div className="whitespace-nowrap">{num < 0 ? `-₹${Math.abs(num).toLocaleString()}` : `₹${num.toLocaleString()}`}</div>;
+                            return <div className="whitespace-nowrap">{formatCurrency(val)}</div>;
                           };
-                          return renderAmt(Number(booking.currentTotal) - Number(booking.totalPaid) + Number(booking.totalRefunded));
+                          const { balance } = calculateLedgerTotals(booking);
+                          return renderAmt(balance);
                         })()}
                       </div>
                     </td>
                     <td className="p-4 text-right text-xs">
-                      <div className="text-[var(--text-sec-dark)] uppercase">Advance Paid</div>
+                      <div className="text-[var(--text-sec-dark)] uppercase">Total Paid</div>
                       <div className="font-bold text-[var(--text-dark)]">
-                        ₹{Number(booking.totalAdvancePaid).toLocaleString()}
+                        ₹{Number(booking.totalPaid).toLocaleString()}
                       </div>
                     </td>
                     <td className="p-4 text-right text-xs">
                       <div className="text-[var(--text-sec-dark)] uppercase">Remaining Amount</div>
                       <div className="font-bold text-[var(--text-dark)]">
-                        ₹{(Number(booking.currentTotal) - Number(booking.totalAdvancePaid)).toLocaleString()}
+                        ₹{calculateLedgerTotals(booking).remainingAmount.toLocaleString()}
                       </div>
                     </td>
                     <td className="p-4 text-right text-xs">
                       <div className="text-[var(--text-sec-dark)] uppercase">Pending Refund</div>
                       <div className="font-bold text-red-400">
-                        ₹{Number(booking.pendingRefund).toLocaleString()}
+                        ₹{calculateLedgerTotals(booking).pendingRefund.toLocaleString()}
+                      </div>
+                    </td>
+                    <td className="p-4 text-right text-xs">
+                      <div className="text-[var(--text-sec-dark)] uppercase">Refund Paid</div>
+                      <div className="font-bold text-[var(--text-dark)]">
+                        ₹{Number(booking.totalRefunded || 0).toLocaleString()}
                       </div>
                     </td>
                     <td className="p-4 text-right text-xs">

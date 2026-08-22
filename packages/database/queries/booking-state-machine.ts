@@ -49,6 +49,7 @@ export const BOOKING_ACTIONS = [
   "REMOVE_SERVICE",
   "ISSUE_REFUND",
   "COLLECT_REMAINING",
+  "CANCEL_STAY_SEGMENT",
 ] as const;
 
 export type BookingAction = (typeof BOOKING_ACTIONS)[number];
@@ -120,7 +121,8 @@ export const SIDE_ACTIONS: SideAction[] = [
   { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "ADD_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
   { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "REMOVE_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
   { states: ["CHECKED_IN"], action: "ADD_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "STAFF"] },
-  { states: ["ADVANCE_PAID", "CONFIRMED", "CANCELLED"], action: "ISSUE_REFUND", allowedRoles: ["OWNER", "ADMIN"] },
+  { states: ["ADVANCE_PAID", "FULLY_PAID", "CONFIRMED", "CANCELLED"], action: "ISSUE_REFUND", allowedRoles: ["OWNER", "ADMIN"] },
+  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "FULLY_PAID", "CONFIRMED"], action: "CANCEL_STAY_SEGMENT", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
 ];
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,431 @@
+{
+  "scenarios": [
+    {
+      "id": "STRESS-SEP-001",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "role": "CUSTOMER",
+          "stay": { "start": "2026-09-01", "end": "2026-09-02" },
+          "guests": [
+            { "date": "2026-09-01", "adults": 4, "children": 0 },
+            { "date": "2026-09-02", "adults": 2, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-01", "service": "Breakfast", "qty": 4 },
+            { "date": "2026-09-01", "service": "Airport pickup", "qty": 2 }
+          ],
+          "inputs": { "accommodation": 40000, "cleaningFee": 2000, "discount": 0 }
+        },
+        {
+          "action": "BALANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "paymentType": "BALANCE", "amount": 10000 }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-002",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "role": "CUSTOMER",
+          "stay": { "start": "2026-09-03", "end": "2026-09-04" },
+          "guests": [
+            { "date": "2026-09-03", "adults": 4, "children": 2 },
+            { "date": "2026-09-04", "adults": 5, "children": 2 }
+          ],
+          "services": [
+            { "date": "2026-09-03", "service": "Decoration", "qty": 1 },
+            { "date": "2026-09-03", "service": "BBQ", "qty": 2 }
+          ],
+          "inputs": { "accommodation": 50000, "cleaningFee": 2500, "discount": 0, "advancePayment": 30000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "date": "2026-09-03", "service": "Decoration", "fromQty": 1, "toQty": 2 }
+          ]
+        },
+        {
+          "action": "ADVANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "additionalAdvance": 10000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "date": "2026-09-03", "service": "BBQ", "fromQty": 2, "toQty": 1 }
+          ]
+        },
+        {
+          "action": "BALANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "amount": 5000 }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-003",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "role": "CUSTOMER",
+          "stay": { "start": "2026-09-05", "end": "2026-09-06" },
+          "guests": [
+            { "date": "2026-09-05", "adults": 4, "children": 0 },
+            { "date": "2026-09-06", "adults": 4, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-05", "service": "Dinner", "qty": 4 },
+            { "date": "2026-09-05", "service": "Bonfire", "qty": 1 }
+          ],
+          "inputs": { "accommodation": 60000, "cleaningFee": 3000, "discount": 0, "advancePayment": 45000 }
+        },
+        {
+          "action": "CANCEL_BOOKING",
+          "role": "CUSTOMER",
+          "inputs": { "cancellationDate": "2026-09-01", "reason": "Customer cancellation" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-004",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-08", "end": "2026-09-09" },
+          "guests": [
+            { "date": "2026-09-08", "adults": 6, "children": 0 },
+            { "date": "2026-09-09", "adults": 6, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-08", "service": "Breakfast", "qty": 6 },
+            { "date": "2026-09-08", "service": "Lunch", "qty": 6 },
+            { "date": "2026-09-09", "service": "Decoration", "qty": 2 }
+          ],
+          "inputs": { "accommodation": 70000, "cleaningFee": 3000, "discount": 0, "advancePayment": 50000 }
+        },
+        {
+          "action": "CANCEL_BOOKING",
+          "role": "CUSTOMER",
+          "inputs": { "cancellationDate": "2026-09-01", "reason": "Customer cancellation" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-005",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-10", "end": "2026-09-11" },
+          "guests": [
+            { "date": "2026-09-10", "adults": 4, "children": 1 },
+            { "date": "2026-09-11", "adults": 3, "children": 1 }
+          ],
+          "services": [
+            { "date": "2026-09-10", "service": "BBQ", "qty": 2 },
+            { "date": "2026-09-10", "service": "BBQ Setup", "qty": 1 },
+            { "date": "2026-09-11", "service": "Bonfire", "qty": 1 }
+          ],
+          "inputs": { "accommodation": 45000, "cleaningFee": 2500, "discount": 2000, "advancePayment": 30000, "balancePayment": 5000 }
+        },
+        {
+          "action": "CANCEL_BOOKING",
+          "role": "CUSTOMER",
+          "inputs": { "cancellationDate": "2026-09-01" }
+        },
+        {
+          "action": "REFUND_COMPLETED",
+          "role": "OWNER",
+          "inputs": { "actualRefundPaid": "Full approved refund" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-006",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-12", "end": "2026-09-13" },
+          "guests": [
+            { "date": "2026-09-12", "adults": 6, "children": 0 },
+            { "date": "2026-09-13", "adults": 5, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-12", "service": "Photography", "qty": 1 },
+            { "date": "2026-09-12", "service": "Private chef", "qty": 2, "unit": "days" }
+          ],
+          "inputs": { "accommodation": 80000, "cleaningFee": 4000, "discount": 0, "advancePayment": 60000, "balancePayment": 20000 }
+        },
+        {
+          "action": "CANCEL_BOOKING",
+          "role": "OWNER",
+          "inputs": { "cancellationDate": "2026-09-01", "reason": "Property unavailable", "ownerRefundPolicy": "100%" }
+        },
+        {
+          "action": "REFUND_COMPLETED",
+          "role": "OWNER",
+          "inputs": { "refund": "Full approved refund" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-007",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "role": "CUSTOMER",
+          "segments": [
+            {
+              "stay": { "start": "2026-09-14", "end": "2026-09-15" },
+              "guests": [
+                { "date": "2026-09-14", "adults": 4, "children": 0 },
+                { "date": "2026-09-15", "adults": 4, "children": 0 }
+              ],
+              "services": [
+                { "date": "2026-09-14", "service": "Breakfast", "qty": 4 }
+              ],
+              "inputs": { "accommodation": 25000 }
+            },
+            {
+              "stay": { "start": "2026-09-16", "end": "2026-09-17" },
+              "guests": [
+                { "date": "2026-09-16", "adults": 4, "children": 0 },
+                { "date": "2026-09-17", "adults": 4, "children": 0 }
+              ],
+              "services": [
+                { "date": "2026-09-16", "service": "Dinner", "qty": 4 }
+              ],
+              "inputs": { "accommodation": 30000 }
+            }
+          ],
+          "inputs": { "cleaningFee": 0, "discount": 0, "advancePayment": 60000, "balancePayment": 10000 }
+        },
+        {
+          "action": "CANCEL_STAY_SEGMENT",
+          "role": "CUSTOMER",
+          "inputs": { "cancelledSegment": { "start": "2026-09-16", "end": "2026-09-17" }, "cancellationDate": "2026-09-01", "note": "Only that stay segment is cancelled" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-008",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-18", "end": "2026-09-19" },
+          "guests": [
+            { "date": "2026-09-18", "adults": 5, "children": 1 },
+            { "date": "2026-09-19", "adults": 5, "children": 1 }
+          ],
+          "services": [
+            { "date": "2026-09-18", "service": "Event setup", "qty": 1 },
+            { "date": "2026-09-18", "service": "Lunch", "qty": 5 }
+          ],
+          "inputs": { "accommodation": 55000, "cleaningFee": 2500, "discount": 0, "advancePayment": 25000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "action": "ADD", "service": "Photography", "qty": 1 }
+          ]
+        },
+        {
+          "action": "BALANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "amount": 15000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "service": "Lunch", "fromQty": 5, "toQty": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-009",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-20", "end": "2026-09-21" },
+          "guests": [
+            { "date": "2026-09-20", "adults": 6, "children": 0 },
+            { "date": "2026-09-21", "adults": 6, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-20", "service": "Breakfast", "qty": 6 },
+            { "date": "2026-09-20", "service": "Photography", "qty": 1 }
+          ],
+          "inputs": { "accommodation": 90000, "cleaningFee": 3000, "discount": 0, "advancePayment": 50000, "balancePayment": 30000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "field": "accommodation", "fromValue": 90000, "toValue": 60000 },
+            { "action": "REMOVE", "service": "Photography", "qty": 1 }
+          ]
+        },
+        {
+          "action": "REFUND_COMPLETED",
+          "role": "OWNER",
+          "inputs": { "refund": "Full calculated overpayment" }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-010",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-22", "end": "2026-09-23" },
+          "guests": [
+            { "date": "2026-09-22", "adults": 6, "children": 2 },
+            { "date": "2026-09-23", "adults": 6, "children": 2 }
+          ],
+          "services": [
+            { "date": "2026-09-22", "service": "Extra Guest Bed", "qty": 3 },
+            { "date": "2026-09-22", "service": "Dinner", "qty": 6 },
+            { "date": "2026-09-23", "service": "Private Chef", "qty": 1 }
+          ],
+          "inputs": { "accommodation": 65000, "cleaningFee": 3000, "discount": 0, "advancePayment": 20000 }
+        },
+        {
+          "action": "ADVANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "additionalAdvance": 15000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "action": "ADD", "service": "BBQ", "qty": 2 }
+          ]
+        },
+        {
+          "action": "BALANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "amount": 20000 }
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-011",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "stay": { "start": "2026-09-24", "end": "2026-09-26" },
+          "guests": [
+            { "date": "2026-09-24", "adults": 6, "children": 0 },
+            { "date": "2026-09-25", "adults": 6, "children": 0 },
+            { "date": "2026-09-26", "adults": 4, "children": 0 }
+          ],
+          "services": [
+            { "date": "2026-09-24", "service": "BBQ", "qty": 2 },
+            { "date": "2026-09-25", "service": "Event setup", "qty": 1 }
+          ],
+          "inputs": { "accommodation": 75000, "cleaningFee": 3500, "discount": 0, "advancePayment": 40000, "balancePayment": 20000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "OWNER",
+          "edits": [
+            { "field": "accommodation", "fromValue": 75000, "toValue": 65000 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "STRESS-SEP-012",
+      "transactions": [
+        {
+          "action": "CREATE_BOOKING",
+          "segments": [
+            {
+              "stay": { "start": "2026-09-28", "end": "2026-09-29" },
+              "guests": [
+                { "date": "2026-09-28", "adults": 4, "children": 0 },
+                { "date": "2026-09-29", "adults": 4, "children": 0 }
+              ],
+              "services": [
+                { "date": "2026-09-28", "service": "Breakfast", "qty": 4 },
+                { "date": "2026-09-28", "service": "Decoration", "qty": 1 }
+              ],
+              "inputs": { "accommodation": 30000 }
+            },
+            {
+              "stay": { "start": "2026-09-29", "end": "2026-09-30" },
+              "guests": [
+                { "date": "2026-09-29", "adults": 5, "children": 1 },
+                { "date": "2026-09-30", "adults": 5, "children": 1 }
+              ],
+              "services": [
+                { "date": "2026-09-29", "service": "BBQ", "qty": 2 },
+                { "date": "2026-09-29", "service": "BBQ Setup", "qty": 1 }
+              ],
+              "inputs": { "accommodation": 35000 }
+            },
+            {
+              "stay": { "start": "2026-09-30", "end": "2026-09-30" },
+              "guests": [
+                { "date": "2026-09-30", "adults": 6, "children": 0 }
+              ],
+              "services": [
+                { "date": "2026-09-30", "service": "Photography", "qty": 1 }
+              ],
+              "inputs": { "accommodation": 25000 }
+            }
+          ],
+          "inputs": { "cleaningFee": 0, "discount": 0, "advancePayment": 50000 }
+        },
+        {
+          "action": "EDIT_BOOKING",
+          "role": "CUSTOMER",
+          "edits": [
+            { "segment": { "start": "2026-09-29", "end": "2026-09-30" }, "service": "BBQ", "fromQty": 2, "toQty": 3 }
+          ]
+        },
+        {
+          "action": "BALANCE_PAYMENT",
+          "role": "CUSTOMER",
+          "inputs": { "amount": 20000 }
+        },
+        {
+          "action": "CANCEL_STAY_SEGMENT",
+          "role": "CUSTOMER",
+          "inputs": { "cancelledSegment": { "start": "2026-09-28", "end": "2026-09-29" }, "cancellationDate": "2026-09-12" }
+        },
+        {
+          "action": "REFUND_COMPLETED",
+          "role": "OWNER",
+          "inputs": { "refund": "Full calculated refund for cancelled segment" }
+        }
+      ]
+    }
+  ],
+  "referenceAssumptions": {
+    "gstFormula": "18% * (Accommodation + Cleaning + Services - Discount)",
+    "orderTotalFormula": "Accommodation + Cleaning + Services - Discount + GST",
+    "servicePrices": {
+      "Airport pickup": 2000,
+      "BBQ": 2500,
+      "BBQ Setup": 1500,
+      "Bonfire": 1500,
+      "Breakfast": 500,
+      "Decoration": 3000,
+      "Dinner": 900,
+      "Event setup": 5000,
+      "Extra Guest Bed": 1000,
+      "Lunch": 800,
+      "Photography": 6000,
+      "Private chef": 4000,
+      "Private Chef": 2500
+    }
+  }
+}
