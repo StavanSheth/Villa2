@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma, validateTransition } from '@villa-platform/database';
 import { processLedgerTransaction } from '../../../../../../../packages/database/queries/ledger';
-import { CancellationService } from '@villa-platform/booking-logic';
+import { CancellationService } from '@villa-platform/bookings';
 
 export async function PATCH(
   req: Request,

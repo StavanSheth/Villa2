@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { cancelBooking } from '../actions';
 
 export function CustomerBookingActions({ bookingCode, status }: { bookingCode: string, status: string }) {
   const router = useRouter();
@@ -13,26 +14,11 @@ export function CustomerBookingActions({ bookingCode, status }: { bookingCode: s
     
     setIsProcessing(true);
     try {
-      const res = await fetch(`/api/bookings/${bookingCode}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'CANCEL', actorRole: 'CUSTOMER' })
-      });
-      
-      if (!res.ok) {
-        const contentType = res.headers.get('content-type');
-        let errorMsg = `Server error (${res.status})`;
-        if (contentType && contentType.includes('application/json')) {
-          const data = await res.json();
-          errorMsg = data.error || errorMsg;
-        }
-        throw new Error(errorMsg);
-      }
-      
+      await cancelBooking(bookingCode);
       alert('Reservation cancelled successfully');
       router.refresh();
     } catch (err: any) {
-      alert(err.message);
+      alert(err.message || 'Failed to cancel reservation');
     } finally {
       setIsProcessing(false);
     }

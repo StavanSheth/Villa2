@@ -1,0 +1,20 @@
+{
+  "name": "@villa-platform/identity",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./permissions": "./permissions/index.ts"
+  },
+  "dependencies": {
+    "@villa-platform/database": "workspace:*",
+    "@villa-platform/authorization": "workspace:*",
+    "firebase-admin": "^12.0.0",
+    "jose": "^5.2.3"
+  },
+  "devDependencies": {
+    "next": "16.3.0",
+    "typescript": "^5.6.3"
+  }
+}

@@ -46,10 +46,12 @@ export function useCustomerNotifications() {
   return useQuery({
     queryKey: ['customer', 'notifications'],
     queryFn: async () => {
-      const res = await fetch('/api/notifications');
-      if (res.ok) {
-        const data = await res.json();
+      try {
+        const { getNotifications } = await import('../app/actions');
+        const data = await getNotifications();
         if (Array.isArray(data) && data.length > 0) return data;
+      } catch (e) {
+        console.error(e);
       }
       return MOCK_NOTIFICATIONS;
     }
@@ -60,10 +62,12 @@ export function useRecommendedVillas() {
   return useQuery({
     queryKey: ['customer', 'recommendations'],
     queryFn: async () => {
-      const res = await fetch('/api/villas');
-      if (res.ok) {
-        const data = await res.json();
+      try {
+        const { getVillas } = await import('../app/actions');
+        const data = await getVillas();
         if (Array.isArray(data) && data.length > 0) return data;
+      } catch (e) {
+        console.error(e);
       }
       return MOCK_RECOMMENDED_VILLAS;
     }

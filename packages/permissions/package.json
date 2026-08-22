@@ -1,7 +1,0 @@
-﻿{
-    "private":  true,
-    "main":  "index.ts",
-    "name":  "@villa-platform/permissions",
-    "version":  "1.0.0",
-    "type":  "module"
-}

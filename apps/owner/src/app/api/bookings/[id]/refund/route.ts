@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@villa-platform/database';
 import { requireAuth } from '../../../../../lib/auth';
-import { CancellationService } from '@villa-platform/booking-logic';
+import { CancellationService } from '@villa-platform/bookings';
 
 export async function POST(
   request: NextRequest,

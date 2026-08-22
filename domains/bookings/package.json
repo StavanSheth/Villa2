@@ -1,0 +1,20 @@
+{
+  "name": "@villa-platform/bookings",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@villa-platform/database": "workspace:*",
+    "@villa-platform/types": "workspace:*",
+    "@villa-platform/cache": "workspace:*",
+    "@villa-platform/payments": "workspace:*",
+    "@villa-platform/validation": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

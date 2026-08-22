@@ -9,15 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@villa-platform/auth": "workspace:*",
+    "@tanstack/react-query": "^5.101.4",
     "@villa-platform/database": "workspace:*",
-    "@villa-platform/booking-logic": "workspace:*",
-    "@villa-platform/hooks": "workspace:*",
+    "@villa-platform/bookings": "workspace:*",
     "@villa-platform/middleware": "workspace:*",
-    "@villa-platform/payment": "workspace:*",
-    "@villa-platform/rbac": "workspace:*",
+    "@villa-platform/payments": "workspace:*",
     "@villa-platform/ui": "workspace:*",
-    "clsx": "^2.1.1",
     "lucide-react": "^1.30.0",
     "next": "16.3.0",
     "react": "19.2.8",

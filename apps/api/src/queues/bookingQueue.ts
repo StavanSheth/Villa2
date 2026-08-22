@@ -1,5 +1,5 @@
 import { prisma } from '@villa-platform/database';
-import { releaseBookingLock } from '@villa-platform/booking-logic';
+import { releaseBookingLock } from '@villa-platform/bookings';
 
 export async function processBookingQueue(batch: any, env: any) {
   for (const msg of batch.messages) {

@@ -1,7 +1,0 @@
-{
-  "name": "@villa-platform/auth-app",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "main": "index.ts"
-}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@villa-platform/database';
-import { requirePermission } from '@villa-platform/auth/permissions';
+import { requirePermission } from '@villa-platform/identity/permissions';
 
 export async function DELETE(
   req: Request,

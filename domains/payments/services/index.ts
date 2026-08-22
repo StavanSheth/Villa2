@@ -2,17 +2,9 @@
 // Payments Domain Service
 // Coordinates order creation, signature verification, and financial breakdown for booking checkout
 
-import {
-  razorpayClient,
-  calculateBookingPrice,
-  toPaise,
-  fromPaise,
-  verifyPaymentSignature,
-  verifyWebhookSignature,
-  PricingInput,
-  PricingBreakdown,
-  RazorpayOrderResponse,
-} from "@villa-platform/payment";
+import { razorpayClient, RazorpayOrderResponse } from "../razorpay/index";
+import { calculateBookingPrice, toPaise, fromPaise, PricingInput, PricingBreakdown } from "../calculations/index";
+import { verifyPaymentSignature, verifyWebhookSignature } from "../webhooks/index";
 
 export interface CheckoutOrderRequest {
   bookingId: string;

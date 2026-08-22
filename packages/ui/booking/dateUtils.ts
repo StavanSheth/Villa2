@@ -1,6 +1,8 @@
 export function formatBookingSegments(nightlyBreakdown: any, fallbackCheckIn: string | Date, fallbackCheckOut: string | Date): string {
+  const formatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+  
   if (!nightlyBreakdown || !Array.isArray(nightlyBreakdown) || nightlyBreakdown.length === 0) {
-    return `${new Date(fallbackCheckIn).toLocaleDateString('en-US')} - ${new Date(fallbackCheckOut).toLocaleDateString('en-US')}`;
+    return `${formatter.format(new Date(fallbackCheckIn))} - ${formatter.format(new Date(fallbackCheckOut))}`;
   }
 
   const dates = nightlyBreakdown
@@ -8,41 +10,13 @@ export function formatBookingSegments(nightlyBreakdown: any, fallbackCheckIn: st
     .sort((a, b) => a.getTime() - b.getTime());
 
   if (dates.length === 0) {
-    return `${new Date(fallbackCheckIn).toLocaleDateString('en-US')} - ${new Date(fallbackCheckOut).toLocaleDateString('en-US')}`;
+    return `${formatter.format(new Date(fallbackCheckIn))} - ${formatter.format(new Date(fallbackCheckOut))}`;
   }
 
-  const segments: { start: Date; end: Date }[] = [];
-  let currentStart = dates[0];
-  let currentEnd = new Date(currentStart);
+  // With continuous ranges, start and end dates are all we need for formatRange.
+  const start = dates[0];
+  const end = new Date(dates[dates.length - 1]);
+  end.setDate(end.getDate() + 1); // checkout is the day after the last night
 
-  for (let i = 1; i < dates.length; i++) {
-    const prevDate = dates[i - 1];
-    const currDate = dates[i];
-    
-    // Check if consecutive (difference is exactly 1 day)
-    const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) {
-      currentEnd = currDate;
-    } else {
-      // End current segment
-      const checkoutDate = new Date(currentEnd);
-      checkoutDate.setDate(checkoutDate.getDate() + 1);
-      segments.push({ start: currentStart, end: checkoutDate });
-      
-      // Start new segment
-      currentStart = currDate;
-      currentEnd = currDate;
-    }
-  }
-
-  // Push final segment
-  const finalCheckoutDate = new Date(currentEnd);
-  finalCheckoutDate.setDate(finalCheckoutDate.getDate() + 1);
-  segments.push({ start: currentStart, end: finalCheckoutDate });
-
-  // Format segments
-  return segments.map(seg => 
-    `${seg.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${seg.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-  ).join(', ');
+  return `${formatter.format(start)} - ${formatter.format(end)}`;
 }

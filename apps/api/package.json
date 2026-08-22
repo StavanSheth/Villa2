@@ -11,11 +11,11 @@
   "dependencies": {
     "hono": "^4.6.4",
     "jose": "^5.2.3",
-    "@villa-platform/auth": "workspace:*",
-    "@villa-platform/booking-logic": "workspace:*",
+    "@villa-platform/identity": "workspace:*",
+    "@villa-platform/bookings": "workspace:*",
     "@villa-platform/cache": "workspace:*",
     "@villa-platform/database": "workspace:*",
-    "@villa-platform/rbac": "workspace:*"
+    "@villa-platform/authorization": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241022.0",

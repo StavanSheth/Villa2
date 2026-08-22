@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@source "../../../packages/ui";
 
 @theme {
   --color-gold: #d4af37;

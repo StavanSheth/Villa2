@@ -1,0 +1,23 @@
+{
+  "name": "@villa-platform/authorization",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    },
+    "./components/*": {
+      "types": "./components/*.tsx",
+      "default": "./components/*.tsx"
+    }
+  },
+  "dependencies": {
+    "@villa-platform/database": "workspace:*",
+    "@villa-platform/hooks": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

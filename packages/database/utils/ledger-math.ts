@@ -28,6 +28,5 @@ export function calculateLedgerTotals(booking: any) {
 }
 
 export function formatCurrency(amount: number): string {
-  const num = Number(amount);
-  return num < 0 ? `-₹${Math.abs(num).toLocaleString()}` : `₹${num.toLocaleString()}`;
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(amount));
 }

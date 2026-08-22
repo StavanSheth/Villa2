@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { rateLimiter } from './middleware/rate-limit';
 import { SignJWT } from 'jose';
-import { verifyFirebaseToken } from '@villa-platform/auth';
+import { verifyFirebaseToken } from '@villa-platform/identity';
 import { prisma } from '@villa-platform/database';
 
 const app = new Hono<{ Bindings: { JWT_SECRET: string } }>();

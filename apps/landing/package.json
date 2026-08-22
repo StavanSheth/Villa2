@@ -1,31 +1,41 @@
 {
   "name": "@villa-platform/landing",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext .ts,.tsx",
+    "dev": "next dev --turbopack --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.12.0",
+    "@villa-platform/identity": "workspace:*",
+    "@villa-platform/database": "workspace:*",
+    "@villa-platform/invoices": "workspace:*",
+    "@villa-platform/notifications": "workspace:*",
+    "@villa-platform/payments": "workspace:*",
+    "@villa-platform/authorization": "workspace:*",
+    "@villa-platform/ui": "workspace:*",
+    "date-fns": "^4.1.0",
     "framer-motion": "^11.11.17",
     "lucide-react": "^1.30.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "styled-components": "^6.4.4"
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "recharts": "^2.13.3",
+    "styled-components": "^6.4.4",
+    "svix": "^1.42.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@types/styled-components": "^5.1.36",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.16",
-    "typescript": "^5.6.3",
-    "vite": "^6.0.3"
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

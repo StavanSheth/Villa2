@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { PermissionGuard } from '@villa-platform/rbac/components/PermissionGuard';
+import { PermissionGuard } from '@villa-platform/authorization/components/PermissionGuard';
 import { MapPin, Users, Calendar } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -143,7 +143,7 @@ export function BookingCard({ booking, onViewDetails, onCancel, onLeaveReview }:
                 <span className="text-white/40 text-xs mb-1 flex items-center gap-1">
                   <Calendar size={12} /> Stay Dates
                 </span>
-                <span className="text-white text-sm font-medium">{booking.dates}</span>
+                <span suppressHydrationWarning className="text-white text-sm font-medium">{booking.dates}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-white/40 text-xs mb-1 flex items-center gap-1">

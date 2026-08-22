@@ -20,29 +20,25 @@ export default function CustomerDashboardHome() {
   const [walletBalance, setWalletBalance] = React.useState<number>(0);
 
   React.useEffect(() => {
-    // Fetch Bookings
-    fetch('/api/bookings')
-      .then(res => {
-        const contentType = res.headers.get('content-type');
-        if (res.ok && contentType && contentType.includes('application/json')) {
-          return res.json();
-        }
-        return [];
-      })
-      .then(data => {
-        if (Array.isArray(data)) setBookings(data);
-      })
-      .catch(console.error);
+    // Import server actions dynamically to use in client component
+    import('./actions').then(({ getBookings, getWallet }) => {
+      // Fetch Bookings
+      getBookings()
+        .then(data => {
+          if (Array.isArray(data)) setBookings(data);
+        })
+        .catch(console.error);
 
-    // Fetch Wallet Balance
-    fetch('/api/wallet')
-      .then(res => res.json())
-      .then(data => {
-        if (data && typeof data.walletBalance === 'number') {
-          setWalletBalance(data.walletBalance);
-        }
-      })
-      .catch(console.error);
+      // Fetch Wallet Balance
+      // Note: we'd ideally pass the current user id
+      getWallet()
+        .then(data => {
+          if (data && typeof data.balance === 'number') {
+            setWalletBalance(data.balance);
+          }
+        })
+        .catch(console.error);
+    });
   }, []);
 
   const validBookings = bookings.filter((b: any) => {

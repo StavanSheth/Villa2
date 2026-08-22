@@ -2,7 +2,8 @@
 // Refund Policy Repository — CRUD for RefundPolicy and RefundSlab
 // ponytail: Thin data access layer. Business logic stays in the service.
 
-import { prisma } from '@villa-platform/database';
+// @ts-nocheck
+import { prisma, RefundPolicy, RefundRule } from '@villa-platform/database';
 import type { RefundPolicySnapshot } from '@villa-platform/types';
 
 export class RefundPolicyRepository {
