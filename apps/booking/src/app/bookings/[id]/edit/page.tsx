@@ -15,7 +15,8 @@ export default async function EditBookingPage({ params }: { params: Promise<{ id
       ]
     },
     include: {
-      promoCode: true
+      promoCode: true,
+      guestIdProofs: true
     }
   });
 

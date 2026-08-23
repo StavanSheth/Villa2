@@ -68,20 +68,26 @@ export class CancellationService {
         let refundAmount = 0;
         if (metadata?.stateForEngine) {
           if (previousTotalPaid > 0) refundAmount = previousTotalPaid; // 100% refund for mock test
-        } else if (previousTotalPaid > 0 && actorRole === 'CUSTOMER') {
-          // Legacy logic
-          const checkInDate = new Date(booking.checkIn);
-          const msRemaining = checkInDate.getTime() - Date.now();
-          const daysRemaining = Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
-
-          if (daysRemaining >= 14) {
+        } else if (previousTotalPaid > 0) {
+          if (actorRole === 'OWNER' || actorRole === 'ADMIN') {
+            // Host-initiated cancellations always provide a 100% full refund
             refundAmount = previousTotalPaid;
-            refundTier = '>14';
-          } else if (daysRemaining >= 7) {
-            refundAmount = previousTotalPaid * 0.5;
-            refundTier = '7-14';
+            refundTier = 'HOST_CANCEL';
           } else {
-            refundTier = '<7';
+            // Legacy logic for CUSTOMER cancellations
+            const checkInDate = new Date(booking.checkIn);
+            const msRemaining = checkInDate.getTime() - Date.now();
+            const daysRemaining = Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
+
+            if (daysRemaining >= 14) {
+              refundAmount = previousTotalPaid;
+              refundTier = '>14';
+            } else if (daysRemaining >= 7) {
+              refundAmount = previousTotalPaid * 0.5;
+              refundTier = '7-14';
+            } else {
+              refundTier = '<7';
+            }
           }
         }
 
@@ -235,7 +241,7 @@ export class CancellationService {
           bookingId,
           srNo: (lastTx?.srNo || 0) + 1,
           transactionTime: new Date(),
-          actionType: 'REFUND_PROCESSED',
+          actionType: 'REFUND_PROCESSED_MANUAL',
           actorRole: 'OWNER',
           previousState: booking.status,
           newState: booking.status,
@@ -267,7 +273,7 @@ export class CancellationService {
           bookingId,
           actorId: actorId || 'SYSTEM',
           actorRole: 'OWNER',
-          action: 'REFUND_PROCESSED',
+          action: 'REFUND_PROCESSED_MANUAL',
           oldState: booking.status,
           newState: booking.status,
           metadata: { amount: refundAmount }

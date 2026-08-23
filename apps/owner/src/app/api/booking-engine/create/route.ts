@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma, calculateBookingPrice } from '@villa-platform/database';
+import { prisma, calculateBookingPrice, processLedgerTransaction } from '@villa-platform/database';
 import { requireAuth } from '../../../../lib/auth';
 import crypto from 'node:crypto';
 
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
       promoCode,
       bookingReason,
       internalNotes,
+      guestIdProofs,
     } = body;
 
     let villa = await prisma.villa.findFirst({
@@ -133,7 +134,7 @@ export async function POST(req: Request) {
         console.log(`[WALLET]: Deducted ₹${walletUsed} from user ${user.id} for booking ${bookingCode}`);
       }
 
-      return tx.booking.create({
+      const newBooking = await tx.booking.create({
         data: {
           bookingCode,
           userId: user.id,
@@ -160,6 +161,46 @@ export async function POST(req: Request) {
           idempotencyKey: `idemp-engine-${crypto.randomUUID()}`,
         },
       });
+
+      // Insert Guest ID Proofs if provided
+      if (guestIdProofs && Array.isArray(guestIdProofs) && guestIdProofs.length > 0) {
+        await tx.guestIdProof.createMany({
+          data: guestIdProofs.map((proof: any) => ({
+            bookingId: newBooking.id,
+            guestName: proof.name,
+            fileUrl: proof.url,
+            fileType: proof.type,
+          }))
+        });
+      }
+
+      let snapshotStaySegments = [{ 
+        checkIn: start.toISOString().split('T')[0], 
+        checkOut: end.toISOString().split('T')[0] 
+      }];
+      let snapshotGuests: Record<string, any> = {};
+      pricing.nightlyBreakdown.forEach((n: any) => {
+        snapshotGuests[n.date] = { adults: numGuests || 2, children: 0 };
+      });
+      let snapshotServices: Record<string, any> = {};
+      if (requestedServices.length > 0) {
+        const startDateStr = start.toISOString().split('T')[0];
+        snapshotServices[startDateStr] = requestedServices.map((s: any) => `${s.name} ×${s.quantity || 1}`);
+      }
+
+      await processLedgerTransaction(tx as any, newBooking.id, {
+        actionType: 'CREATE',
+        actorRole: mode === 'CUSTOMER' ? 'CUSTOMER' : 'OWNER',
+        orderValueDelta: pricing.total,
+        advancePaymentDelta: paymentType === 'ADVANCE' || paymentType === 'FULL' ? finalPaidAmount : 0,
+        balancePaymentDelta: 0,
+        paymentType: finalPaidAmount > 0 ? (paymentType || 'FULL') : 'N/A',
+        snapshotStaySegments,
+        snapshotGuests,
+        snapshotServices,
+      });
+
+      return newBooking;
     });
 
     return NextResponse.json({

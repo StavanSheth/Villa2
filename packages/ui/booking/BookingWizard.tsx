@@ -4,7 +4,7 @@ import { ReservationGrid } from './ReservationGrid';
 import { BookingTypeSelector } from './BookingTypeSelector';
 import { PaymentRequiredToggle } from './PaymentRequiredToggle';
 import { BookingDetailsDrawer } from './BookingDetailsDrawer';
-import { Home, Users, Calendar, Sparkles, CreditCard, CheckCircle2, Tag, ClipboardList } from 'lucide-react';
+import { Home, Users, Calendar, Sparkles, CreditCard, CheckCircle2, Tag, ClipboardList, Upload, FileText } from 'lucide-react';
 import {
   BOOKING_TYPE_RULES,
   type BookingMode,
@@ -190,6 +190,17 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   const totalGuests = dailyGuestsCount.size > 0 
     ? Math.max(...Array.from(dailyGuestsCount.values()).map(g => g.adults + g.children))
     : (editBookingData?.totalGuests || 2);
+
+  const [guestIdProofs, setGuestIdProofs] = useState<{name: string, url: string, type: string}[]>(() => {
+    if (editBookingData?.guestIdProofs) {
+      return editBookingData.guestIdProofs.map((p: any) => ({
+        name: p.guestName || 'Guest',
+        url: p.fileUrl,
+        type: p.fileType,
+      }));
+    }
+    return [];
+  });
 
   // --- Promo State ---
   const [promoCodeInput, setPromoCodeInput] = useState(editBookingData?.promoCode?.code || '');
@@ -435,6 +446,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               dailyGuestsCount: Object.fromEntries(dailyGuestsCount),
               selectedServices: selectedSvcs,
               paymentType: effectivePaymentRequired ? paymentType : undefined,
+              guestIdProofs: guestIdProofs,
             }
           }),
         });
@@ -458,6 +470,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             promoCode: rules.promoEnabled ? appliedPromoCode : undefined,
             bookingReason: bookingReason || undefined,
             internalNotes: internalNotes || undefined,
+            guestIdProofs: guestIdProofs,
           }),
         });
       }
@@ -574,14 +587,23 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     <div className="max-w-6xl mx-auto animate-fade-in">
       {/* Stepper Header */}
       <div className="mb-8 overflow-x-auto pb-4">
-        <div className="flex items-center justify-between relative min-w-[600px]">
+        <div className="flex items-center justify-between relative min-w-max px-4">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-white/10 -z-10"></div>
           {steps.map((step, idx) => {
             const Icon = step.icon;
             const isActive = currentStepIndex === idx;
             const isPast = currentStepIndex > idx;
+            const isClickable = isPast || isActive;
             return (
-              <div key={step.id} className="flex flex-col items-center gap-2 bg-[var(--bg-dark)] px-2 sm:px-4">
+              <div 
+                key={step.id} 
+                className={`flex flex-col items-center gap-2 bg-[var(--bg-dark)] px-4 sm:px-6 transition ${isClickable ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
+                onClick={() => {
+                  if (isClickable) {
+                    setCurrentStepIndex(idx);
+                  }
+                }}
+              >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${isActive ? 'border-gold bg-gold/10 text-gold' : isPast ? 'border-green-500 bg-green-500 text-white' : 'border-white/20 bg-white/5 text-[var(--text-sec-dark)]'}`}>
                   <Icon className="w-4 h-4" />
                 </div>
@@ -828,6 +850,95 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               <div className="flex justify-between mt-8">
                 <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
                 <button onClick={handleNext} className="bg-gold text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition">Continue to Services</button>
+              </div>
+
+              {/* ID Proofs Upload Section */}
+              <div className="mt-8 pt-8 border-t border-white/10 text-left">
+                <h3 className="text-lg font-medium text-white mb-2">Guest ID Proofs (Optional)</h3>
+                <p className="text-sm text-white/50 mb-4">You can optionally upload ID proofs for the guests now or do it later.</p>
+                <div className="space-y-4">
+                  {guestIdProofs.map((proof, i) => (
+                    <div key={i} className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-xl">
+                      <div className="text-sm text-white flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-gold" />
+                        <span>{proof.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => setGuestIdProofs(prev => prev.filter((_, idx) => idx !== i))}
+                        className="text-red-400 hover:text-red-300 transition text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <label className="block w-full border-2 border-dashed border-white/20 rounded-xl p-6 text-center cursor-pointer hover:bg-white/5 transition hover:border-gold/50">
+                    <input 
+                      type="file" 
+                      multiple
+                      accept="image/*,application/pdf"
+                      className="hidden" 
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length === 0) return;
+                        
+                        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
+                        for (const file of files) {
+                          // Validation
+                          if (file.size > MAX_SIZE) {
+                            alert(`File error: ${file.name} exceeds 5MB limit.`);
+                            continue;
+                          }
+                          if (!ALLOWED_TYPES.includes(file.type)) {
+                            alert(`File error: ${file.name} has an invalid format. Only images and PDFs are allowed.`);
+                            continue;
+                          }
+
+                          try {
+                            const res = await fetch('/api/upload-url', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ filename: file.name, contentType: file.type })
+                            });
+                            
+                            if (!res.ok) {
+                              throw new Error(`Server error (${res.status}): Failed to generate upload URL.`);
+                            }
+                            
+                            const { uploadUrl, publicUrl } = await res.json();
+                            
+                            // Upload to R2 directly
+                            const r2Res = await fetch(uploadUrl, {
+                              method: 'PUT',
+                              body: file,
+                              headers: { 'Content-Type': file.type }
+                            });
+
+                            if (!r2Res.ok) {
+                              throw new Error('Cloudflare upload failed.');
+                            }
+
+                            setGuestIdProofs(prev => [...prev, { name: file.name, url: publicUrl, type: file.type }]);
+                          } catch (err: any) {
+                            console.error('Failed to upload file:', err);
+                            const localUrl = URL.createObjectURL(file);
+                            if (err.message.includes('Server error')) {
+                                alert(`Server error: Could not contact upload service for ${file.name}.`);
+                            } else {
+                                alert(`Upload failed: Cloudflare not connected. File ${file.name} is not uploaded to the server, but it has been saved locally on your laptop for this session.`);
+                            }
+                            setGuestIdProofs(prev => [...prev, { name: file.name, url: localUrl, type: file.type }]);
+                          }
+                        }
+                      }}
+                    />
+                    <Upload className="w-6 h-6 text-gold mx-auto mb-2" />
+                    <div className="text-sm text-white/80">Click to browse or drag and drop</div>
+                    <div className="text-xs text-white/40 mt-1">Images or PDF (max 5MB)</div>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

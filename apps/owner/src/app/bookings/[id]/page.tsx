@@ -2,7 +2,7 @@
 // Owner Control Room — reads booking + events + pricing from DB (same source as customer)
 
 import React from 'react';
-import { User, CreditCard, History, Edit, XCircle, Plus, Sparkles, DollarSign } from 'lucide-react';
+import { User, CreditCard, History, Edit, XCircle, Plus, Sparkles, DollarSign, FileText, Download } from 'lucide-react';
 import { prisma, calculateLedgerTotals, formatCurrency } from '@villa-platform/database';
 import { formatBookingSegments } from '@villa-platform/ui/booking';
 import { BookingActions } from './BookingActions';
@@ -19,6 +19,7 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
       events: { orderBy: { createdAt: 'asc' } },
       orderTransactions: { orderBy: { srNo: 'asc' } },
       promoCode: true,
+      guestIdProofs: true,
     },
   });
 
@@ -312,6 +313,36 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
         {/* Sidebar Column */}
         <div className="space-y-8">
 
+          {/* Guest ID Proofs */}
+          <div className="liquid-glass rounded-2xl p-6">
+            <h2 className="text-lg font-medium text-[var(--text-dark)] flex items-center gap-2 mb-6">
+              <FileText className="w-5 h-5 text-gold" />
+              Guest ID Proofs
+            </h2>
+            {booking.guestIdProofs.length === 0 ? (
+              <p className="text-sm text-[var(--text-sec-dark)]">No ID proofs uploaded.</p>
+            ) : (
+              <div className="space-y-3">
+                {booking.guestIdProofs.map((proof: any) => (
+                  <div key={proof.id} className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-xl">
+                    <div className="text-sm text-[var(--text-dark)] flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis">
+                      <FileText className="w-4 h-4 text-gold flex-shrink-0" />
+                      <span className="truncate">{proof.guestName || 'Unnamed Proof'}</span>
+                    </div>
+                    <a 
+                      href={proof.fileUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gold hover:text-yellow-400 transition ml-2"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Financials Ledger — from booking snapshot */}
           <div className="liquid-glass rounded-2xl p-6">
             <h2 className="text-lg font-medium text-[var(--text-dark)] flex items-center gap-2 mb-6">
@@ -382,8 +413,8 @@ export default async function BookingControlRoom({ params }: { params: Promise<{
           
           <RefundAction 
             bookingId={booking.bookingCode} 
-            refundAmount={Number(booking.pendingRefund) || 0}
-            hasRefundedEvent={booking.orderTransactions.some((tx: any) => tx.actionType === 'REFUND_PAID')}
+            refundAmount={Number(booking.pendingRefund) > 0 ? Number(booking.pendingRefund) : (Number(booking.totalRefunded) || 0)}
+            hasRefundedEvent={booking.orderTransactions.some((tx: any) => tx.actionType === 'REFUND_PROCESSED_MANUAL' || tx.actionType === 'REFUND' || tx.actionType === 'REFUND_PROCESSED')}
           />
         </div>
       </div>

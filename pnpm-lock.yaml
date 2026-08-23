@@ -170,6 +170,9 @@ importers:
       '@villa-platform/payments':
         specifier: workspace:*
         version: link:../../domains/payments
+      '@villa-platform/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@villa-platform/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -301,6 +304,9 @@ importers:
       '@villa-platform/middleware':
         specifier: workspace:*
         version: link:../../packages/middleware
+      '@villa-platform/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@villa-platform/ui':
         specifier: workspace:*
         version: link:../../packages/ui

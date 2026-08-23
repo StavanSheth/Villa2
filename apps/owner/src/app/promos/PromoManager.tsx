@@ -17,6 +17,9 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
     minBookingAmt: '',
     maxDiscount: '',
     minNights: '',
+    maxNights: '',
+    startDate: '',
+    expiryDate: '',
     usageLimit: '',
     status: 'ACTIVE'
   });
@@ -32,6 +35,9 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
         minBookingAmt: promo.minBookingAmt?.toString() || '',
         maxDiscount: promo.maxDiscount?.toString() || '',
         minNights: promo.minNights?.toString() || '',
+        maxNights: promo.maxNights?.toString() || '',
+        startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0] : '',
+        expiryDate: promo.expiryDate ? new Date(promo.expiryDate).toISOString().split('T')[0] : '',
         usageLimit: promo.usageLimit?.toString() || '',
         status: promo.status
       });
@@ -45,6 +51,9 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
         minBookingAmt: '',
         maxDiscount: '',
         minNights: '',
+        maxNights: '',
+        startDate: '',
+        expiryDate: '',
         usageLimit: '',
         status: 'ACTIVE'
       });
@@ -61,8 +70,11 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
         ...formData,
         value: Number(formData.value),
         minBookingAmt: formData.minBookingAmt ? Number(formData.minBookingAmt) : null,
-        maxDiscount: formData.maxDiscount ? Number(formData.maxDiscount) : null,
+        maxDiscount: formData.type === 'PERCENTAGE' && formData.maxDiscount ? Number(formData.maxDiscount) : null,
         minNights: formData.minNights ? Number(formData.minNights) : null,
+        maxNights: formData.maxNights ? Number(formData.maxNights) : null,
+        startDate: formData.startDate ? formData.startDate : null,
+        expiryDate: formData.expiryDate ? formData.expiryDate : null,
         usageLimit: formData.usageLimit ? Number(formData.usageLimit) : null,
       };
 
@@ -104,12 +116,20 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
     if (!confirm('Are you sure you want to delete this promo code?')) return;
     try {
       const res = await fetch(`/api/promos/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
+      if (!res.ok) {
+        const contentType = res.headers.get('content-type');
+        let errorMsg = 'Failed to delete promo code';
+        if (contentType && contentType.includes('application/json')) {
+          const errData = await res.json();
+          errorMsg = errData.error || errorMsg;
+        }
+        throw new Error(errorMsg);
+      }
       
       setPromos(prev => prev.filter(p => p.id !== id));
       router.refresh();
-    } catch (err) {
-      alert('Error deleting promo code');
+    } catch (err: any) {
+      alert(err.message || 'Error deleting promo code');
     }
   };
 
@@ -156,20 +176,21 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
                     {promo.description && <div className="text-xs text-[var(--text-sec-dark)] mt-1">{promo.description}</div>}
                   </td>
                   <td className="p-4 text-sm text-[var(--text-dark)] font-medium">
-                    {promo.type === 'PERCENTAGE' ? `${Number(promo.value)}% Off` : `Flat ₹${Number(promo.value)}`}
-                    {promo.maxDiscount && <><br/><span className="text-xs text-[var(--text-sec-dark)] font-normal">Max: ₹{Number(promo.maxDiscount).toLocaleString()}</span></>}
+                    {promo.type === 'PERCENTAGE' ? `${Number(promo.value)}% Off` : `Flat ₹${Number(promo.value).toLocaleString()}`}
+                    {promo.maxDiscount > 0 && <><br/><span className="text-xs text-[var(--text-sec-dark)] font-normal">Max: ₹{Number(promo.maxDiscount).toLocaleString()}</span></>}
                   </td>
                   <td className="p-4 text-xs text-[var(--text-sec-dark)] space-y-1">
-                    {promo.minBookingAmt && <div>Min Booking: <span className="text-white">₹{Number(promo.minBookingAmt).toLocaleString()}</span></div>}
-                    {promo.minNights && <div>Min Nights: <span className="text-white">{promo.minNights}</span></div>}
+                    {promo.minBookingAmt > 0 && <div>Min Booking: <span className="text-white">₹{Number(promo.minBookingAmt).toLocaleString()}</span></div>}
+                    {promo.minNights > 0 && <div>Min Nights: <span className="text-white">{promo.minNights}</span></div>}
+                    {promo.startDate && <div>Valid from: <span className="text-white">{new Date(promo.startDate).toLocaleDateString()}</span></div>}
                     {promo.expiryDate && <div>Valid till: <span className="text-white">{new Date(promo.expiryDate).toLocaleDateString()}</span></div>}
-                    {!promo.expiryDate && <div>No Expiry</div>}
+                    {!promo.expiryDate && !promo.startDate && <div>No Expiry</div>}
                   </td>
                   <td className="p-4 text-sm text-[var(--text-dark)]">
-                    {promo.usageCount} / {promo.usageLimit || '∞'}
+                    {promo.usageCount || 0} / {promo.usageLimit || '∞'}
                     {promo.usageLimit && (
                       <div className="w-full bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden">
-                        <div className="bg-gold h-full rounded-full" style={{ width: `${Math.min((promo.usageCount / promo.usageLimit) * 100, 100)}%` }}></div>
+                        <div className="bg-gold h-full rounded-full" style={{ width: `${Math.min((promo.usageCount || 0) / promo.usageLimit * 100, 100)}%` }}></div>
                       </div>
                     )}
                   </td>
@@ -218,30 +239,50 @@ export function PromoManager({ initialPromos }: { initialPromos: any[] }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-white/50 uppercase">Type</label>
-                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-[#1C2128] border border-white/10 rounded-lg p-2 text-white mt-1">
+                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value, maxDiscount: e.target.value === 'FIXED' ? '' : formData.maxDiscount})} className="w-full bg-[#1C2128] border border-white/10 rounded-lg p-2 text-white mt-1">
                     <option value="FIXED">Fixed Amount (₹)</option>
                     <option value="PERCENTAGE">Percentage (%)</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-white/50 uppercase">Value</label>
-                  <input type="number" value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                  <input type="number" min="0" value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                </div>
+              </div>
+              {formData.type === 'PERCENTAGE' && (
+                <div>
+                  <label className="text-xs text-white/50 uppercase">Max Discount (₹)</label>
+                  <input type="number" min="0" value={formData.maxDiscount} onChange={e => setFormData({...formData, maxDiscount: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                </div>
+              )}
+              <div>
+                <label className="text-xs text-white/50 uppercase">Min Booking Amt</label>
+                <input type="number" min="0" value={formData.minBookingAmt} onChange={e => setFormData({...formData, minBookingAmt: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-white/50 uppercase">Min Nights</label>
+                  <input type="number" min="0" value={formData.minNights} onChange={e => setFormData({...formData, minNights: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/50 uppercase">Max Nights</label>
+                  <input type="number" min="0" value={formData.maxNights} onChange={e => setFormData({...formData, maxNights: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-white/50 uppercase">Min Booking Amt</label>
-                  <input type="number" value={formData.minBookingAmt} onChange={e => setFormData({...formData, minBookingAmt: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                  <label className="text-xs text-white/50 uppercase">Start Date</label>
+                  <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/50 uppercase">Min Nights</label>
-                  <input type="number" value={formData.minNights} onChange={e => setFormData({...formData, minNights: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                  <label className="text-xs text-white/50 uppercase">Expiry Date</label>
+                  <input type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-white/50 uppercase">Max Usage Limit</label>
-                  <input type="number" value={formData.usageLimit} onChange={e => setFormData({...formData, usageLimit: e.target.value})} placeholder="e.g. 50" className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                  <input type="number" min="0" value={formData.usageLimit} onChange={e => setFormData({...formData, usageLimit: e.target.value})} placeholder="e.g. 50" className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
                 </div>
                 <div>
                   <label className="text-xs text-white/50 uppercase">Status</label>

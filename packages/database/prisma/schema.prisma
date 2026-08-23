@@ -197,6 +197,8 @@ model Booking {
   reviews              Review[]
   segments             StaySegment[]
 
+  guestIdProofs GuestIdProof[]
+
   @@index([villaId, bookingType])
   @@index([createdByUserId])
 }
@@ -459,4 +461,16 @@ model GuestProfile {
   notes     String?
   createdBy String
   createdAt DateTime @default(now())
+}
+
+model GuestIdProof {
+  id         String   @id @default(uuid())
+  bookingId  String
+  guestName  String?
+  fileUrl    String
+  fileType   String
+  uploadedAt DateTime @default(now())
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
 }

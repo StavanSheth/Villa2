@@ -74,11 +74,11 @@ export function BookingActions({
       <div className="flex gap-3">
         <button 
           disabled={isCancelled || isProcessing}
-          onClick={() => alert('Edit dates feature coming soon')}
+          onClick={() => router.push(`/bookings/${bookingCode}/edit`)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm transition ${isCancelled ? 'opacity-50 cursor-not-allowed' : 'hover:border-gold hover:text-gold cursor-pointer'}`}
         >
           <Edit className="w-4 h-4" />
-          Edit Dates
+          Edit Booking
         </button>
         <button 
           disabled={isCancelled || isProcessing}

@@ -37,3 +37,5 @@ export async function generateDownloadUrl(key: string): Promise<string> {
 
   return getSignedUrl(s3Client, command, { expiresIn: 3600 });
 }
+
+export * from './signed-urls/index';

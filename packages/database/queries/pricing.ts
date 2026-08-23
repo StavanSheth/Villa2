@@ -250,7 +250,7 @@ export function calculateBookingPrice(params: CalculatePriceParams): BookingPric
         discountLabel = `${promoCode.code} (${Number(promoCode.value)}% off)`;
       } else {
         // FIXED
-        discount = Number(promoCode.value);
+        discount = Math.min(Number(promoCode.value), bookingSubtotal);
         discountLabel = `${promoCode.code} (Flat ₹${Number(promoCode.value)})`;
       }
     }

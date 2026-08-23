@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@villa-platform/database';
+import { requirePermission } from '@villa-platform/identity/permissions';
 
 export async function POST(req: Request) {
   try {
+    // 1. RBAC Check
+    await requirePermission('promos', 'create');
+
     const body = await req.json();
     
     // Validate required fields
@@ -20,6 +24,8 @@ export async function POST(req: Request) {
         maxDiscount: body.maxDiscount ? Number(body.maxDiscount) : null,
         minNights: body.minNights ? Number(body.minNights) : null,
         maxNights: body.maxNights ? Number(body.maxNights) : null,
+        startDate: body.startDate ? new Date(body.startDate) : null,
+        expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
         usageLimit: body.usageLimit ? Number(body.usageLimit) : null,
         status: body.status || 'ACTIVE',
       },
@@ -28,6 +34,9 @@ export async function POST(req: Request) {
     return NextResponse.json(promo);
   } catch (error: any) {
     console.error('Error creating promo:', error);
+    if (error.name === 'ForbiddenError' || error.message?.includes('not authorized')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     if (error.code === 'P2002') {
       return NextResponse.json({ error: 'Promo code already exists' }, { status: 400 });
     }

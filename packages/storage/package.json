@@ -4,11 +4,15 @@
   "private": true,
   "main": "index.ts",
   "type": "module",
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.693.0",
-    "@aws-sdk/s3-request-presigner": "^3.693.0"
+  "exports": {
+    ".": "./index.ts",
+    "./signed-urls": "./signed-urls/index.ts",
+    "./r2/client": "./r2/client.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20"
   }
 }

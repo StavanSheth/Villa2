@@ -13,6 +13,18 @@ export async function DELETE(
     const resolvedParams = await params;
     const { id } = resolvedParams;
     
+    // Check if promo is used in any bookings
+    const bookingsCount = await prisma.booking.count({
+      where: { promoCodeId: id }
+    });
+
+    if (bookingsCount > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete promo code because it is currently used in one or more bookings.' },
+        { status: 400 }
+      );
+    }
+
     await prisma.promoCode.delete({
       where: { id },
     });
@@ -50,6 +62,8 @@ export async function PUT(
         maxDiscount: body.maxDiscount !== undefined ? Number(body.maxDiscount) : null,
         minNights: body.minNights !== undefined ? Number(body.minNights) : null,
         maxNights: body.maxNights !== undefined ? Number(body.maxNights) : null,
+        startDate: body.startDate !== undefined ? (body.startDate ? new Date(body.startDate) : null) : undefined,
+        expiryDate: body.expiryDate !== undefined ? (body.expiryDate ? new Date(body.expiryDate) : null) : undefined,
         usageLimit: body.usageLimit !== undefined ? Number(body.usageLimit) : null,
         status: body.status,
       },
