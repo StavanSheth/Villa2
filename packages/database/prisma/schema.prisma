@@ -469,6 +469,7 @@ model GuestIdProof {
   guestName  String?
   fileUrl    String
   fileType   String
+  status     String   @default("PENDING")
   uploadedAt DateTime @default(now())
   booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 

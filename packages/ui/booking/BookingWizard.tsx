@@ -235,6 +235,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   // --- Drawer State (for calendar entry clicks) ---
   const [drawerBooking, setDrawerBooking] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // --- Derived Rules ---
   const rules = BOOKING_TYPE_RULES[bookingType];
@@ -857,21 +858,46 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                 <h3 className="text-lg font-medium text-white mb-2">Guest ID Proofs (Optional)</h3>
                 <p className="text-sm text-white/50 mb-4">You can optionally upload ID proofs for the guests now or do it later.</p>
                 <div className="space-y-4">
-                  {guestIdProofs.map((proof, i) => (
-                    <div key={i} className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-xl">
-                      <div className="text-sm text-white flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-gold" />
-                        <span>{proof.name}</span>
-                      </div>
-                      <button 
-                        onClick={() => setGuestIdProofs(prev => prev.filter((_, idx) => idx !== i))}
-                        className="text-red-400 hover:text-red-300 transition text-sm font-medium"
-                      >
-                        Remove
-                      </button>
+                  {guestIdProofs.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {guestIdProofs.map((proof, i) => (
+                        <div key={i} className="border border-white/10 rounded-xl overflow-hidden bg-white/5 flex flex-col">
+                          <div 
+                            onClick={() => {
+                              if (proof.type.startsWith('image/')) {
+                                setSelectedImage(proof.url);
+                              }
+                            }}
+                            className={`block h-32 bg-black/40 relative group overflow-hidden ${proof.type.startsWith('image/') ? 'cursor-pointer' : ''}`}
+                          >
+                            {proof.type.startsWith('image/') ? (
+                              <img src={proof.url} alt={proof.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <FileText className="w-12 h-12 text-white/20" />
+                              </div>
+                            )}
+                            {proof.type.startsWith('image/') && (
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                <span className="text-white font-semibold text-xs">View Full Size</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-3 flex justify-between items-center bg-black/20">
+                            <div className="text-xs text-white truncate max-w-[150px]" title={proof.name}>
+                              {proof.name}
+                            </div>
+                            <button 
+                              onClick={() => setGuestIdProofs(prev => prev.filter((_, idx) => idx !== i))}
+                              className="text-red-400 hover:text-red-300 transition text-xs font-medium"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                  
+                  )}
                   <label className="block w-full border-2 border-dashed border-white/20 rounded-xl p-6 text-center cursor-pointer hover:bg-white/5 transition hover:border-gold/50">
                     <input 
                       type="file" 
@@ -897,29 +923,20 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                           }
 
                           try {
-                            const res = await fetch('/api/upload-url', {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            
+                            const uploadRes = await fetch('/api/upload-direct', {
                               method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ filename: file.name, contentType: file.type })
+                              body: formData
                             });
                             
-                            if (!res.ok) {
-                              throw new Error(`Server error (${res.status}): Failed to generate upload URL.`);
+                            if (!uploadRes.ok) {
+                              const err = await uploadRes.json().catch(() => ({}));
+                              throw new Error(err.error || 'Server error: Failed to upload file via proxy.');
                             }
                             
-                            const { uploadUrl, publicUrl } = await res.json();
-                            
-                            // Upload to R2 directly
-                            const r2Res = await fetch(uploadUrl, {
-                              method: 'PUT',
-                              body: file,
-                              headers: { 'Content-Type': file.type }
-                            });
-
-                            if (!r2Res.ok) {
-                              throw new Error('Cloudflare upload failed.');
-                            }
-
+                            const { publicUrl } = await uploadRes.json();
                             setGuestIdProofs(prev => [...prev, { name: file.name, url: publicUrl, type: file.type }]);
                           } catch (err: any) {
                             console.error('Failed to upload file:', err);
@@ -1555,6 +1572,31 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         onClose={() => setIsDrawerOpen(false)}
         mode={mode}
       />
+
+      {/* Lightbox Image Viewer Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4" 
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            type="button" 
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage(null);
+            }}
+          >
+            <span className="text-2xl">✕</span>
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Full Size ID Proof" 
+            className="max-w-full max-h-full object-contain shadow-2xl rounded"
+            onClick={(e) => e.stopPropagation()} 
+          />
+        </div>
+      )}
     </div>
   );
 };

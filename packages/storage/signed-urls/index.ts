@@ -50,6 +50,7 @@ export async function createPresignedUploadUrl(
     },
     aws: {
       signQuery: true,
+      // @ts-ignore
       expires: ttl
     }
   });

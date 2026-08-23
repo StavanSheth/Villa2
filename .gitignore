@@ -17,6 +17,7 @@ build/
 out/
 .turbo/
 *.tsbuildinfo
+.wrangler/
 
 # Test & coverage
 test-results/
