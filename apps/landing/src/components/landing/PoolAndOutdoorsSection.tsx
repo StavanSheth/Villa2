@@ -571,54 +571,6 @@ export default function PoolAndOutdoorsSection({
                   ))}
                 </motion.div>
               </div>
-
-              {/* Pricing & BOOK NOW CTA Footer */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.65, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-lg mx-auto mt-auto pt-6 sm:pt-8 border-t ${
-                  isDark ? 'border-white/15' : 'border-black/15'
-                }`}
-              >
-                <div className="flex items-end justify-between mb-6">
-                  <div className="flex flex-col">
-                    <span
-                      className={`text-xs uppercase tracking-widest mb-1 ${
-                        isDark ? 'text-white/60' : 'text-black/60'
-                      }`}
-                    >
-                      STARTING FROM
-                    </span>
-                    <span className="font-serif text-2xl sm:text-3xl font-medium">
-                      {selectedItem.price}{' '}
-                      <span
-                        className={`text-sm font-sans font-light ${
-                          isDark ? 'text-white/60' : 'text-black/60'
-                        }`}
-                      >
-                        / night
-                      </span>
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedItem(null);
-                    if (onOpenBooking) {
-                      onOpenBooking();
-                    }
-                  }}
-                  className="w-full bg-gold text-black font-semibold uppercase tracking-wider text-xs py-3.5 sm:py-4 px-8 rounded-full flex items-center justify-center gap-2 hover:bg-gold/90 transition-all duration-300 shadow-lg group"
-                >
-                  <span>BOOK NOW</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">
-                    →
-                  </span>
-                </button>
-              </motion.div>
             </section>
           </main>
         </div>
