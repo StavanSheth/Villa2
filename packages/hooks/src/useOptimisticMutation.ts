@@ -11,7 +11,7 @@ export function useOptimisticMutation<TData, TError, TVariables, TContext = any>
 
   return useMutation({
     ...rest,
-    onMutate: async (variables) => {
+    onMutate: async (variables): Promise<any> => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
       await queryClient.cancelQueries({ queryKey });
 
@@ -22,7 +22,7 @@ export function useOptimisticMutation<TData, TError, TVariables, TContext = any>
       queryClient.setQueryData(queryKey, (old: any) => optimisticUpdate(old, variables));
 
       // Execute external onMutate if provided
-      const customContext = onMutate ? await onMutate(variables) : {};
+      const customContext = onMutate ? await (onMutate as any)(variables) : {};
 
       return { previousData, ...customContext };
     },
@@ -39,12 +39,12 @@ export function useOptimisticMutation<TData, TError, TVariables, TContext = any>
         }));
       }
 
-      if (onError) onError(err, variables, context);
+      if (onError) (onError as any)(err, variables, context);
     },
     onSettled: (data, error, variables, context) => {
       // Sync with server once settled
       queryClient.invalidateQueries({ queryKey });
-      if (onSettled) onSettled(data, error, variables, context);
+      if (onSettled) (onSettled as any)(data, error, variables, context);
     },
   });
 }

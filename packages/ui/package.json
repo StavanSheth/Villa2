@@ -4,10 +4,11 @@
   "private": true,
   "main": "index.ts",
   "dependencies": {
-    "@villa-platform/hooks": "workspace:*",
-    "@villa-platform/design-system": "workspace:*",
     "@villa-platform/authorization": "workspace:*",
+    "@villa-platform/design-system": "workspace:*",
+    "@villa-platform/hooks": "workspace:*",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.30.0"
+    "lucide-react": "^1.30.0",
+    "next": "16.3.0"
   }
 }

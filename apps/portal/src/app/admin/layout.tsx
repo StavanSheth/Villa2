@@ -1,5 +1,5 @@
 import React from 'react';
-import './globals.css';
+import '../globals.css';
 import { GlobalDashboardLayout, NavItem } from '@villa-platform/ui';
 import { ThemeProvider } from '@villa-platform/theme';
 

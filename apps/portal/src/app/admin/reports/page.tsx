@@ -1,6 +1,6 @@
 import React from 'react';
 import { prisma } from "@villa-platform/database";
-import { RevenueChart, BookingsChart } from "../../components/Charts";
+import { RevenueChart, BookingsChart } from "../../../components/Charts";
 import { TrendingUp, Calendar, ArrowUpRight } from "lucide-react";
 
 export default async function AdminReportsPage() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import CheckInFlow from '../../features/checkin/CheckInFlow';
+import CheckInFlow from '../../../features/checkin/CheckInFlow';
 
 export default function CheckInPage() {
   return (
