@@ -17,7 +17,6 @@
     "@villa-platform/storage": "workspace:*",
     "@villa-platform/theme": "workspace:*",
     "@villa-platform/ui": "workspace:*",
-    "clsx": "^2.1.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.30.0",

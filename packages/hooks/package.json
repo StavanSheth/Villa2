@@ -4,9 +4,8 @@
   "private": true,
   "main": "index.ts",
   "dependencies": {
-    "@villa-platform/design-system": "workspace:*",
     "@tanstack/react-query": "^5.0.0",
-    "react-hook-form": "^7.0.0",
+    "@villa-platform/design-system": "workspace:*",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

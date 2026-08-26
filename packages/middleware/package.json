@@ -4,8 +4,7 @@
   "private": true,
   "main": "index.ts",
   "dependencies": {
-    "jose": "^5.2.3",
-    "@villa-platform/authorization": "workspace:*"
+    "jose": "^5.2.3"
   },
   "devDependencies": {
     "jose": "^5.9.6",

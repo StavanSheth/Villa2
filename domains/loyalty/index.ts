@@ -1,1 +1,0 @@
-﻿// domain loyalty exports

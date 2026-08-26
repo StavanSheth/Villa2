@@ -34,9 +34,6 @@
     "yaml": "^2.9.0"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.101.4",
-    "firebase": "^12.18.0",
-    "react-hook-form": "^7.84.0",
-    "zustand": "^5.0.14"
+    "firebase": "^12.18.0"
   }
 }

@@ -14,7 +14,6 @@
     }
   },
   "dependencies": {
-    "@villa-platform/database": "workspace:*",
     "@villa-platform/hooks": "workspace:*"
   },
   "devDependencies": {

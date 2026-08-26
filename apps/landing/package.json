@@ -10,25 +10,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.12.0",
-    "@villa-platform/identity": "workspace:*",
-    "@villa-platform/database": "workspace:*",
-    "@villa-platform/design-system": "workspace:*",
-    "@villa-platform/invoices": "workspace:*",
-    "@villa-platform/notifications": "workspace:*",
-    "@villa-platform/payments": "workspace:*",
-    "@villa-platform/authorization": "workspace:*",
     "@villa-platform/theme": "workspace:*",
-    "@villa-platform/ui": "workspace:*",
-    "date-fns": "^4.1.0",
     "framer-motion": "^11.11.17",
     "lucide-react": "^1.30.0",
     "next": "16.3.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "recharts": "^2.13.3",
-    "styled-components": "^6.4.4",
-    "svix": "^1.42.0"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -1,1 +1,0 @@
-﻿// generate types script

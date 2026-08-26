@@ -46,7 +46,7 @@ invoices.post('/', async (c) => {
               dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
               subtotal: booking.currentTotal,
               taxAmount: Number(booking.currentTotal) * 0.18, // 18% GST example
-              currentTotal: Number(booking.currentTotal) * 1.18,
+              totalAmount: Number(booking.currentTotal) * 1.18,
               items: {
                 create: [
                   {

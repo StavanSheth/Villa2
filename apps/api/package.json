@@ -9,13 +9,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.6.4",
-    "jose": "^5.2.3",
-    "@villa-platform/identity": "workspace:*",
     "@villa-platform/bookings": "workspace:*",
     "@villa-platform/cache": "workspace:*",
     "@villa-platform/database": "workspace:*",
-    "@villa-platform/authorization": "workspace:*"
+    "@villa-platform/identity": "workspace:*",
+    "hono": "^4.6.4",
+    "jose": "^5.2.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241022.0",

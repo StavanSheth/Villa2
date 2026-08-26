@@ -8,9 +8,8 @@
     "./permissions": "./permissions/index.ts"
   },
   "dependencies": {
-    "@villa-platform/database": "workspace:*",
     "@villa-platform/authorization": "workspace:*",
-    "firebase-admin": "^12.0.0",
+    "@villa-platform/database": "workspace:*",
     "jose": "^5.2.3"
   },
   "devDependencies": {

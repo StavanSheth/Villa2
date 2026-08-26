@@ -10,18 +10,15 @@
   },
   "dependencies": {
     "@villa-platform/database": "workspace:*",
-    "@villa-platform/design-system": "workspace:*",
-    "@villa-platform/identity": "workspace:*",
     "@villa-platform/middleware": "workspace:*",
+    "@villa-platform/storage": "workspace:*",
     "@villa-platform/theme": "workspace:*",
     "@villa-platform/ui": "workspace:*",
-    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.30.0",
     "next": "16.3.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@villa-platform/storage": "workspace:*"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

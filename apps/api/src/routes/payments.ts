@@ -97,13 +97,14 @@ payments.post('/webhook', async (c) => {
     if (event.event === 'payment.captured' || event.event === 'order.paid') {
       const paymentEntity = event.payload.payment.entity;
       const receiptId = paymentEntity.notes?.bookingId || paymentEntity.receipt; 
-      
+      if (!receiptId) return c.json({ status: 'ignored_missing_receipt' }, 200);
+
       const booking = await prisma.booking.findFirst({
         where: { id: receiptId } // receipt mapped to our booking id
       });
 
       if (booking) {
-        const isFullPayment = paymentEntity.amount >= booking.currentTotal * 100;
+        const isFullPayment = paymentEntity.amount >= Number(booking.currentTotal) * 100;
         
         // Wrap update in transaction with PaymentTransaction for idempotency
         await prisma.$transaction(async (tx) => {
