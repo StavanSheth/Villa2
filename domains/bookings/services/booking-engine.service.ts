@@ -37,6 +37,7 @@ export interface CreateBookingEngineInput {
   selectedServices?: Array<{ serviceDefId: string }>;
   promoCode?: string;
   specialReqs?: string;
+  idempotencyKey?: string;
 }
 
 // ── Output ──
@@ -58,6 +59,28 @@ export class BookingEngineService {
       throw new Error(`Unknown booking type: ${input.bookingType}`);
     }
 
+    const { default: crypto } = await import('node:crypto');
+    const requestFingerprint = crypto.createHash('sha256').update(JSON.stringify(input)).digest('hex');
+
+    if (input.idempotencyKey) {
+      const existing = await prisma.booking.findUnique({
+        where: { idempotencyKey: input.idempotencyKey }
+      });
+      if (existing) {
+        if (existing.requestFingerprint !== requestFingerprint) {
+          throw new Error('Idempotency key reused with different payload');
+        }
+        // Return existing booking
+        const requiresPayment = input.paymentRequired !== undefined ? input.paymentRequired : rules.paymentRequired;
+        return {
+          booking: existing,
+          rules,
+          requiresPayment,
+          notifications: [], // Notifications already sent for existing booking
+        };
+      }
+    }
+
     // ── Step 1: Validate villa booking settings (owner-gated types) ──
     if (input.mode === 'OWNER' || input.mode === 'STAFF') {
       await this.validateVillaSettings(input.villaId, input.bookingType);
@@ -70,14 +93,21 @@ export class BookingEngineService {
       throw new Error('Invalid check-in or check-out dates');
     }
 
-    // ── Execute wrapped in a Serializable Transaction ──
-    const { booking, refundPolicySnapshot } = await prisma.$transaction(async (tx) => {
+    // ── Execute wrapped in a Serializable Transaction with Retry ──
+    let retries = 0;
+    const MAX_RETRIES = 3;
+    let transactionResult: { booking: any; refundPolicySnapshot: any };
+
+    while (true) {
+      try {
+        transactionResult = await prisma.$transaction(async (tx) => {
       const hasOverlap = await BookingsRepository.hasOverlappingBookings(
         input.villaId,
         checkIn,
         checkOut,
         undefined,
-        tx
+        tx,
+        input.userId
       );
       if (hasOverlap) {
         throw new Error('Villa is already booked for these dates');
@@ -138,6 +168,8 @@ export class BookingEngineService {
           createdByUserId: input.userId,
           createdByRole,
           paymentRequired: requiresPayment,
+          requestFingerprint,
+          idempotencyKey: input.idempotencyKey || null,
           bookingReason: input.bookingReason || null,
           internalNotes: input.internalNotes || null,
           refundPolicySnapshot: policySnapshot as any,
@@ -164,22 +196,38 @@ export class BookingEngineService {
         },
       });
 
+      // ── Step 11b: Transactional Outbox for Notifications ──
+      if (shouldNotify('BOOKING_CREATED', input.bookingType, input.mode)) {
+        await tx.outboxEvent.create({
+          data: {
+            type: 'BOOKING_CREATED',
+            payload: {
+              bookingId: newBooking.id,
+              bookingCode: newBooking.bookingCode,
+              bookingType: input.bookingType,
+              mode: input.mode,
+            },
+          }
+        });
+      }
+
       return { booking: newBooking, refundPolicySnapshot: policySnapshot };
     }, {
       isolationLevel: 'Serializable'
     });
-
-    // ── Step 12: Determine notifications ──
-    const notifications: NotificationEvent[] = [];
-    if (shouldNotify('BOOKING_CREATED', input.bookingType, input.mode)) {
-      notifications.push({
-        event: 'BOOKING_CREATED',
-        bookingId: booking.id,
-        bookingCode: booking.bookingCode,
-        bookingType: input.bookingType,
-        mode: input.mode,
-      });
+        break; // Success
+      } catch (error: any) {
+        if (error.code === 'P2034' && retries < MAX_RETRIES) {
+          retries++;
+          const delay = Math.pow(2, retries) * 50 + Math.random() * 50;
+          await new Promise(res => setTimeout(res, delay));
+          continue;
+        }
+        throw error;
+      }
     }
+
+    const { booking, refundPolicySnapshot } = transactionResult;
 
     const requiresPayment = input.paymentRequired !== undefined
       ? input.paymentRequired
@@ -189,7 +237,7 @@ export class BookingEngineService {
       booking,
       rules,
       requiresPayment,
-      notifications,
+      notifications: [], // Return empty, now handled by Outbox
     };
   }
 

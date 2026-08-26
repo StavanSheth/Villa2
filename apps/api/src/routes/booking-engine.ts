@@ -8,6 +8,7 @@ import { CreateBookingSchema } from '@villa-platform/validation';
 import { prisma } from '@villa-platform/database';
 import { BOOKING_TYPE_RULES } from '@villa-platform/types';
 import type { BookingType, CalendarBookingEntry, CalendarEntryType } from '@villa-platform/types';
+import { redis } from '@villa-platform/cache';
 
 const bookingEngine = new Hono();
 
@@ -17,6 +18,22 @@ const bookingEngine = new Hono();
  */
 bookingEngine.post('/create', async (c) => {
   try {
+    const ip = c.req.header('x-forwarded-for') || 'unknown';
+    const rateLimitKey = `rate_limit:booking:${ip}`;
+    if (process.env.NODE_ENV !== 'test' && !process.env.UPSTASH_REDIS_REST_URL?.includes('placeholder')) {
+      try {
+        const requests = await redis.incr(rateLimitKey);
+        if (requests === 1) {
+          await redis.expire(rateLimitKey, 60); // 1 minute window
+        }
+        if (requests > 10) {
+          return c.json({ error: 'Too many booking requests. Please try again later.' }, 429);
+        }
+      } catch (e) {
+        console.warn('Redis rate limit failed:', e);
+      }
+    }
+
     const body = await c.req.json();
     const parsed = CreateBookingSchema.safeParse(body);
 

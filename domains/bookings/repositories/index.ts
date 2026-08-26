@@ -15,7 +15,8 @@ export class BookingsRepository {
     checkIn: Date,
     checkOut: Date,
     excludeBookingId?: string,
-    tx: any = prisma
+    tx: any = prisma,
+    customerId?: string
   ): Promise<boolean> {
     const count = await tx.booking.count({
       where: {
@@ -33,7 +34,20 @@ export class BookingsRepository {
       },
     });
 
-    return count > 0;
+    if (count > 0) return true;
+
+    const lockCount = await tx.reservationLock.count({
+      where: {
+        villaId,
+        status: "LOCKED",
+        expiresAt: { gt: new Date() },
+        checkIn: { lt: checkOut },
+        checkOut: { gt: checkIn },
+        ...(customerId ? { customerId: { not: customerId } } : {}),
+      }
+    });
+
+    return lockCount > 0;
   }
 
   /**
