@@ -79,7 +79,7 @@ payments.post('/webhook', async (c) => {
     // Webhook Idempotency Check using Upstash Redis
     // Webhook IDs (like event.id) are unique per event sent by Razorpay
     // In testing environments, bypass Redis so we can test the database idempotency locks natively
-    let cached = 'OK';
+    let cached: string | null = 'OK';
     if (process.env.NODE_ENV !== 'test' && !process.env.UPSTASH_REDIS_REST_URL?.includes('placeholder')) {
       try {
         cached = await redis.set(`webhook_processed:${event.id}`, 'true', { nx: true, ex: 86400 });

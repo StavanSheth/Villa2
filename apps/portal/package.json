@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev --port 3005",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "@villa-platform/database": "workspace:*",
