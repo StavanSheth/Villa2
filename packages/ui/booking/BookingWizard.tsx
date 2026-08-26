@@ -124,7 +124,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 }) => {
   // --- Step State ---
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [selectedVilla, setSelectedVilla] = useState<string | null>(editBookingData?.villaId || preselectedVillaId || null);
+  const [selectedVilla, setSelectedVilla] = useState<string | null>(editBookingData?.villaId || preselectedVillaId || 'seven-c');
   const [dateRange, setDateRange] = useState<{start: Date | null, end: Date | null}>(() => {
     if (editBookingData?.nightlyBreakdown && editBookingData.nightlyBreakdown.length > 0) {
       const dates = editBookingData.nightlyBreakdown;
@@ -216,6 +216,9 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     editBookingData?.paymentType === 'ADVANCE' ? 'ADVANCE' : 'FULL'
   );
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bookingTimerSeconds, setBookingTimerSeconds] = useState<number | null>(null);
+  const [bookingTimerActive, setBookingTimerActive] = useState(false);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [bookingResult, setBookingResult] = useState<any>(null);
   const [walletBalance, setWalletBalance] = useState<number>(0);
 
@@ -261,6 +264,32 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
       setCurrentStepIndex(1); // Skip to dates
     }
   }, [preselectedVillaId, currentStepIndex]);
+
+  // ── 5-Minute Booking Timer ──
+  // Start when dates are selected (step transitions past dates)
+  useEffect(() => {
+    if (dateRange.start && dateRange.end && selectedDatesList.length > 0 && !bookingTimerActive && !editBookingData) {
+      setBookingTimerSeconds(5 * 60); // 5 minutes
+      setBookingTimerActive(true);
+    }
+  }, [dateRange.start, dateRange.end, selectedDatesList.length, bookingTimerActive, editBookingData]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!bookingTimerActive || bookingTimerSeconds === null) return;
+    if (bookingTimerSeconds <= 0) {
+      // Timer expired
+      if (!paymentInitiated && !isProcessing) {
+        // Reset the booking page
+        window.location.reload();
+      }
+      return;
+    }
+    const interval = setInterval(() => {
+      setBookingTimerSeconds(prev => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [bookingTimerActive, bookingTimerSeconds, paymentInitiated, isProcessing]);
 
   const [dbBookings, setDbBookings] = useState<any[]>([]);
 
@@ -419,6 +448,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
   // --- Complete Booking (unified for all modes) ---
   const handleCompleteBooking = async () => {
+    setPaymentInitiated(true); // Mark payment as initiated so timer won't reset
     setIsProcessing(true);
     try {
       const selectedSvcs = Array.from(selectedServiceIds).map(id => ({ 
@@ -588,8 +618,21 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     <div className="max-w-6xl mx-auto animate-fade-in">
       {/* Stepper Header */}
       <div className="mb-8 overflow-x-auto pb-4">
+        {/* Booking Timer */}
+        {bookingTimerActive && bookingTimerSeconds !== null && bookingTimerSeconds > 0 && currentStep?.id !== 'done' && (
+          <div className={`flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg text-sm font-semibold ${
+            bookingTimerSeconds <= 60 
+              ? 'bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 animate-pulse'
+              : bookingTimerSeconds <= 120
+                ? 'bg-yellow-500/15 border border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                : 'bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400'
+          }`}>
+            <span>⏱</span>
+            <span>{Math.floor(bookingTimerSeconds / 60)}:{String(bookingTimerSeconds % 60).padStart(2, '0')} remaining to complete your booking</span>
+          </div>
+        )}
         <div className="flex items-center justify-between relative min-w-max px-4">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-white/10 -z-10"></div>
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-muted -z-10"></div>
           {steps.map((step, idx) => {
             const Icon = step.icon;
             const isActive = currentStepIndex === idx;
@@ -598,17 +641,17 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             return (
               <div 
                 key={step.id} 
-                className={`flex flex-col items-center gap-2 bg-[var(--bg-dark)] px-4 sm:px-6 transition ${isClickable ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
+                className={`flex flex-col items-center gap-2 bg-background px-4 sm:px-6 transition ${isClickable ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-50'}`}
                 onClick={() => {
                   if (isClickable) {
                     setCurrentStepIndex(idx);
                   }
                 }}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${isActive ? 'border-gold bg-gold/10 text-gold' : isPast ? 'border-green-500 bg-green-500 text-white' : 'border-white/20 bg-white/5 text-[var(--text-sec-dark)]'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${isActive ? 'border-gold bg-gold/10 text-gold' : isPast ? 'border-green-500 bg-green-500 text-foreground' : 'border-border bg-muted text-muted-foreground'}`}>
                   <Icon className="w-4 h-4" />
                 </div>
-                <span className={`text-[10px] sm:text-xs font-medium uppercase tracking-widest ${isActive ? 'text-gold' : 'text-[var(--text-sec-dark)]'}`}>
+                <span className={`text-[10px] sm:text-xs font-medium uppercase tracking-widest ${isActive ? 'text-gold' : 'text-muted-foreground'}`}>
                   {step.title}
                 </span>
               </div>
@@ -623,19 +666,19 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {/* ─── Villa Step ─── */}
         {currentStep?.id === 'villa' && (
           <div className="space-y-6 animate-fade-in text-center max-w-4xl mx-auto">
-            <h2 className="text-3xl font-serif text-[var(--text-dark)]">Select a Villa</h2>
-            <p className="text-[var(--text-sec-dark)] mt-2 mb-8">Choose the perfect luxury villa for your stay.</p>
+            <h2 className="text-3xl font-serif text-foreground">Select a Villa</h2>
+            <p className="text-muted-foreground mt-2 mb-8">Choose the perfect luxury villa for your stay.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div
                 onClick={() => setSelectedVilla('seven-c')}
-                className={`liquid-glass rounded-2xl overflow-hidden cursor-pointer transition-all border-2 ${selectedVilla === 'seven-c' ? 'border-gold scale-105' : 'border-transparent hover:border-white/20'}`}
+                className={`bg-card border border-border shadow-sm rounded-2xl overflow-hidden cursor-pointer transition-all border-2 ${selectedVilla === 'seven-c' ? 'border-gold scale-105' : 'border-transparent hover:border-border'}`}
               >
-                <div className="h-48 bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
-                  <Home className="w-12 h-12 text-white/20" />
+                <div className="h-48 w-full bg-muted">
+                  <img src="/Normal_hero.png" alt="Chunawala's Seven C Villa" className="w-full h-full object-cover" />
                 </div>
                 <div className="p-6 text-left">
-                  <h3 className="text-xl font-serif text-[var(--text-dark)]">Chunawala's Seven C Villa</h3>
-                  <p className="text-sm text-[var(--text-sec-dark)] mt-2">4 Bedrooms • Private Pool • Seaview</p>
+                  <h3 className="text-xl font-serif text-foreground">Chunawala's Seven C Villa</h3>
+                  <p className="text-sm text-muted-foreground mt-2">4 Bedrooms • Private Pool • Seaview</p>
                   <div className="mt-4 font-bold text-gold">From ₹10,000 / night</div>
                 </div>
               </div>
@@ -644,7 +687,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               <button
                 onClick={handleNext}
                 disabled={!selectedVilla}
-                className={`font-bold px-8 py-3 rounded-full transition shadow-lg ${selectedVilla ? 'bg-gold text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
+                className={`font-bold px-8 py-3 rounded-full transition shadow-lg ${selectedVilla ? 'bg-gold text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
               >
                 Continue to Dates
               </button>
@@ -656,10 +699,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {currentStep?.id === 'dates' && (
           <div className="space-y-6 animate-fade-in">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif text-[var(--text-dark)]">
+              <h2 className="text-3xl font-serif text-foreground">
                 {mode === 'CUSTOMER' ? 'When would you like to stay?' : 'Select Dates'}
               </h2>
-              <p className="text-[var(--text-sec-dark)] mt-2">
+              <p className="text-muted-foreground mt-2">
                 {mode === 'CUSTOMER'
                   ? 'Select your check-in and check-out dates.'
                   : 'Choose dates for this reservation. Click existing entries to view details.'}
@@ -677,8 +720,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             />
 
             {pricing && pricing.nights > 0 && (
-              <div className="max-w-md mx-auto liquid-glass p-4 rounded-xl mt-6 text-center border border-gold/30">
-                <div className="text-[var(--text-sec-dark)] text-sm">{pricing.nights} Nights Selected</div>
+              <div className="max-w-md mx-auto bg-card border border-border shadow-sm p-4 rounded-xl mt-6 text-center border border-gold/30">
+                <div className="text-muted-foreground text-sm">{pricing.nights} Nights Selected</div>
                 <div className="text-xl font-bold text-gold mt-1">
                   {isPricingLoading ? 'Calculating...' : `Est. ₹${pricing.total.toLocaleString()}`}
                 </div>
@@ -686,7 +729,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             )}
 
             <div className="flex justify-between mt-8 max-w-4xl mx-auto">
-              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
               {dateRange.start && dateRange.end && (
                 <button onClick={handleNext} className="bg-gold text-black font-bold px-8 py-3 rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(212,175,55,0.4)]">
                   {mode !== 'CUSTOMER' ? 'Continue to Type' : 'Continue to Guests'}
@@ -699,8 +742,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {/* ─── Guests Step ─── */}
         {currentStep?.id === 'guests' && (
           <div className="space-y-6 animate-fade-in text-center">
-            <h2 className="text-3xl font-serif text-[var(--text-dark)]">Who is coming?</h2>
-            <div className="liquid-glass rounded-2xl p-8 max-w-md mx-auto space-y-6 text-left">
+            <h2 className="text-3xl font-serif text-foreground">Who is coming?</h2>
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-8 max-w-md mx-auto space-y-6 text-left">
               {/* Per-Segment Varying Guest Count */}
               {availableStayDates.length > 0 && (
                 <div className="pt-2 space-y-4">
@@ -744,15 +787,15 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                         checkoutDate.setDate(checkoutDate.getDate() + 1);
 
                         return (
-                          <div key={seg.key} className="bg-white/5 p-4 rounded-xl border border-white/10 text-sm space-y-3">
-                            <div className="text-white font-medium border-b border-white/10 pb-2">
+                          <div key={seg.key} className="bg-muted p-4 rounded-xl border border-border text-sm space-y-3">
+                            <div className="text-foreground font-medium border-b border-border pb-2">
                               {seg.start.toLocaleDateString(undefined, { month: 'short', day: 'numeric', weekday: 'short' })} - {checkoutDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', weekday: 'short' })}
                             </div>
                             
                             {/* Adults per segment */}
                             <div className="flex justify-between items-center">
                               <div>
-                                <div className="text-white">Adults</div>
+                                <div className="text-foreground">Adults</div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <button
@@ -769,7 +812,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                                       return next;
                                     });
                                   }}
-                                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold cursor-pointer flex items-center justify-center"
+                                  className="w-7 h-7 rounded-full bg-muted hover:bg-muted text-foreground font-bold cursor-pointer flex items-center justify-center"
                                 >
                                   -
                                 </button>
@@ -798,7 +841,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                             {/* Children per segment */}
                             <div className="flex justify-between items-center">
                               <div>
-                                <div className="text-white">Children</div>
+                                <div className="text-foreground">Children</div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <button
@@ -815,7 +858,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                                       return next;
                                     });
                                   }}
-                                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold cursor-pointer flex items-center justify-center"
+                                  className="w-7 h-7 rounded-full bg-muted hover:bg-muted text-foreground font-bold cursor-pointer flex items-center justify-center"
                                 >
                                   -
                                 </button>
@@ -849,42 +892,42 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               )}
 
               <div className="flex justify-between mt-8">
-                <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+                <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
                 <button onClick={handleNext} className="bg-gold text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition">Continue to Services</button>
               </div>
 
               {/* ID Proofs Upload Section */}
-              <div className="mt-8 pt-8 border-t border-white/10 text-left">
-                <h3 className="text-lg font-medium text-white mb-2">Guest ID Proofs (Optional)</h3>
-                <p className="text-sm text-white/50 mb-4">You can optionally upload ID proofs for the guests now or do it later.</p>
+              <div className="mt-8 pt-8 border-t border-border text-left">
+                <h3 className="text-lg font-medium text-foreground mb-2">Guest ID Proofs (Optional)</h3>
+                <p className="text-sm text-muted-foreground mb-4">You can optionally upload ID proofs for the guests now or do it later.</p>
                 <div className="space-y-4">
                   {guestIdProofs.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {guestIdProofs.map((proof, i) => (
-                        <div key={i} className="border border-white/10 rounded-xl overflow-hidden bg-white/5 flex flex-col">
+                        <div key={i} className="border border-border rounded-xl overflow-hidden bg-muted flex flex-col">
                           <div 
                             onClick={() => {
                               if (proof.type.startsWith('image/')) {
                                 setSelectedImage(proof.url);
                               }
                             }}
-                            className={`block h-32 bg-black/40 relative group overflow-hidden ${proof.type.startsWith('image/') ? 'cursor-pointer' : ''}`}
+                            className={`block h-32 bg-card relative group overflow-hidden ${proof.type.startsWith('image/') ? 'cursor-pointer' : ''}`}
                           >
                             {proof.type.startsWith('image/') ? (
                               <img src={proof.url} alt={proof.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <FileText className="w-12 h-12 text-white/20" />
+                                <FileText className="w-12 h-12 text-muted-foreground" />
                               </div>
                             )}
                             {proof.type.startsWith('image/') && (
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                <span className="text-white font-semibold text-xs">View Full Size</span>
+                              <div className="absolute inset-0 bg-card opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                <span className="text-foreground font-semibold text-xs">View Full Size</span>
                               </div>
                             )}
                           </div>
-                          <div className="p-3 flex justify-between items-center bg-black/20">
-                            <div className="text-xs text-white truncate max-w-[150px]" title={proof.name}>
+                          <div className="p-3 flex justify-between items-center bg-card">
+                            <div className="text-xs text-foreground truncate max-w-[150px]" title={proof.name}>
                               {proof.name}
                             </div>
                             <button 
@@ -898,7 +941,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                       ))}
                     </div>
                   )}
-                  <label className="block w-full border-2 border-dashed border-white/20 rounded-xl p-6 text-center cursor-pointer hover:bg-white/5 transition hover:border-gold/50">
+                  <label className="block w-full border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:bg-muted transition hover:border-gold/50">
                     <input 
                       type="file" 
                       multiple
@@ -952,8 +995,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                       }}
                     />
                     <Upload className="w-6 h-6 text-gold mx-auto mb-2" />
-                    <div className="text-sm text-white/80">Click to browse or drag and drop</div>
-                    <div className="text-xs text-white/40 mt-1">Images or PDF (max 5MB)</div>
+                    <div className="text-sm text-muted-foreground">Click to browse or drag and drop</div>
+                    <div className="text-xs text-muted-foreground mt-1">Images or PDF (max 5MB)</div>
                   </label>
                 </div>
               </div>
@@ -976,15 +1019,15 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             {/* Reason field for maintenance/blocked */}
             {needsReason && (
               <div className="max-w-2xl mx-auto">
-                <div className="liquid-glass rounded-xl p-4">
-                  <label className="text-sm font-medium text-[var(--text-dark)] block mb-2">
+                <div className="bg-card border border-border shadow-sm rounded-xl p-4">
+                  <label className="text-sm font-medium text-foreground block mb-2">
                     {bookingType === 'MAINTENANCE' ? 'Maintenance Reason' : 'Block Reason'}
                   </label>
                   <textarea
                     value={bookingReason}
                     onChange={(e) => setBookingReason(e.target.value)}
                     placeholder={bookingType === 'MAINTENANCE' ? 'e.g., Pool cleaning, Plumbing repair...' : 'e.g., Family event, Private use...'}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-[var(--text-dark)] focus:outline-none focus:border-gold transition resize-none h-20"
+                    className="w-full bg-muted border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-gold transition resize-none h-20"
                   />
                 </div>
               </div>
@@ -992,15 +1035,15 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
             {/* Internal notes */}
             <div className="max-w-2xl mx-auto">
-              <div className="liquid-glass rounded-xl p-4">
-                <label className="text-sm font-medium text-[var(--text-dark)] block mb-2">
+              <div className="bg-card border border-border shadow-sm rounded-xl p-4">
+                <label className="text-sm font-medium text-foreground block mb-2">
                   Internal Notes (optional)
                 </label>
                 <textarea
                   value={internalNotes}
                   onChange={(e) => setInternalNotes(e.target.value)}
                   placeholder="Notes visible only to owner and staff..."
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-[var(--text-dark)] focus:outline-none focus:border-gold transition resize-none h-16"
+                  className="w-full bg-muted border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-gold transition resize-none h-16"
                 />
               </div>
             </div>
@@ -1016,12 +1059,12 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             )}
 
             <div className="flex justify-center gap-4 mt-8">
-              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
               {bookingType === 'MAINTENANCE' ? (
                 <button 
                   onClick={handleCompleteBooking} 
                   disabled={isProcessing}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold px-8 py-3 rounded-full transition shadow-[0_0_20px_rgba(239,68,68,0.4)] cursor-pointer"
+                  className="bg-red-500 hover:bg-red-600 text-foreground font-bold px-8 py-3 rounded-full transition shadow-[0_0_20px_rgba(239,68,68,0.4)] cursor-pointer"
                 >
                   {isProcessing ? 'Confirming Maintenance...' : 'Confirm Maintenance Booking'}
                 </button>
@@ -1038,24 +1081,24 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {currentStep?.id === 'services' && (
           <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif text-[var(--text-dark)]">Enhance Your Stay</h2>
-              <p className="text-[var(--text-sec-dark)] mt-2">Select from our premium paid add-ons or view complimentary inclusions.</p>
+              <h2 className="text-3xl font-serif text-foreground">Enhance Your Stay</h2>
+              <p className="text-muted-foreground mt-2">Select from our premium paid add-ons or view complimentary inclusions.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Complimentary */}
-              <div className="liquid-glass rounded-2xl p-6">
-                <h3 className="text-lg font-medium text-[var(--text-dark)] mb-4">Complimentary Services</h3>
+              <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
+                <h3 className="text-lg font-medium text-foreground mb-4">Complimentary Services</h3>
                 {complimentaryServices.length === 0 ? (
                   <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm text-[var(--text-sec-dark)]"><CheckCircle2 className="w-4 h-4 text-green-400" /> Daily Housekeeping</li>
-                    <li className="flex items-center gap-2 text-sm text-[var(--text-sec-dark)]"><CheckCircle2 className="w-4 h-4 text-green-400" /> High-speed WiFi</li>
-                    <li className="flex items-center gap-2 text-sm text-[var(--text-sec-dark)]"><CheckCircle2 className="w-4 h-4 text-green-400" /> Swimming Pool Access</li>
-                    <li className="flex items-center gap-2 text-sm text-[var(--text-sec-dark)]"><CheckCircle2 className="w-4 h-4 text-green-400" /> Fresh Linen & Towels</li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-green-400" /> Daily Housekeeping</li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-green-400" /> High-speed WiFi</li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-green-400" /> Swimming Pool Access</li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-green-400" /> Fresh Linen & Towels</li>
                   </ul>
                 ) : (
                   <ul className="space-y-3">
                     {complimentaryServices.map(svc => (
-                      <li key={svc.id} className="flex items-center gap-2 text-sm text-[var(--text-sec-dark)]">
+                      <li key={svc.id} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle2 className="w-4 h-4 text-green-400" /> {svc.name}
                       </li>
                     ))}
@@ -1063,10 +1106,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                 )}
               </div>
               {/* Paid Add-ons */}
-              <div className="liquid-glass rounded-2xl p-6">
-                <h3 className="text-lg font-medium text-[var(--text-dark)] mb-4">Paid Add-ons</h3>
+              <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
+                <h3 className="text-lg font-medium text-foreground mb-4">Paid Add-ons</h3>
                 {paidServices.length === 0 ? (
-                  <p className="text-sm text-[var(--text-sec-dark)]">No paid add-ons available at this time.</p>
+                  <p className="text-sm text-muted-foreground">No paid add-ons available at this time.</p>
                 ) : (
                   <div className="space-y-3">
                     {paidServices.map(svc => {
@@ -1085,7 +1128,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                         : unitPrice * datesCount;
 
                       return (
-                        <div key={svc.id} className={`p-4 rounded-xl border transition space-y-3 ${isSelected ? 'border-gold/50 bg-gold/5' : 'border-white/10 hover:bg-white/5'}`}>
+                        <div key={svc.id} className={`p-4 rounded-xl border transition space-y-3 ${isSelected ? 'border-gold/50 bg-gold/5' : 'border-border hover:bg-muted'}`}>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <input
@@ -1095,8 +1138,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                                 className="w-5 h-5 accent-gold cursor-pointer"
                               />
                               <div>
-                                <div className="text-sm font-bold text-[var(--text-dark)]">{svc.name}</div>
-                                {svc.description && <div className="text-xs text-[var(--text-sec-dark)]">{svc.description}</div>}
+                                <div className="text-sm font-bold text-foreground">{svc.name}</div>
+                                {svc.description && <div className="text-xs text-muted-foreground">{svc.description}</div>}
                                 <div className="text-xs text-gold/80 mt-0.5">
                                   ₹{unitPrice.toLocaleString()}/{svc.chargeType === 'PER_DAY' ? 'day' : svc.chargeType === 'PER_GUEST' ? 'guest' : 'unit'}
                                 </div>
@@ -1105,15 +1148,15 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
                             {/* Quantity Controls only for Per-Guest / Bed add-ons */}
                             {isSelected && isQuantityService ? (
-                              <div className="flex items-center gap-3 bg-black/40 border border-white/10 px-3 py-1.5 rounded-lg">
+                              <div className="flex items-center gap-3 bg-card border border-border px-3 py-1.5 rounded-lg">
                                 <button
                                   type="button"
                                   onClick={() => updateServiceQuantity(svc.id, -1)}
-                                  className="w-7 h-7 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 text-white font-bold transition cursor-pointer"
+                                  className="w-7 h-7 flex items-center justify-center rounded-md bg-muted hover:bg-muted text-foreground font-bold transition cursor-pointer"
                                 >
                                   -
                                 </button>
-                                <span className="text-sm font-bold text-white min-w-[20px] text-center font-mono">
+                                <span className="text-sm font-bold text-foreground min-w-[20px] text-center font-mono">
                                   {qty}
                                 </span>
                                 <button
@@ -1125,7 +1168,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                                 </button>
                               </div>
                             ) : (
-                              <div className="text-sm font-bold text-white/70">
+                              <div className="text-sm font-bold text-muted-foreground">
                                 ₹{totalPrice.toLocaleString()}
                               </div>
                             )}
@@ -1133,11 +1176,11 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
                           {/* Expanded Per-Date Selection & Chef Members Controls when Selected */}
                           {isSelected && (
-                            <div className="pt-3 border-t border-white/10 space-y-3">
+                            <div className="pt-3 border-t border-border space-y-3">
                               {/* Date Selection Pills */}
                               {availableStayDates.length > 0 && (
                                 <div>
-                                  <label className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">
+                                  <label className="block text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                                     Select Service Date(s):
                                   </label>
                                   <div className="flex flex-wrap gap-2">
@@ -1152,7 +1195,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                                           className={`px-3 py-1 rounded-lg text-xs font-medium border transition cursor-pointer ${
                                             isDateChecked
                                               ? 'bg-gold/20 border-gold text-gold font-bold'
-                                              : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'
+                                              : 'bg-muted border-border text-muted-foreground hover:bg-muted'
                                           }`}
                                         >
                                           {isDateChecked ? '✓ ' : ''}{d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -1165,16 +1208,16 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
                               {/* Member Count specifically for Chef Service */}
                               {isChef && (
-                                <div className="flex items-center justify-between bg-black/30 border border-gold/20 p-2.5 rounded-lg">
+                                <div className="flex items-center justify-between bg-card border border-gold/20 p-2.5 rounded-lg">
                                   <div>
-                                    <div className="text-xs font-bold text-white">Chef Guests / Members</div>
+                                    <div className="text-xs font-bold text-foreground">Chef Guests / Members</div>
                                     <div className="text-[10px] text-gold/80">Meals prepared for specified guest count</div>
                                   </div>
-                                  <div className="flex items-center gap-2 bg-white/10 px-2 py-1 rounded-lg border border-white/10">
+                                  <div className="flex items-center gap-2 bg-muted px-2 py-1 rounded-lg border border-border">
                                     <button
                                       type="button"
                                       onClick={() => updateChefMembers(svc.id, -1)}
-                                      className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer"
+                                      className="w-6 h-6 flex items-center justify-center rounded bg-muted hover:bg-muted text-foreground font-bold text-xs cursor-pointer"
                                     >
                                       -
                                     </button>
@@ -1199,7 +1242,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               </div>
             </div>
             <div className="flex justify-center gap-4 mt-8">
-              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
               <button onClick={handleNext} className="bg-gold text-black font-bold px-8 py-3 rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(212,175,55,0.4)]">
                 {rules.paymentStepVisible ? 'Continue to Payment' : 'Review & Confirm'}
               </button>
@@ -1211,28 +1254,28 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {currentStep?.id === 'payment' && (
           <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif text-[var(--text-dark)]">
+              <h2 className="text-3xl font-serif text-foreground">
                 {effectivePaymentRequired ? 'Complete Your Booking' : 'Review & Confirm'}
               </h2>
-              <p className="text-[var(--text-sec-dark)] mt-2">
+              <p className="text-muted-foreground mt-2">
                 {effectivePaymentRequired
                   ? 'Review your summary and enter a promo code if you have one.'
                   : 'Review the booking summary before confirming.'}
               </p>
             </div>
-            <div className="liquid-glass rounded-2xl p-8">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-8">
               {/* Promo Code Engine — only for customer bookings with promos enabled */}
               {rules.promoEnabled && (
-                <div className="mb-8 pb-8 border-b border-white/10">
+                <div className="mb-8 pb-8 border-b border-border">
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={promoCodeInput}
                       onChange={(e) => { setPromoCodeInput(e.target.value); setPromoError(null); setPromoSuccess(null); }}
                       placeholder="Enter Promo Code (e.g. MONSOON25)"
-                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-[var(--text-dark)] focus:outline-none focus:border-gold transition"
+                      className="flex-1 bg-muted border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-gold transition"
                     />
-                    <button onClick={validatePromo} className="bg-white/10 text-[var(--text-dark)] px-6 py-2 rounded-lg hover:bg-white/20 transition cursor-pointer">Apply</button>
+                    <button onClick={validatePromo} className="bg-muted text-foreground px-6 py-2 rounded-lg hover:bg-muted transition cursor-pointer">Apply</button>
                   </div>
                   {promoError && <p className="text-red-400 text-xs mt-2">{promoError}</p>}
                   {promoSuccess && <p className="text-green-400 text-xs mt-2">{promoSuccess}</p>}
@@ -1241,9 +1284,9 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
               {/* Owner Payment Override option for normal owner bookings */}
               {mode !== 'CUSTOMER' && (
-                <div className="mb-6 pb-6 border-b border-white/10 space-y-3">
+                <div className="mb-6 pb-6 border-b border-border space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white/80 uppercase tracking-wider">Owner Payment Policy</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Owner Payment Policy</span>
                     <span className="text-xs px-3 py-1 rounded-full bg-gold/20 text-gold border border-gold/30">
                       {rules.label}
                     </span>
@@ -1255,7 +1298,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                       className={`py-2 px-3 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                         effectivePaymentRequired
                           ? 'bg-gold/20 text-gold border-gold'
-                          : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
+                          : 'bg-muted text-muted-foreground border-border hover:bg-muted'
                       }`}
                     >
                       Collect Payment Now
@@ -1266,7 +1309,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                       className={`py-2 px-3 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                         !effectivePaymentRequired
                           ? 'bg-green-500/20 text-green-400 border-green-500/40 font-bold'
-                          : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
+                          : 'bg-muted text-muted-foreground border-border hover:bg-muted'
                       }`}
                     >
                       No Payment Required (Pay Later)
@@ -1284,18 +1327,18 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               {pricing ? (
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--text-sec-dark)]">{pricing.nights} Nights Accommodation</span>
-                    <span className="text-[var(--text-dark)] font-medium">₹{pricing.baseAccommodation.toLocaleString()}</span>
+                    <span className="text-muted-foreground">{pricing.nights} Nights Accommodation</span>
+                    <span className="text-foreground font-medium">₹{pricing.baseAccommodation.toLocaleString()}</span>
                   </div>
                   {pricing.serviceBreakdown.map((svc, i) => (
                     <div key={i} className="flex justify-between text-sm">
-                      <span className="text-[var(--text-sec-dark)]">{svc.name} ({svc.quantity} {svc.chargeType === 'PER_DAY' ? 'days' : svc.chargeType === 'PER_GUEST' ? 'guests' : ''})</span>
-                      <span className="text-[var(--text-dark)] font-medium">₹{(svc.total || 0).toLocaleString()}</span>
+                      <span className="text-muted-foreground">{svc.name} ({svc.quantity} {svc.chargeType === 'PER_DAY' ? 'days' : svc.chargeType === 'PER_GUEST' ? 'guests' : ''})</span>
+                      <span className="text-foreground font-medium">₹{(svc.total || 0).toLocaleString()}</span>
                     </div>
                   ))}
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--text-sec-dark)]">Cleaning Fee</span>
-                    <span className="text-[var(--text-dark)] font-medium">₹{pricing.cleaningFee.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Cleaning Fee</span>
+                    <span className="text-foreground font-medium">₹{pricing.cleaningFee.toLocaleString()}</span>
                   </div>
                   {pricing.discount > 0 && (
                     <div className="flex justify-between text-sm text-green-400 font-medium">
@@ -1304,8 +1347,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--text-sec-dark)]">GST (18%)</span>
-                    <span className="text-[var(--text-dark)] font-medium">₹{pricing.gst.toLocaleString()}</span>
+                    <span className="text-muted-foreground">GST (18%)</span>
+                    <span className="text-foreground font-medium">₹{pricing.gst.toLocaleString()}</span>
                   </div>
                   
                   {(() => {
@@ -1330,17 +1373,17 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                     return null;
                   })()}
 
-                  <div className="border-t border-white/10 pt-4 flex justify-between items-end">
+                  <div className="border-t border-border pt-4 flex justify-between items-end">
                     <div>
-                      <div className="text-xs text-[var(--text-sec-dark)] mb-1">
+                      <div className="text-xs text-muted-foreground mb-1">
                         {effectivePaymentRequired ? 'Total Payable' : 'Estimated Value'}
                       </div>
-                      <div className="text-[var(--text-dark)] text-2xl font-bold">₹{pricing.total.toLocaleString()}</div>
+                      <div className="text-foreground text-2xl font-bold">₹{pricing.total.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-[var(--text-sec-dark)]">Loading pricing...</div>
+                <div className="text-center py-8 text-muted-foreground">Loading pricing...</div>
               )}
 
               {/* Payment Type Selection — only when payment required */}
@@ -1377,54 +1420,54 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                         <>
                           <button
                             onClick={() => setPaymentType('ADVANCE')}
-                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'ADVANCE' ? 'border-2 border-gold bg-gold/10' : 'border border-white/10 bg-white/5 hover:bg-white/10'}`}
+                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'ADVANCE' ? 'border-2 border-gold bg-gold/10' : 'border border-border bg-muted hover:bg-muted'}`}
                           >
-                            <div className="font-bold text-[var(--text-dark)] mb-2">Pay Advance</div>
+                            <div className="font-bold text-foreground mb-2">Pay Advance</div>
                             <div className="text-sm space-y-1 mb-2">
-                              <div className="flex justify-between text-[var(--text-sec-dark)]">
+                              <div className="flex justify-between text-muted-foreground">
                                 <span>Advance Amount Paid:</span>
                                 <span>₹{oldPaid.toLocaleString()}</span>
                               </div>
-                              <div className="flex justify-between text-[var(--text-sec-dark)]">
+                              <div className="flex justify-between text-muted-foreground">
                                 <span>Required Advance (33%):</span>
                                 <span>₹{newAdvance.toLocaleString()}</span>
                               </div>
                               {advanceDiff > 0 ? (
-                                <div className="flex justify-between text-gold font-bold pt-1 border-t border-white/10">
+                                <div className="flex justify-between text-gold font-bold pt-1 border-t border-border">
                                   <span>Remaining to be Paid:</span>
                                   <span>₹{Math.max(0, advanceDiff - walletBalance).toLocaleString()}</span>
                                 </div>
                               ) : (
-                                <div className="flex justify-between text-green-400 font-bold pt-1 border-t border-white/10">
+                                <div className="flex justify-between text-green-400 font-bold pt-1 border-t border-border">
                                   <span>Advance Status:</span>
                                   <span>Fully Covered</span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-xs text-[var(--text-sec-dark)] mt-2">
+                            <div className="text-xs text-muted-foreground mt-2">
                               {advanceDiff <= 0 ? 'Advance covered. Pay remaining at check-in' : 'Pay remaining for advance'}
                             </div>
                           </button>
                           <button
                             onClick={() => setPaymentType('FULL')}
-                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'FULL' ? 'border-2 border-gold bg-gold/10' : 'border border-white/10 bg-white/5 hover:bg-white/10'}`}
+                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'FULL' ? 'border-2 border-gold bg-gold/10' : 'border border-border bg-muted hover:bg-muted'}`}
                           >
-                            <div className="font-bold text-[var(--text-dark)] mb-2">Pay Full</div>
+                            <div className="font-bold text-foreground mb-2">Pay Full</div>
                             <div className="text-sm space-y-1 mb-2">
-                                <div className="flex justify-between text-[var(--text-sec-dark)]">
+                                <div className="flex justify-between text-muted-foreground">
                                   <span>Amount Paid:</span>
                                   <span>₹{oldPaid.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between text-[var(--text-sec-dark)]">
+                                <div className="flex justify-between text-muted-foreground">
                                   <span>New Total:</span>
                                   <span>₹{total.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between text-white font-bold pt-1 border-t border-white/10">
+                                <div className="flex justify-between text-foreground font-bold pt-1 border-t border-border">
                                   <span>Remaining to be Paid:</span>
                                   <span>₹{Math.max(0, fullDiff - walletBalance).toLocaleString()}</span>
                                 </div>
                             </div>
-                            <div className="text-xs text-[var(--text-sec-dark)] mt-2">Settle difference now</div>
+                            <div className="text-xs text-muted-foreground mt-2">Settle difference now</div>
                           </button>
                         </>
                       );
@@ -1433,19 +1476,19 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                         <>
                           <button
                             onClick={() => setPaymentType('ADVANCE')}
-                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'ADVANCE' ? 'border-2 border-gold bg-gold/10' : 'border border-white/10 bg-white/5 hover:bg-white/10'}`}
+                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'ADVANCE' ? 'border-2 border-gold bg-gold/10' : 'border border-border bg-muted hover:bg-muted'}`}
                           >
-                            <div className="font-bold text-[var(--text-dark)] mb-1">Pay Advance (33%)</div>
+                            <div className="font-bold text-foreground mb-1">Pay Advance (33%)</div>
                             <div className="text-gold font-bold">₹{Math.max(0, Math.round(total * 0.33) - walletBalance).toLocaleString()}</div>
-                            <div className="text-xs text-[var(--text-sec-dark)] mt-2">Pay remaining at check-in</div>
+                            <div className="text-xs text-muted-foreground mt-2">Pay remaining at check-in</div>
                           </button>
                           <button
                             onClick={() => setPaymentType('FULL')}
-                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'FULL' ? 'border-2 border-gold bg-gold/10' : 'border border-white/10 bg-white/5 hover:bg-white/10'}`}
+                            className={`p-4 rounded-xl text-center transition cursor-pointer ${paymentType === 'FULL' ? 'border-2 border-gold bg-gold/10' : 'border border-border bg-muted hover:bg-muted'}`}
                           >
-                            <div className="font-bold text-[var(--text-dark)] mb-1">Pay Full</div>
-                            <div className="text-white font-bold">₹{Math.max(0, total - walletBalance).toLocaleString()}</div>
-                            <div className="text-xs text-[var(--text-sec-dark)] mt-2">Settle everything now</div>
+                            <div className="font-bold text-foreground mb-1">Pay Full</div>
+                            <div className="text-foreground font-bold">₹{Math.max(0, total - walletBalance).toLocaleString()}</div>
+                            <div className="text-xs text-muted-foreground mt-2">Settle everything now</div>
                           </button>
                         </>
                       );
@@ -1455,7 +1498,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               )}
             </div>
             <div className="flex justify-between mt-8">
-              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
               <button
                 onClick={handleCompleteBooking}
                 disabled={isProcessing}
@@ -1470,36 +1513,36 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         {/* ─── Services → Direct Confirm (when payment step is hidden) ─── */}
         {currentStep?.id === 'done' && !rules.paymentStepVisible && !bookingResult && (
           <div className="space-y-6 animate-fade-in max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-[var(--text-dark)]">Confirm Booking</h2>
-            <p className="text-[var(--text-sec-dark)] mt-2">This booking will be confirmed immediately without payment.</p>
+            <h2 className="text-3xl font-serif text-foreground">Confirm Booking</h2>
+            <p className="text-muted-foreground mt-2">This booking will be confirmed immediately without payment.</p>
 
-            <div className="liquid-glass rounded-2xl p-6 text-left max-w-md mx-auto space-y-3">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-6 text-left max-w-md mx-auto space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-sec-dark)]">Type</span>
+                <span className="text-muted-foreground">Type</span>
                 <span className="text-gold font-medium">{rules.label}</span>
               </div>
               {dateRange.start && dateRange.end && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-sec-dark)]">Dates</span>
-                  <span className="text-[var(--text-dark)]">
+                  <span className="text-muted-foreground">Dates</span>
+                  <span className="text-foreground">
                     {dateRange.start.toLocaleDateString()} – {dateRange.end.toLocaleDateString()}
                   </span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-sec-dark)]">Guests</span>
-                <span className="text-[var(--text-dark)]">{totalGuests}</span>
+                <span className="text-muted-foreground">Guests</span>
+                <span className="text-foreground">{totalGuests}</span>
               </div>
               {bookingReason && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-sec-dark)]">Reason</span>
-                  <span className="text-[var(--text-dark)]">{bookingReason}</span>
+                  <span className="text-muted-foreground">Reason</span>
+                  <span className="text-foreground">{bookingReason}</span>
                 </div>
               )}
             </div>
 
             <div className="flex justify-center gap-4 mt-8">
-              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition">Back</button>
+              <button onClick={handlePrev} className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition">Back</button>
               <button
                 onClick={handleCompleteBooking}
                 disabled={isProcessing}
@@ -1520,34 +1563,34 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             <h2 className="text-3xl font-serif text-green-400 mb-4">
               {rules.autoConfirm ? 'Booking Confirmed!' : 'Booking Submitted!'}
             </h2>
-            <p className="text-[var(--text-sec-dark)] mb-2">
+            <p className="text-muted-foreground mb-2">
               {mode === 'CUSTOMER'
                 ? 'Your stay at Seven C Villa is confirmed.'
                 : `${rules.label} has been ${rules.autoConfirm ? 'confirmed' : 'submitted'}.`}
             </p>
-            <p className="text-[var(--text-sec-dark)] mb-8">
-              Booking ID: <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">{bookingResult?.booking?.bookingCode || 'MVN-XXXX'}</span>
+            <p className="text-muted-foreground mb-8">
+              Booking ID: <span className="font-mono text-foreground bg-muted px-2 py-1 rounded">{bookingResult?.booking?.bookingCode || 'MVN-XXXX'}</span>
             </p>
 
             {/* Quick stats */}
-            <div className="max-w-md mx-auto liquid-glass p-6 rounded-xl text-left mb-8 space-y-2">
+            <div className="max-w-md mx-auto bg-card border border-border shadow-sm p-6 rounded-xl text-left mb-8 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-sec-dark)]">Type</span>
+                <span className="text-muted-foreground">Type</span>
                 <span className="text-gold">{rules.label}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-sec-dark)]">Status</span>
+                <span className="text-muted-foreground">Status</span>
                 <span className="text-green-400">{bookingResult?.booking?.status || 'CONFIRMED'}</span>
               </div>
               {bookingResult?.requiresPayment && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-sec-dark)]">Payment</span>
-                  <span className="text-[var(--text-dark)]">Required</span>
+                  <span className="text-muted-foreground">Payment</span>
+                  <span className="text-foreground">Required</span>
                 </div>
               )}
               {!bookingResult?.requiresPayment && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-sec-dark)]">Payment</span>
+                  <span className="text-muted-foreground">Payment</span>
                   <span className="text-green-400">Not Required</span>
                 </div>
               )}
@@ -1555,7 +1598,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
             <div className="flex justify-center gap-4">
               {bookingResult?.requiresPayment && (
-                <button className="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white/5 transition cursor-pointer">Download Invoice</button>
+                <button className="px-6 py-2 rounded-full border border-border text-foreground hover:bg-muted transition cursor-pointer">Download Invoice</button>
               )}
               <button onClick={() => window.location.href = '/'} className="bg-gold text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition cursor-pointer">
                 {mode === 'CUSTOMER' ? 'View Dashboard' : 'Back to Bookings'}
@@ -1576,12 +1619,12 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
       {/* Lightbox Image Viewer Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4" 
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-card p-4" 
           onClick={() => setSelectedImage(null)}
         >
           <button 
             type="button" 
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+            className="absolute top-4 right-4 text-foreground hover:text-gray-300 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedImage(null);

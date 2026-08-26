@@ -29,13 +29,14 @@ export default function LandingPage() {
   const closeBooking = () => setIsBookingOpen(false);
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-gold selection:text-black">
+    <div className={`min-h-screen flex flex-col selection:bg-gold selection:text-black transition-colors duration-700 ${isDark ? 'bg-[#0A0A09] text-white' : 'bg-[#F7F5F1] text-black'}`}>
       {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
 
       <Navbar
         isDark={isDark}
         onToggleTheme={setIsDark}
         onOpenBooking={openBooking}
+        startAnimation={!isLoading}
       />
 
       <main className="flex-grow">
@@ -43,6 +44,7 @@ export default function LandingPage() {
           isDark={isDark}
           onToggleTheme={setIsDark}
           onOpenBooking={openBooking}
+          startAnimation={!isLoading}
         />
         <ExperienceSection isDark={isDark} onOpenBooking={openBooking} />
         <PoolAndOutdoorsSection isDark={isDark} onOpenBooking={openBooking} />

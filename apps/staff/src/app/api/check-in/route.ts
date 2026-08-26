@@ -3,7 +3,7 @@ import { prisma } from '@villa-platform/database';
 
 export async function POST(req: Request) {
   try {
-    const { bookingId } = await req.json();
+    const { bookingId, collectCash } = await req.json();
 
     if (!bookingId) {
       return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
@@ -11,6 +11,29 @@ export async function POST(req: Request) {
 
     // Wrap in a transaction to ensure both status updates and events log
     await prisma.$transaction(async (tx) => {
+      
+      // If cash is collected during check-in, record it
+      if (collectCash && collectCash > 0) {
+        await tx.paymentTransaction.create({
+          data: {
+            bookingId: bookingId,
+            amount: collectCash,
+            method: 'CASH',
+            status: 'COMPLETED',
+            verifiedBy: 'STAFF_CHECKIN'
+          }
+        });
+
+        await tx.booking.update({
+          where: { id: bookingId },
+          data: {
+            totalBalancePaid: { increment: collectCash },
+            totalPaid: { increment: collectCash },
+            amountToBePaid: { decrement: collectCash }
+          }
+        });
+      }
+
       // Update the booking status to CHECKED_IN
       await tx.booking.update({
         where: { id: bookingId },

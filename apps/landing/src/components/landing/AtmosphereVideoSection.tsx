@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from 'react';
 import { Sparkles, ShieldCheck, Utensils, HeartHandshake } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MEDIA } from '../../constants/media';
@@ -10,6 +11,16 @@ interface AtmosphereVideoSectionProps {
 export default function AtmosphereVideoSection({
   isDark = true,
 }: AtmosphereVideoSectionProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Explicitly enforce loop to override any stale state from fast-refresh
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.loop = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   return (
     <section
       id="atmosphere"
@@ -17,6 +28,7 @@ export default function AtmosphereVideoSection({
     >
       {/* Background Video Asset from mindloop */}
       <video
+        ref={videoRef}
         src={MEDIA.videos.heroAtmosphere}
         className="absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none transform-gpu select-none filter saturate-[1.2]"
         style={{
@@ -31,8 +43,8 @@ export default function AtmosphereVideoSection({
       <div
         className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${
           isDark
-            ? 'bg-gradient-to-t from-black via-black/60 to-black/80'
-            : 'bg-gradient-to-t from-[#F7F5F1] via-[#F7F5F1]/65 to-[#F7F5F1]/85'
+            ? 'bg-gradient-to-t from-black/50 via-black/30 to-black/40'
+            : 'bg-transparent'
         }`}
       />
 
@@ -45,7 +57,7 @@ export default function AtmosphereVideoSection({
           className="section-badge mb-6 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs uppercase tracking-wider"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>The Mindloop of Luxury</span>
+          <span>Immersive Serenity</span>
         </motion.div>
 
         <motion.h2
@@ -57,22 +69,10 @@ export default function AtmosphereVideoSection({
             isDark ? 'text-white' : 'text-black'
           }`}
         >
-          Immersive Serenity at{' '}
-          <span className="italic font-normal text-gold">Chunawala&apos;s Seven C Villa</span>
+          Immersive Serenity
         </motion.h2>
 
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.85, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className={`text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-12 sm:mb-16 font-light leading-relaxed px-2 transition-colors ${
-            isDark ? 'text-white/85' : 'text-black/80'
-          }`}
-        >
-          Where modern architectural precision meets the calm of nature. Every moment is crafted
-          for total relaxation, privacy, and unforgettable hospitality.
-        </motion.p>
+        {/* Removed description paragraph as requested */}
 
         {/* Glassmorphic Luxury Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 text-left">
@@ -81,10 +81,10 @@ export default function AtmosphereVideoSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.85, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
-            className={`p-7 sm:p-8 rounded-3xl border transition-all ${
+            className={`p-7 sm:p-8 rounded-3xl transition-all liquid-glass ${
               isDark
-                ? 'liquid-glass border-white/15 hover:border-gold/50 text-white'
-                : 'bg-white/80 border-black/15 hover:border-gold text-black shadow-xl'
+                ? 'border-white/15 hover:border-gold/50 text-white'
+                : 'border-black/15 hover:border-gold text-black shadow-xl'
             }`}
           >
             <div className="w-12 h-12 rounded-2xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold mb-6">
@@ -106,10 +106,10 @@ export default function AtmosphereVideoSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.85, delay: 1.35, ease: [0.16, 1, 0.3, 1] }}
-            className={`p-7 sm:p-8 rounded-3xl border transition-all ${
+            className={`p-7 sm:p-8 rounded-3xl transition-all liquid-glass ${
               isDark
-                ? 'liquid-glass border-white/15 hover:border-gold/50 text-white'
-                : 'bg-white/80 border-black/15 hover:border-gold text-black shadow-xl'
+                ? 'border-white/15 hover:border-gold/50 text-white'
+                : 'border-black/15 hover:border-gold text-black shadow-xl'
             }`}
           >
             <div className="w-12 h-12 rounded-2xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold mb-6">
@@ -131,10 +131,10 @@ export default function AtmosphereVideoSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.85, delay: 1.65, ease: [0.16, 1, 0.3, 1] }}
-            className={`p-7 sm:p-8 rounded-3xl border transition-all sm:col-span-2 md:col-span-1 ${
+            className={`p-7 sm:p-8 rounded-3xl transition-all sm:col-span-2 md:col-span-1 liquid-glass ${
               isDark
-                ? 'liquid-glass border-white/15 hover:border-gold/50 text-white'
-                : 'bg-white/80 border-black/15 hover:border-gold text-black shadow-xl'
+                ? 'border-white/15 hover:border-gold/50 text-white'
+                : 'border-black/15 hover:border-gold text-black shadow-xl'
             }`}
           >
             <div className="w-12 h-12 rounded-2xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold mb-6">

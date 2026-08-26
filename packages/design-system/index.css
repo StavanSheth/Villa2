@@ -1,0 +1,210 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Master Entry Point
+   
+   Import this single file in your app's globals.css:
+     @import "@villa-platform/design-system/index.css";
+   
+   Import order matters:
+     1. Tokens (define the variables)
+     2. Themes (apply base styles using the variables)
+     3. Glass (material system using the variables)
+     4. Utilities (helper classes)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Design Tokens ── */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radius.css";
+@import "./tokens/shadows.css";
+@import "./tokens/motion.css";
+
+/* ── 2. Theme Base Styles ── */
+@import "./themes/light.css";
+@import "./themes/dark.css";
+
+/* ── 3. Glass Material System ── */
+@import "./themes/glass.css";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   4. Base Reset & Utility Classes
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Box Sizing Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Animation Utilities ── */
+.animate-fade-in {
+  animation: villa-fade-in 0.6s var(--ease-out) forwards;
+}
+
+.animate-scale-in {
+  animation: villa-scale-in 0.5s var(--ease-out) forwards;
+}
+
+.animate-slide-in {
+  animation: villa-slide-in-right 0.5s var(--ease-out) forwards;
+}
+
+/* ── Staggered cascade animations ── */
+.animate-cascade-1 { opacity: 0; animation: villa-fade-in 0.6s var(--ease-out) 0.1s forwards; }
+.animate-cascade-2 { opacity: 0; animation: villa-fade-in 0.6s var(--ease-out) 0.2s forwards; }
+.animate-cascade-3 { opacity: 0; animation: villa-fade-in 0.6s var(--ease-out) 0.3s forwards; }
+.animate-cascade-4 { opacity: 0; animation: villa-fade-in 0.6s var(--ease-out) 0.4s forwards; }
+.animate-cascade-5 { opacity: 0; animation: villa-fade-in 0.6s var(--ease-out) 0.5s forwards; }
+
+/* ── Status Badge Base Classes ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-overline-size);
+  font-weight: var(--text-overline-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-overline-letter-spacing);
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-badge);
+}
+
+.badge-success {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+}
+
+.badge-danger {
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.badge-warning {
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+}
+
+.badge-info {
+  background: color-mix(in srgb, var(--info) 15%, transparent);
+  color: var(--info);
+  border: 1px solid color-mix(in srgb, var(--info) 30%, transparent);
+}
+
+.badge-gold {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* ── Button Base Classes ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-overline-size);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-button);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-all);
+  font-family: var(--font-sans);
+}
+
+.btn-primary:hover {
+  background: var(--gold-bright);
+  box-shadow: var(--shadow-gold-glow);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--foreground);
+  font-weight: var(--font-medium);
+  font-size: var(--text-overline-size);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition-all);
+  font-family: var(--font-sans);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── Input Base ── */
+.input {
+  width: 100%;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 0.75rem 1rem;
+  font-size: var(--text-body-size);
+  color: var(--input-foreground);
+  font-family: var(--font-sans);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* ── Table Base ── */
+table {
+  border-collapse: collapse;
+}
+
+th {
+  font-family: var(--font-sans);
+  font-weight: var(--font-semibold);
+}
+
+/* ── Section Badge ── */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-badge);
+  font-size: var(--text-caption-size);
+  font-weight: var(--font-semibold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+}

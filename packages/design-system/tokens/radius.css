@@ -1,0 +1,31 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Radius Tokens
+   Standardized border-radius scale.
+   
+   Rule: radius is a design token, not an individual decision.
+   Components use semantic radius, not arbitrary px values.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Radius Scale ── */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* ── Shadcn-compatible base radius ── */
+  --radius: 20px;
+
+  /* ── Component-Specific Mappings ── */
+  --radius-button: var(--radius-sm);     /* 12px */
+  --radius-input: var(--radius-sm);      /* 12px */
+  --radius-card: var(--radius-lg);       /* 20px */
+  --radius-card-lg: var(--radius-xl);    /* 24px */
+  --radius-modal: var(--radius-2xl);     /* 28px */
+  --radius-sidebar: var(--radius-xl);    /* 24px */
+  --radius-badge: var(--radius-full);    /* pill */
+  --radius-avatar: var(--radius-full);   /* circle */
+}

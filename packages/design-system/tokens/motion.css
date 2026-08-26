@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Motion Tokens
+   Subtle, physical Apple-like animations.
+   
+   Rule: animations should feel like natural physics, not marketing effects.
+   Card hover: translateY(-2px), NOT translateY(-10px).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Duration Scale ── */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-normal: 220ms;
+  --duration-slow: 300ms;
+  --duration-theme: 300ms;
+  --duration-page: 220ms;
+
+  /* ── Component-Specific Durations ── */
+  --duration-button: 140ms;
+  --duration-card: 180ms;
+  --duration-modal: 220ms;
+  --duration-sidebar: 300ms;
+
+  /* ── Easing Functions ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.19, 1, 0.22, 1);
+
+  /* ── Composite Transitions ── */
+  --transition-colors: background-color var(--duration-theme) ease,
+    border-color var(--duration-theme) ease,
+    color var(--duration-theme) ease,
+    box-shadow var(--duration-theme) ease;
+  
+  --transition-transform: transform var(--duration-card) var(--ease-out);
+  
+  --transition-all: background-color var(--duration-theme) ease,
+    border-color var(--duration-theme) ease,
+    color var(--duration-theme) ease,
+    box-shadow var(--duration-theme) ease,
+    transform var(--duration-card) var(--ease-out);
+}
+
+/* ── Keyframe Animations ── */
+@keyframes villa-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes villa-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes villa-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes villa-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes villa-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

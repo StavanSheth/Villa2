@@ -2,7 +2,7 @@ import { protectRoute } from '@villa-platform/middleware';
 import { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  return protectRoute(req);
+  return protectRoute(req, ['CUSTOMER', 'OWNER', 'STAFF', 'ADMIN', 'SUPER_ADMIN']);
 }
 
 export const config = {

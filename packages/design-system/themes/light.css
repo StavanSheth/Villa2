@@ -1,0 +1,54 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Day Mode (Light Theme)
+   
+   This file applies base styles when in Day mode (:root, no .dark class).
+   The actual variable values are defined in tokens/colors.css.
+   This file handles the base element styling for Day mode.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Base Element Styling ── */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-weight: var(--font-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: var(--transition-colors);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: var(--gold-soft);
+  color: var(--foreground);
+}
+
+.dark ::selection {
+  background-color: var(--gold-dark);
+  color: var(--foreground);
+}
+
+/* ── Focus Ring ── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

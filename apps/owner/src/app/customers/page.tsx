@@ -71,8 +71,8 @@ export default async function CustomersPage() {
     <div className="space-y-8 animate-fade-in pb-20 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[var(--text-dark)]">Customers</h1>
-          <p className="text-[var(--text-sec-dark)] mt-1">Directory of guests who have booked your properties.</p>
+          <h1 className="text-3xl font-serif text-foreground">Customers</h1>
+          <p className="text-muted-foreground mt-1">Directory of guests who have booked your properties.</p>
         </div>
       </div>
       

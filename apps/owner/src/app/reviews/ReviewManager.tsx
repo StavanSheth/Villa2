@@ -26,12 +26,12 @@ export function ReviewManager({ initialReviews }: { initialReviews: any[] }) {
 
   if (reviews.length === 0) {
     return (
-      <div className="liquid-glass rounded-2xl p-20 text-center mt-8 border border-white/10">
-        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="bg-card border border-border shadow-sm rounded-2xl p-20 text-center mt-8 border border-border">
+        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
           <Star className="w-8 h-8 text-gold opacity-50" />
         </div>
-        <h2 className="text-xl font-medium text-[var(--text-dark)] mb-2">No Reviews Yet</h2>
-        <p className="text-[var(--text-sec-dark)] max-w-md mx-auto">
+        <h2 className="text-xl font-medium text-foreground mb-2">No Reviews Yet</h2>
+        <p className="text-muted-foreground max-w-md mx-auto">
           Reviews will appear here once guests complete their stays and leave feedback.
         </p>
       </div>
@@ -41,23 +41,23 @@ export function ReviewManager({ initialReviews }: { initialReviews: any[] }) {
   return (
     <div className="space-y-4 mt-8">
       {reviews.map((review) => (
-        <div key={review.id} className="liquid-glass rounded-2xl p-6 flex flex-col md:flex-row gap-6 border border-white/5">
+        <div key={review.id} className="bg-card border border-border shadow-sm rounded-2xl p-6 flex flex-col md:flex-row gap-6 border border-border">
           <div className="flex-1 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-medium text-white">{review.user?.firstName} {review.user?.lastName}</h3>
-                <p className="text-sm text-white/50">{review.villa?.name} • <span suppressHydrationWarning>{new Date(review.createdAt).toLocaleDateString()}</span></p>
+                <h3 className="text-lg font-medium text-foreground">{review.user?.firstName} {review.user?.lastName}</h3>
+                <p className="text-sm text-muted-foreground">{review.villa?.name} • <span suppressHydrationWarning>{new Date(review.createdAt).toLocaleDateString()}</span></p>
               </div>
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-gold text-gold' : 'text-white/20'}`} />
+                  <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-gold text-gold' : 'text-muted-foreground'}`} />
                 ))}
               </div>
             </div>
-            <p className="text-white/80 italic">"{review.comment}"</p>
+            <p className="text-muted-foreground italic">"{review.comment}"</p>
           </div>
           
-          <div className="flex items-center md:flex-col justify-end md:justify-center gap-3 shrink-0 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6 min-w-[120px]">
+          <div className="flex items-center md:flex-col justify-end md:justify-center gap-3 shrink-0 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 min-w-[120px]">
             {review.status === 'PENDING' ? (
               <>
                 <button 

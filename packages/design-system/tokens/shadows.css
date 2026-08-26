@@ -1,0 +1,25 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Shadow Tokens
+   Day: very soft shadows.  Night: deeper shadows with subtle borders.
+   
+   Shadows use var(--shadow-color) which auto-adapts to Day/Night.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Elevation Scale ── */
+  --shadow-xs: 0 1px 2px var(--shadow-color);
+  --shadow-sm: 0 2px 8px var(--shadow-color);
+  --shadow-md: 0 8px 30px var(--shadow-color);
+  --shadow-lg: 0 12px 40px var(--shadow-color);
+  --shadow-xl: 0 20px 60px var(--shadow-color);
+
+  /* ── Special Shadows ── */
+  --shadow-card: 0 8px 30px var(--shadow-color);
+  --shadow-card-hover: 0 12px 40px var(--shadow-color);
+  --shadow-floating: 0 20px 60px var(--shadow-color);
+  --shadow-inset: inset 0 2px 4px var(--shadow-color);
+
+  /* ── Gold Glow (for hover states on primary elements) ── */
+  --shadow-gold-glow: 0 8px 32px rgba(212, 167, 44, 0.20);
+  --shadow-gold-glow-strong: 0 12px 40px rgba(212, 167, 44, 0.30);
+}

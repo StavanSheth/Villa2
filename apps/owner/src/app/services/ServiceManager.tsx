@@ -101,8 +101,8 @@ export function ServiceManager({ initialServices }: { initialServices: any[] }) 
     <>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[var(--text-dark)]">Services & Add-ons</h1>
-          <p className="text-[var(--text-sec-dark)] mt-1">Manage extra services, food options, and complementary amenities.</p>
+          <h1 className="text-3xl font-serif text-foreground">Services & Add-ons</h1>
+          <p className="text-muted-foreground mt-1">Manage extra services, food options, and complementary amenities.</p>
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-gold text-black font-semibold px-5 py-2.5 rounded-lg hover:scale-105 transition shadow-lg cursor-pointer">
           <Plus className="w-5 h-5" />
@@ -110,55 +110,55 @@ export function ServiceManager({ initialServices }: { initialServices: any[] }) 
         </button>
       </div>
 
-      <div className="liquid-glass rounded-2xl overflow-hidden mt-8">
-        <div className="p-6 border-b border-white/10 bg-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border shadow-sm rounded-2xl overflow-hidden mt-8">
+        <div className="p-6 border-b border-border bg-muted flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-gold" />
-          <h2 className="text-lg font-medium text-[var(--text-dark)]">Configured Services ({services.length})</h2>
+          <h2 className="text-lg font-medium text-foreground">Configured Services ({services.length})</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Service Name</th>
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Type</th>
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Category</th>
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Pricing</th>
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Taxable</th>
-                <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Actions</th>
+              <tr className="border-b border-border">
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Service Name</th>
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category</th>
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pricing</th>
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Taxable</th>
+                <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {services.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-[var(--text-sec-dark)]">No services found.</td>
+                  <td colSpan={6} className="p-8 text-center text-muted-foreground">No services found.</td>
                 </tr>
               )}
               {services.map((svc) => (
-                <tr key={svc.id} className="hover:bg-white/5 transition-colors group">
+                <tr key={svc.id} className="hover:bg-muted transition-colors group">
                   <td className="p-4">
-                    <div className="font-medium text-[var(--text-dark)]">{svc.name}</div>
-                    <div className="text-xs text-[var(--text-sec-dark)] mt-1">{svc.description}</div>
+                    <div className="font-medium text-foreground">{svc.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{svc.description}</div>
                   </td>
                   <td className="p-4">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${svc.type === 'COMPLIMENTARY' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}`}>
                       {svc.type}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-[var(--text-sec-dark)]">{svc.category}</td>
+                  <td className="p-4 text-sm text-muted-foreground">{svc.category}</td>
                   <td className="p-4">
                     {svc.type === 'PAID' ? (
-                      <div className="font-bold text-gold">₹{Number(svc.price).toLocaleString()} <span className="text-xs text-[var(--text-sec-dark)] font-normal">/ {svc.chargeType.replace('PER_', '').toLowerCase()}</span></div>
+                      <div className="font-bold text-gold">₹{Number(svc.price).toLocaleString()} <span className="text-xs text-muted-foreground font-normal">/ {svc.chargeType.replace('PER_', '').toLowerCase()}</span></div>
                     ) : (
                       <div className="font-bold text-green-400">Free</div>
                     )}
                   </td>
-                  <td className="p-4 text-sm text-[var(--text-sec-dark)]">{svc.taxable ? 'Yes' : 'No'}</td>
+                  <td className="p-4 text-sm text-muted-foreground">{svc.taxable ? 'Yes' : 'No'}</td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleOpenModal(svc)} className="p-1.5 rounded-md text-[var(--text-sec-dark)] hover:text-white hover:bg-white/10 transition cursor-pointer">
+                      <button onClick={() => handleOpenModal(svc)} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition cursor-pointer">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(svc.id)} className="p-1.5 rounded-md text-[var(--text-sec-dark)] hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer">
+                      <button onClick={() => handleDelete(svc.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -171,26 +171,26 @@ export function ServiceManager({ initialServices }: { initialServices: any[] }) 
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1C2128] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center shrink-0">
-              <h3 className="text-xl font-serif text-white">{editingId ? 'Edit Service' : 'Add Service'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-white/50 hover:text-white cursor-pointer"><X className="w-5 h-5"/></button>
+        <div className="fixed inset-0 bg-card backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-border flex justify-between items-center shrink-0">
+              <h3 className="text-xl font-serif text-foreground">{editingId ? 'Edit Service' : 'Add Service'}</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground cursor-pointer"><X className="w-5 h-5"/></button>
             </div>
             
             <div className="p-6 space-y-4 overflow-y-auto">
               <div>
-                <label className="text-xs text-white/50 uppercase">Service Name</label>
-                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                <label className="text-xs text-muted-foreground uppercase">Service Name</label>
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-muted border border-border rounded-lg p-2 text-foreground mt-1" />
               </div>
               <div>
-                <label className="text-xs text-white/50 uppercase">Description (optional)</label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1 h-20" />
+                <label className="text-xs text-muted-foreground uppercase">Description (optional)</label>
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-muted border border-border rounded-lg p-2 text-foreground mt-1 h-20" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-white/50 uppercase">Category</label>
-                  <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-[#1C2128] border border-white/10 rounded-lg p-2 text-white mt-1">
+                  <label className="text-xs text-muted-foreground uppercase">Category</label>
+                  <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-card border border-border rounded-lg p-2 text-foreground mt-1">
                     <option value="FOOD">Food</option>
                     <option value="TRANSPORT">Transport</option>
                     <option value="ACTIVITY">Activity</option>
@@ -201,8 +201,8 @@ export function ServiceManager({ initialServices }: { initialServices: any[] }) 
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-white/50 uppercase">Type</label>
-                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-[#1C2128] border border-white/10 rounded-lg p-2 text-white mt-1">
+                  <label className="text-xs text-muted-foreground uppercase">Type</label>
+                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-card border border-border rounded-lg p-2 text-foreground mt-1">
                     <option value="PAID">Paid</option>
                     <option value="COMPLIMENTARY">Complimentary</option>
                   </select>
@@ -212,28 +212,28 @@ export function ServiceManager({ initialServices }: { initialServices: any[] }) 
               {formData.type === 'PAID' && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-white/50 uppercase">Charge Type</label>
-                    <select value={formData.chargeType} onChange={e => setFormData({...formData, chargeType: e.target.value})} className="w-full bg-[#1C2128] border border-white/10 rounded-lg p-2 text-white mt-1">
+                    <label className="text-xs text-muted-foreground uppercase">Charge Type</label>
+                    <select value={formData.chargeType} onChange={e => setFormData({...formData, chargeType: e.target.value})} className="w-full bg-card border border-border rounded-lg p-2 text-foreground mt-1">
                       <option value="PER_BOOKING">Per Booking</option>
                       <option value="PER_DAY">Per Day</option>
                       <option value="PER_GUEST">Per Guest</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-white/50 uppercase">Price (?)</label>
-                    <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white mt-1" />
+                    <label className="text-xs text-muted-foreground uppercase">Price (?)</label>
+                    <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-muted border border-border rounded-lg p-2 text-foreground mt-1" />
                   </div>
                 </div>
               )}
               
               <div className="flex items-center gap-2 mt-4">
                 <input type="checkbox" id="taxable" checked={formData.taxable} onChange={e => setFormData({...formData, taxable: e.target.checked})} className="w-4 h-4 accent-gold" />
-                <label htmlFor="taxable" className="text-sm text-white">This service is subject to GST/Tax</label>
+                <label htmlFor="taxable" className="text-sm text-foreground">This service is subject to GST/Tax</label>
               </div>
             </div>
 
-            <div className="p-6 border-t border-white/10 flex justify-end gap-4 bg-white/5 shrink-0">
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-white/70 hover:text-white cursor-pointer">Cancel</button>
+            <div className="p-6 border-t border-border flex justify-end gap-4 bg-muted shrink-0">
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-muted-foreground hover:text-foreground cursor-pointer">Cancel</button>
               <button onClick={handleSave} className="bg-gold text-black font-semibold px-6 py-2 rounded-lg hover:scale-105 transition cursor-pointer">Save Service</button>
             </div>
           </div>

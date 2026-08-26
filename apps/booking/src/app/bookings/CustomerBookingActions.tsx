@@ -28,10 +28,10 @@ export function CustomerBookingActions({ bookingCode, status }: { bookingCode: s
 
   return (
     <div className="flex flex-wrap gap-2 mt-auto">
-      <Link href={`/bookings/${bookingCode}`} className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm font-medium hover:bg-white/20 transition text-white">
+      <Link href={`/bookings/${bookingCode}`} className="px-4 py-2 bg-muted border border-border rounded-lg text-sm font-medium hover:bg-muted transition text-foreground">
         View Details & Invoice
       </Link>
-      <button onClick={() => alert('Review functionality coming soon')} className="px-4 py-2 border border-[#D4AF37] text-[#D4AF37] rounded-lg text-sm font-medium hover:bg-[#D4AF37]/10 transition cursor-pointer">
+      <button onClick={() => alert('Review functionality coming soon')} className="px-4 py-2 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/10 transition cursor-pointer">
         Leave Review
       </button>
       {!isCancelled && (

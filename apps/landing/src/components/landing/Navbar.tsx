@@ -7,6 +7,7 @@ interface NavbarProps {
   isDark?: boolean;
   onToggleTheme?: (toDark: boolean) => void;
   onOpenBooking: () => void;
+  startAnimation?: boolean;
 }
 
 const NAV_LINKS = [
@@ -15,7 +16,7 @@ const NAV_LINKS = [
   { label: 'Pool & Grounds', href: '#outdoors' },
   { label: 'The Atmosphere', href: '#atmosphere' },
   { label: 'Location', href: '#location' },
-  { label: 'Login', href: '/login' },
+  { label: 'Book Now', href: '/login' },
 ] as const;
 
 type UserRole = 'GUEST' | 'OWNER' | 'STAFF' | 'ADMIN';
@@ -24,6 +25,7 @@ export default function Navbar({
   isDark = true,
   onToggleTheme,
   onOpenBooking,
+  startAnimation = true,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -104,7 +106,7 @@ export default function Navbar({
           <motion.a
             href="#home"
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
             transition={{ duration: 0.85, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className={`pointer-events-auto group text-decoration-none z-50 flex items-center gap-2 sm:gap-3 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full transition-all duration-300 shadow-lg ${
               isDark
@@ -138,7 +140,7 @@ export default function Navbar({
                   key={link.label}
                   href={link.href}
                   initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
                   transition={{ duration: 0.85, delay: 0.5 + idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
                   className={`pointer-events-auto px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-all duration-300 shadow-md ${
                     isDashboard
@@ -157,7 +159,7 @@ export default function Navbar({
           {/* Desktop Action Buttons on Right */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
             transition={{ duration: 0.85, delay: 1.3, ease: [0.16, 1, 0.3, 1] }}
             className="hidden lg:flex items-center gap-3"
           >
@@ -167,7 +169,7 @@ export default function Navbar({
           {/* Tablet & Phone Controls on Right (< lg) */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
             transition={{ duration: 0.85, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex lg:hidden items-center gap-2"
           >

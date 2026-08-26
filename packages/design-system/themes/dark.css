@@ -1,0 +1,30 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Night Mode (Dark Theme)
+   
+   Additional dark-mode-specific adjustments beyond token overrides.
+   Token overrides are in tokens/colors.css under .dark selector.
+   This file handles any Night-mode-specific element styling.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 
+ * Night mode token overrides live in tokens/colors.css under .dark {}
+ * This file only contains element-level dark adjustments that can't
+ * be expressed as simple variable overrides.
+ */
+
+/* ── Dark mode: slightly thicker font rendering ── */
+.dark body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Dark mode: images get a slight brightness reduction ── */
+.dark img:not([data-no-dim]) {
+  filter: brightness(0.95);
+}
+
+/* ── Dark mode: code blocks ── */
+.dark pre,
+.dark code {
+  background-color: var(--muted);
+  border-color: var(--border);
+}

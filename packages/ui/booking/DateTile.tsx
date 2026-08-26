@@ -27,17 +27,17 @@ interface DateTileProps {
 }
 
 const statusColors: Record<DateStatus, string> = {
-  AVAILABLE:       'bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/40 hover:border-green-500/50',
+  AVAILABLE:       'bg-green-500/20 border-green-500/30 text-green-700 dark:text-green-300 hover:bg-green-500/40 hover:border-green-500/50',
   SELECTED:        'bg-emerald-600 border-emerald-400 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]',
-  IN_RANGE:        'bg-emerald-500/40 border-emerald-500/50 text-white',
-  BOOKED:          'bg-red-500/20 border-red-500/30 text-red-300 opacity-50 cursor-not-allowed',
-  MAINTENANCE:     'bg-yellow-500/20 border-yellow-500/30 text-yellow-300 opacity-50 cursor-not-allowed',
-  BLOCKED:         'bg-neutral-500/20 border-neutral-500/30 text-neutral-400 opacity-50 cursor-not-allowed',
-  OWNER_BOOKING:   'bg-emerald-700/30 border-emerald-500/40 text-emerald-300 opacity-60 cursor-not-allowed',
-  HOLIDAY:         'bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/40 hover:border-purple-500/50',
-  PENDING_PAYMENT: 'bg-orange-500/20 border-orange-500/30 text-orange-300 opacity-60 cursor-not-allowed',
-  PAST:            'bg-white/5 border-white/10 text-white/30 cursor-not-allowed',
-  PEAK:            'bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/40 hover:border-purple-500/50',
+  IN_RANGE:        'bg-emerald-500/40 border-emerald-500/50 text-emerald-900 dark:text-emerald-100',
+  BOOKED:          'bg-red-500/20 border-red-500/30 text-red-700 dark:text-red-300 opacity-50 cursor-not-allowed',
+  MAINTENANCE:     'bg-yellow-500/20 border-yellow-500/30 text-yellow-700 dark:text-yellow-300 opacity-50 cursor-not-allowed',
+  BLOCKED:         'bg-neutral-500/20 border-neutral-500/30 text-neutral-700 dark:text-neutral-400 opacity-50 cursor-not-allowed',
+  OWNER_BOOKING:   'bg-emerald-700/30 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 opacity-60 cursor-not-allowed',
+  HOLIDAY:         'bg-purple-500/20 border-purple-500/30 text-purple-700 dark:text-purple-300 hover:bg-purple-500/40 hover:border-purple-500/50',
+  PENDING_PAYMENT: 'bg-orange-500/20 border-orange-500/30 text-orange-700 dark:text-orange-300 opacity-60 cursor-not-allowed',
+  PAST:            'bg-muted border-border text-muted-foreground cursor-not-allowed',
+  PEAK:            'bg-purple-500/20 border-purple-500/30 text-purple-700 dark:text-purple-300 hover:bg-purple-500/40 hover:border-purple-500/50',
 };
 
 // Status labels for tooltip display
@@ -89,10 +89,10 @@ export const DateTile: React.FC<DateTileProps> = ({
 
       {/* Hover Tooltip (Glassmorphism) */}
       {isSelectable && status !== 'SELECTED' && status !== 'IN_RANGE' && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-xl">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-card backdrop-blur-md border border-border rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-xl">
           <div className="flex flex-col items-center text-center">
-            <span className="text-sm font-bold text-white">₹{price?.toLocaleString('en-IN')}</span>
-            <span className="text-[10px] text-white/60">Per Night</span>
+            <span className="text-sm font-bold text-foreground">₹{price?.toLocaleString('en-IN')}</span>
+            <span className="text-[10px] text-muted-foreground">Per Night</span>
             {status === 'PEAK' && <span className="text-[10px] text-purple-400 font-medium mt-1">Weekend Pricing</span>}
             {status === 'HOLIDAY' && <span className="text-[10px] text-purple-400 font-medium mt-1">Holiday Pricing</span>}
           </div>
@@ -103,9 +103,9 @@ export const DateTile: React.FC<DateTileProps> = ({
 
       {/* Non-selectable status tooltip */}
       {!isSelectable && statusLabels[status] && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-xl">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-card backdrop-blur-md border border-border rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-xl">
           <div className="flex flex-col items-center text-center">
-            <span className="text-xs font-medium text-white">{label || statusLabels[status]}</span>
+            <span className="text-xs font-medium text-foreground">{label || statusLabels[status]}</span>
           </div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black/80"></div>
         </div>

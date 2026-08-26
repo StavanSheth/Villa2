@@ -1,60 +1,104 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@villa-platform/hooks'; // assuming this resolves properly, else we might need relative
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reason = searchParams.get('reason');
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleDemoLogin = (roleToken: string) => {
-    document.cookie = `access_token=${roleToken}; path=/; max-age=86400`;
-    router.push('/');
-    router.refresh();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      
+      // Set access token (45 minutes = 2700 seconds)
+      document.cookie = `access_token=${token}; path=/; max-age=2700; SameSite=Strict`;
+      // Set session start timestamp for 45-minute session tracking
+      document.cookie = `session_start=${Date.now()}; path=/; max-age=2700; SameSite=Strict`;
+      
+      router.push('/');
+      router.refresh();
+    } catch (err: any) {
+      console.error('Firebase Auth Error:', err);
+      setError(err.message || 'Failed to sign in. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-white p-4">
-      <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-xl p-8 backdrop-blur-md">
-        <h2 className="text-3xl font-serif text-[#D4AF37] mb-2 text-center">Villa Owner Portal</h2>
-        <p className="text-sm text-white/60 text-center mb-8">Sign in to manage your properties and bookings</p>
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
+      <div className="max-w-md w-full bg-card border border-border rounded-xl p-8 backdrop-blur-md">
+        <h2 className="text-3xl font-serif text-primary mb-2 text-center">Villa Owner Portal</h2>
+        <p className="text-sm text-muted-foreground text-center mb-4">Sign in to manage your properties and bookings</p>
 
-        <form onSubmit={(e) => { e.preventDefault(); handleDemoLogin('demo-owner-jwt'); }} className="space-y-4">
+        {reason === 'expired' && (
+          <div className="mb-6 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-center">
+            <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Your session has expired. Please sign in again.</p>
+          </div>
+        )}
+        {reason === 'unauthenticated' && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+            <p className="text-sm text-red-600 dark:text-red-400 font-medium">Please sign in to access this page.</p>
+          </div>
+        )}
+        {reason === 'invalid' && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+            <p className="text-sm text-red-600 dark:text-red-400 font-medium">Invalid session. Please sign in again.</p>
+          </div>
+        )}
+        
+        {error && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+            <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-xs text-white/70 uppercase font-semibold mb-1">Email</label>
+            <label className="block text-xs text-muted-foreground uppercase font-semibold mb-1">Email</label>
             <input 
               type="email" 
-              defaultValue="owner@mavon.online" 
-              className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded text-white focus:outline-none focus:border-[#D4AF37]"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="owner@mavon.online"
+              required
+              className="w-full px-4 py-2 bg-card border border-border rounded text-foreground focus:outline-none focus:border-primary"
             />
           </div>
           <div>
-            <label className="block text-xs text-white/70 uppercase font-semibold mb-1">Password</label>
+            <label className="block text-xs text-muted-foreground uppercase font-semibold mb-1">Password</label>
             <input 
               type="password" 
-              defaultValue="••••••••" 
-              className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded text-white focus:outline-none focus:border-[#D4AF37]"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••" 
+              required
+              className="w-full px-4 py-2 bg-card border border-border rounded text-foreground focus:outline-none focus:border-primary"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full py-3 bg-[#D4AF37] text-black font-semibold rounded hover:bg-yellow-600 transition-colors mt-6"
+            disabled={loading}
+            className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded hover:brightness-110 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In as Owner
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-white/10 text-center">
-          <p className="text-xs text-white/50 mb-3">Quick Demo Access</p>
-          <div className="flex gap-2 justify-center">
-            <button 
-              onClick={() => handleDemoLogin('demo-owner-jwt')}
-              className="px-3 py-1.5 bg-white/10 text-xs rounded hover:bg-white/20 text-white"
-            >
-              Demo Owner Token
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

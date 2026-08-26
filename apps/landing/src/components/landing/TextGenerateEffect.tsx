@@ -13,6 +13,7 @@ type TextGenerateEffectProps = Omit<React.ComponentProps<'div'>, 'children'> & {
   staggerDelay?: number;
   splitBy?: 'word' | 'character';
   delay?: number;
+  startAnimation?: boolean;
 };
 
 const TextGenerateEffect = React.forwardRef<
@@ -28,6 +29,7 @@ const TextGenerateEffect = React.forwardRef<
       staggerDelay = 0.2,
       splitBy = 'word',
       delay = 0,
+      startAnimation = true,
       ...props
     },
     ref,
@@ -42,7 +44,7 @@ const TextGenerateEffect = React.forwardRef<
     );
 
     React.useEffect(() => {
-      if (scope.current) {
+      if (scope.current && startAnimation) {
         animate(
           'span',
           {
@@ -58,7 +60,7 @@ const TextGenerateEffect = React.forwardRef<
           },
         );
       }
-    }, [animate, delay, duration, filter, scope, staggerDelay]);
+    }, [animate, delay, duration, filter, scope, staggerDelay, startAnimation]);
 
     return (
       <div

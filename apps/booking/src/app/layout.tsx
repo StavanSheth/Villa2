@@ -2,6 +2,7 @@ import React from 'react';
 import './globals.css';
 import { QueryProvider } from '../providers/QueryProvider';
 import { GlobalDashboardLayout, NavItem } from '@villa-platform/ui';
+import { ThemeProvider } from '@villa-platform/theme';
 
 export const metadata = {
   title: 'Booking Dashboard - Mavon',
@@ -21,13 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <QueryProvider>
-          <GlobalDashboardLayout navItems={bookingNavItems} title="Mavon Booking" userProfile={{ name: 'Guest User', email: 'guest.mavon.online' }}>
-            {children}
-          </GlobalDashboardLayout>
-        </QueryProvider>
+        <ThemeProvider initialRole="CUSTOMER" defaultTheme="dark">
+          <QueryProvider>
+            <GlobalDashboardLayout navItems={bookingNavItems} title="Mavon Booking" userProfile={{ name: 'Guest User', email: 'guest.mavon.online' }}>
+              {children}
+            </GlobalDashboardLayout>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

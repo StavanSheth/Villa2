@@ -75,7 +75,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
           <ArrowLeft size={24} />
         </Link>
         <div>
-          <h1 className="text-3xl font-serif text-[#D4AF37]">{isEdit ? 'Edit Property' : 'Add New Property'}</h1>
+          <h1 className="text-3xl font-serif text-primary">{isEdit ? 'Edit Property' : 'Add New Property'}</h1>
           <p className="text-white/60 mt-1">Fill out the details below to sync with the booking platform.</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 placeholder="e.g. Seven C Villa"
               />
             </div>
@@ -109,7 +109,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors resize-none"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors resize-none"
                 placeholder="A detailed description of your property..."
               />
             </div>
@@ -122,7 +122,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="basePrice"
                 value={formData.basePrice}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="capacity"
                 value={formData.capacity}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -146,7 +146,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="bedrooms"
                 value={formData.bedrooms}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -158,7 +158,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="bathrooms"
                 value={formData.bathrooms}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
               />
             </div>
             
@@ -168,7 +168,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="amenities"
                 value={formData.amenities}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 placeholder="WiFi, Private Pool, AC, BBQ..."
               />
             </div>
@@ -181,7 +181,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
                 name="images"
                 value={formData.images}
                 onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
               />
               <p className="text-xs text-white/40 mt-2">Provide direct links to your property images to display them in the catalog.</p>
@@ -205,7 +205,7 @@ export function PropertyForm({ initialData, isEdit = false }: PropertyFormProps)
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-3 rounded-xl hover:scale-105 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.3)] disabled:opacity-50 disabled:hover:scale-100"
+            className="flex items-center gap-2 bg-primary text-black font-bold px-8 py-3 rounded-xl hover:scale-105 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.3)] disabled:opacity-50 disabled:hover:scale-100"
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
             {isEdit ? 'Save Changes' : 'Create Property'}

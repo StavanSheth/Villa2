@@ -27,25 +27,25 @@ export function UpcomingCheckIns({ initialBookings }: { initialBookings: any[] }
     <div className="space-y-4">
       <div className="flex gap-3 mb-4">
         <select 
-          className="bg-white/5 border border-white/20 text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-[#D4AF37] transition"
+          className="bg-card border border-border text-foreground text-sm rounded-lg px-3 py-2 outline-none focus:border-primary transition"
           value={paymentFilter}
           onChange={e => setPaymentFilter(e.target.value)}
         >
-          <option value="ALL" className="bg-zinc-800">All Payments</option>
-          <option value="PAID" className="bg-zinc-800">Paid/Confirmed</option>
-          <option value="PENDING" className="bg-zinc-800">Awaiting Payment</option>
+          <option value="ALL" className="bg-card text-foreground">All Payments</option>
+          <option value="PAID" className="bg-card text-foreground">Paid/Confirmed</option>
+          <option value="PENDING" className="bg-card text-foreground">Awaiting Payment</option>
         </select>
         
         <select 
-          className="bg-white/5 border border-white/20 text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-[#D4AF37] transition"
+          className="bg-card border border-border text-foreground text-sm rounded-lg px-3 py-2 outline-none focus:border-primary transition"
           value={typeFilter}
           onChange={e => setTypeFilter(e.target.value)}
         >
-          <option value="ALL" className="bg-zinc-800">All Types</option>
-          <option value="NORMAL" className="bg-zinc-800">Normal</option>
-          <option value="OWNER" className="bg-zinc-800">Owner Stay</option>
-          <option value="VIP" className="bg-zinc-800">VIP</option>
-          <option value="CORPORATE" className="bg-zinc-800">Corporate</option>
+          <option value="ALL" className="bg-card text-foreground">All Types</option>
+          <option value="NORMAL" className="bg-card text-foreground">Normal</option>
+          <option value="OWNER" className="bg-card text-foreground">Owner Stay</option>
+          <option value="VIP" className="bg-card text-foreground">VIP</option>
+          <option value="CORPORATE" className="bg-card text-foreground">Corporate</option>
         </select>
       </div>
 
@@ -61,11 +61,11 @@ export function UpcomingCheckIns({ initialBookings }: { initialBookings: any[] }
               guests: booking.totalGuests,
               paymentStatus: booking.status,
             };
-            return <BookingCard key={booking.id} booking={bFormatted as any} />
+            return <BookingCard key={booking.id} booking={bFormatted as any} hideExtraActions={true} />
           })}
         </div>
       ) : (
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl text-center text-white/50">
+        <div className="bg-card border border-border p-6 rounded-2xl text-center text-muted-foreground">
           No check-ins match these filters.
         </div>
       )}

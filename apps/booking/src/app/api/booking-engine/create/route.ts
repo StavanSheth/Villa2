@@ -2,10 +2,38 @@ import { NextResponse } from 'next/server';
 import { prisma, calculateBookingPrice } from '@villa-platform/database';
 import { processLedgerTransaction } from '../../../../../../../packages/database/queries/ledger';
 import { calcOrderTotal, FinancialState, buildSnapshotStaySegments, buildSnapshotGuests, buildSnapshotServices } from '../../../../../../../packages/database/queries/financial-engine';
+import { authenticateApiRequest } from '@villa-platform/middleware';
 import crypto from 'node:crypto';
 
+// Simple in-memory rate limiter
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 10; // max 10 booking attempts per minute
+const RATE_LIMIT_WINDOW = 60 * 1000;
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
 export async function POST(req: Request) {
   try {
+    // ── Authentication ──
+    const auth = await authenticateApiRequest(req);
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized. Please login to make a booking.' }, { status: 401 });
+    }
+
+    // ── Rate Limiting ──
+    if (!checkRateLimit(auth.uid)) {
+      return NextResponse.json({ error: 'Too many booking attempts. Please wait a moment.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const {
       mode,
@@ -18,14 +46,38 @@ export async function POST(req: Request) {
       numGuests,
       dailyGuestsCount,
       paymentType,
-      paymentRequired,
+      paymentRequired: clientPaymentRequired,
       selectedServices,
       promoCode,
       bookingReason,
       internalNotes,
-      segments, // Support for complex segmented payload
-      guestIdProofs, // Guest ID proofs array
+      segments,
+      guestIdProofs,
     } = body;
+
+    // ── Server-side payment enforcement ──
+    // CUSTOMER mode ALWAYS requires payment — prevent client override
+    const paymentRequired = (mode === 'CUSTOMER') ? true : (clientPaymentRequired ?? true);
+
+    // ── Input Validation ──
+    if (!checkIn || !checkOut) {
+      return NextResponse.json({ error: 'Check-in and check-out dates are required.' }, { status: 400 });
+    }
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return NextResponse.json({ error: 'Invalid date format.' }, { status: 400 });
+    }
+    if (startDate >= endDate) {
+      return NextResponse.json({ error: 'Check-out must be after check-in.' }, { status: 400 });
+    }
+    if (numGuests !== undefined && (typeof numGuests !== 'number' || numGuests < 1 || numGuests > 50)) {
+      return NextResponse.json({ error: 'Invalid number of guests.' }, { status: 400 });
+    }
+    // Sanitize text fields
+    const sanitize = (s: any) => typeof s === 'string' ? s.replace(/<[^>]*>/g, '').substring(0, 500) : undefined;
+    const safeBookingReason = sanitize(bookingReason);
+    const safeInternalNotes = sanitize(internalNotes);
 
     let villa = await prisma.villa.findFirst({
       where: villaId ? { id: villaId } : undefined,
@@ -129,6 +181,37 @@ export async function POST(req: Request) {
 
     // Use Advanced Financial Engine if segments are provided
     if (segments && Array.isArray(segments)) {
+      // ── SECURITY: Recalculate segment prices server-side ──
+      // Do not trust the accommodation or unitPrice passed by the client.
+      segments.forEach((s: any) => {
+        if (s.status !== 'ACTIVE') return;
+
+        // 1. Recalculate accommodation using database rules
+        const segDates = s.guests.map((g: any) => g.date);
+        const segPrice = calculateBookingPrice({
+          checkIn: new Date(s.checkIn),
+          checkOut: new Date(s.checkOut),
+          selectedDates: segDates,
+          pricingRules: villa.pricingRules,
+          services: [],
+          guests: 2, // Accommodation price doesn't depend on guests directly here
+          promoCode: null,
+        });
+        s.accommodation = segPrice.total - segPrice.cleaningFee - segPrice.gst;
+
+        // 2. Recalculate service unit prices using database service definitions
+        if (s.services && Array.isArray(s.services)) {
+          s.services.forEach((svc: any) => {
+            const dbSvc = allServices.find(db => db.name === svc.name);
+            if (dbSvc) {
+              svc.unitPrice = Number(dbSvc.price);
+            } else {
+              svc.unitPrice = 0; // Ignore invalid services
+            }
+          });
+        }
+      });
+
       // Temporarily calculate base to find the discount
       const tempBase = segments.filter((s: any) => s.status === 'ACTIVE').reduce((sum: number, s: any) => sum + s.accommodation + (s.services || []).reduce((ss: number, svc: any) => ss + svc.unitPrice * svc.qty, 0), 0);
       const bookingSubtotal = tempBase + cleaningFee;
@@ -186,10 +269,10 @@ export async function POST(req: Request) {
     const walletBalance = Number(userWithWallet?.walletBalance || 0);
     
     // We want to deduct from wallet based on what they are trying to pay right now.
-    // If targetPaidAmount is > 0, we can use wallet for it.
+    // Ensure targetPaidAmount is valid and prevent negative deduction
     let walletUsed = 0;
     if (targetPaidAmount > 0 && walletBalance > 0) {
-      walletUsed = Math.min(walletBalance, targetPaidAmount);
+      walletUsed = Math.min(walletBalance, Math.max(0, targetPaidAmount));
     }
     
     const finalPaidAmount = targetPaidAmount; // They 'paid' this much (partially from wallet, partially out of pocket/mock)
@@ -220,8 +303,8 @@ export async function POST(req: Request) {
           bookingType: bookingType || 'REGULAR',
           bookingSource: bookingSource || 'WEBSITE',
           paymentRequired: paymentRequired ?? true,
-          bookingReason: bookingReason || null,
-          internalNotes: internalNotes || null,
+          bookingReason: safeBookingReason || null,
+          internalNotes: safeInternalNotes || null,
           nightlyBreakdown: finalNightlyBreakdown,
           servicesSnapshot: finalServiceBreakdown,
           cleaningFee,

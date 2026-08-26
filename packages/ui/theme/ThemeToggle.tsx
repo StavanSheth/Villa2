@@ -1,31 +1,21 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { useThemeStore } from '@villa-platform/hooks';
 
+/**
+ * ThemeToggle — Day/Night mode switch.
+ * 
+ * Uses the zustand theme store instead of local state.
+ * Renders as a pill toggle with sun/moon icons.
+ */
 export function ThemeToggle({ className = '' }: { className?: string }) {
-  const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    // Check if user previously set a preference
-    const savedTheme = localStorage.getItem('mavon-theme');
-    if (savedTheme === 'light') {
-      setIsDark(false);
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
-  }, []);
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const isDark = resolvedTheme === 'dark';
 
   const toggleTheme = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    if (nextDark) {
-      document.body.classList.remove('light-theme');
-      localStorage.setItem('mavon-theme', 'dark');
-    } else {
-      document.body.classList.add('light-theme');
-      localStorage.setItem('mavon-theme', 'light');
-    }
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   return (
@@ -47,16 +37,12 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       }}
     >
       <div
-        className={`flex items-center justify-center rounded-full shadow-md transition-all duration-500 transform-gpu ${
+        className={`absolute top-[3px] left-[3px] flex items-center justify-center rounded-full shadow-md transition-all duration-500 transform-gpu ${
           isDark
-            ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-black'
-            : 'bg-gradient-to-br from-amber-200 to-amber-500 text-black'
+            ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-black translate-x-0'
+            : 'bg-gradient-to-br from-amber-200 to-amber-500 text-black translate-x-[28px]'
         }`}
-        style={{
-          width: '24px',
-          height: '24px',
-          transform: isDark ? 'translateX(0px)' : 'translateX(26px)',
-        }}
+        style={{ width: '24px', height: '24px' }}
       >
         {isDark ? (
           <Moon className="w-3.5 h-3.5 text-black fill-black" />

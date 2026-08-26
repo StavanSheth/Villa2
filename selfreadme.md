@@ -17,7 +17,6 @@ Once the servers are running, they are available at the following URLs:
 
 - **Web / Main**: [http://localhost:3000](http://localhost:3000)
 - **Booking App**: [http://localhost:3001](http://localhost:3001)
-- **Admin Dashboard**: [http://localhost:3002](http://localhost:3002)
 - **Staff Portal**: [http://localhost:3003](http://localhost:3003)
 - **Owner Portal**: [http://localhost:3004](http://localhost:3004)
 - **Customer Portal**: [http://localhost:3005](http://localhost:3005)

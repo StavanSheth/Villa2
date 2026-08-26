@@ -21,7 +21,7 @@ export default async function EditBookingPage({ params }: { params: Promise<{ id
   });
 
   if (!booking) {
-    return <div className="p-20 text-center text-white">Booking not found for code: {id}</div>;
+    return <div className="p-20 text-center text-foreground">Booking not found for code: {id}</div>;
   }
 
   const events = await prisma.bookingEvent.findMany({
@@ -53,24 +53,24 @@ export default async function EditBookingPage({ params }: { params: Promise<{ id
   editBookingData.paidAmount = finalPaidAmount;
 
   return (
-    <div className="bg-[#111111] min-h-screen">
+    <div className="bg-background min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Link href={`/bookings/${id}`} className="text-[#D4AF37] hover:underline flex items-center gap-2 mb-6 text-sm">
+        <Link href={`/bookings/${id}`} className="text-primary hover:underline flex items-center gap-2 mb-6 text-sm">
           <ArrowLeft size={16} /> Back to Booking Details
         </Link>
-        <h1 className="text-3xl font-serif text-white mb-8">Edit Reservation: {booking.bookingCode}</h1>
+        <h1 className="text-3xl font-serif text-foreground mb-8">Edit Reservation: {booking.bookingCode}</h1>
         
         {events.length > 0 && (
-          <div className="mb-8 bg-black/40 border border-white/10 rounded-3xl p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-4">Order Edit History</h2>
+          <div className="mb-8 bg-card border border-border rounded-3xl p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-foreground mb-4">Order Edit History</h2>
             <div className="space-y-4">
               {events.map((event) => {
                 const meta = event.metadata as any;
                 return (
-                  <div key={event.id} className="border border-white/5 bg-white/5 rounded-xl p-4 text-sm text-white/80">
+                  <div key={event.id} className="border border-border bg-muted rounded-xl p-4 text-sm text-muted-foreground">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-semibold text-gold">Edit on {new Date(event.createdAt).toLocaleString()}</span>
-                      <span className="text-xs text-white/40">By {event.actorRole}</span>
+                      <span className="text-xs text-muted-foreground">By {event.actorRole}</span>
                     </div>
                     {meta?.refundAmount ? (
                       <div className="text-green-400 mt-2">
@@ -81,7 +81,7 @@ export default async function EditBookingPage({ params }: { params: Promise<{ id
                         Additional Payment Required: ₹{meta.additionalPayment.toLocaleString()}
                       </div>
                     ) : (
-                      <div className="text-white/60 mt-2">Booking dates or services were updated.</div>
+                      <div className="text-muted-foreground mt-2">Booking dates or services were updated.</div>
                     )}
                   </div>
                 );
@@ -90,7 +90,7 @@ export default async function EditBookingPage({ params }: { params: Promise<{ id
           </div>
         )}
 
-        <div className="bg-black/40 border border-white/10 rounded-3xl p-6 md:p-12 shadow-2xl">
+        <div className="bg-card border border-border rounded-3xl p-6 md:p-12 shadow-2xl">
           <BookingWizard 
             mode="CUSTOMER" 
             villaId={booking.villaId}

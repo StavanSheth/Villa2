@@ -7,7 +7,6 @@ import {
   NotificationFeed, 
   VillaCard 
 } from '@villa-platform/ui';
-import { ThemeToggle } from '@villa-platform/ui';
 import { useCustomerNotifications, useRecommendedVillas } from '../hooks/useCustomerData';
 import { CalendarRange, CreditCard, Hotel, Wallet, IndianRupee } from 'lucide-react';
 import { formatBookingSegments } from '@villa-platform/ui/booking';
@@ -88,12 +87,11 @@ export default function CustomerDashboardHome() {
   return (
     <div className="space-y-8 p-4 md:p-8">
       {/* Greeting Header */}
-      <div className="border-b border-white/10 pb-6 flex justify-between items-start">
+      <div className="border-b border-border pb-6 flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-serif text-white mb-2">Good Evening, Stavan</h1>
-          <p className="text-white/60 text-sm">Welcome back to your exclusive booking dashboard.</p>
+          <h1 className="text-3xl font-serif text-foreground mb-2">Good Evening, Stavan</h1>
+          <p className="text-muted-foreground text-sm">Welcome back to your exclusive booking dashboard.</p>
         </div>
-        <ThemeToggle />
       </div>
 
       {/* Top Overview Row */}
@@ -149,15 +147,15 @@ export default function CustomerDashboardHome() {
           
           {/* Upcoming Bookings Section */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-white mb-4">Upcoming Bookings ({formattedBookings.length})</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4">Upcoming Bookings ({formattedBookings.length})</h2>
             {formattedBookings.length > 0 ? (
               <div className="space-y-6">
                 {formattedBookings.map((b) => (
-                  <BookingCard key={b.id} booking={b} />
+                  <BookingCard key={b.id} booking={b} hideExtraActions={true} />
                 ))}
               </div>
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center text-white/50">
+              <div className="bg-card border border-border rounded-2xl p-8 text-center text-muted-foreground">
                 You have no active bookings. <a href="/book" className="text-gold hover:underline">Book a villa now!</a>
               </div>
             )}
@@ -169,7 +167,7 @@ export default function CustomerDashboardHome() {
         <div className="xl:col-span-1">
           <div className="sticky top-6 h-[600px]">
             {notifsLoading ? (
-              <div className="h-full bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40">
+              <div className="h-full bg-card border border-border rounded-2xl flex items-center justify-center text-muted-foreground shadow-sm">
                 Loading notifications...
               </div>
             ) : (

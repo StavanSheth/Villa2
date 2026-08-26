@@ -62,7 +62,7 @@ export default function ExperienceSection({
   const items: InteriorItem[] = [
     {
       id: 'grand-living-hall',
-      title: 'Grand Living Hall & Double-Height Atrium',
+      title: 'Grand Living Hall',
       category: 'Living Hall',
       location: 'Lonavala, Maharashtra',
       description:
@@ -79,7 +79,7 @@ export default function ExperienceSection({
     },
     {
       id: 'master-bedroom-suite',
-      title: 'Master Bedroom Sanctuary & Valley Balcony',
+      title: 'Master suite',
       category: 'Master Suite',
       location: 'Lonavala, Maharashtra',
       description:
@@ -96,7 +96,7 @@ export default function ExperienceSection({
     },
     {
       id: 'modern-chef-kitchen',
-      title: 'State-of-the-Art Chef Kitchen & Breakfast Island',
+      title: "Chef's Kitchen",
       category: 'Chef Kitchen',
       location: 'Lonavala, Maharashtra',
       description:
@@ -113,7 +113,7 @@ export default function ExperienceSection({
     },
     {
       id: 'spa-bathroom-suite',
-      title: 'Spa-Inspired En-Suite Bathroom & Rain Shower',
+      title: 'Spa Bathroom',
       category: 'Spa Bath',
       location: 'Lonavala, Maharashtra',
       description:
@@ -130,13 +130,13 @@ export default function ExperienceSection({
     },
     {
       id: 'outdoor-barbeque-lounge',
-      title: 'Alfresco Barbeque Terrace & Sunset Dining Deck',
+      title: 'BBQ Terrace',
       category: 'Outdoor Lounge',
       location: 'Lonavala, Maharashtra',
       description:
         'An open-air evening dining terrace crafted with seasoned teakwood decking, a built-in stone charbroiler station, and ambient fire bowls for unforgettable sunset celebrations.',
-      animatedSrc: MEDIA.animated.barbeque,
-      actualSrc: MEDIA.interior[4].src,
+      animatedSrc: '/bbq-custom.png',
+      actualSrc: isDark ? MEDIA.barbeque.night : MEDIA.barbeque.day,
       price: '$4,500 / night',
       specs: [
         { icon: 'pool', label: 'Grill Station', value: 'Stone Charbroiler' },
@@ -145,23 +145,7 @@ export default function ExperienceSection({
         { icon: 'car', label: 'Ambiance', value: 'Warm Fire Bowls' },
       ],
     },
-    {
-      id: 'panoramic-sunset-lounge',
-      title: 'Panoramic Sunset Lounge & Bar Terrace',
-      category: 'Outdoor Lounge',
-      location: 'Lonavala, Maharashtra',
-      description:
-        'An open-air stone terrace engineered to capture dramatic Sahyadri sunset hues with custom bronze fire pits.',
-      animatedSrc: MEDIA.animated.barbeque,
-      actualSrc: isDark ? MEDIA.barbeque.night : MEDIA.barbeque.day,
-      price: '$3,400 / night',
-      specs: [
-        { icon: 'shield', label: 'Elevation', value: 'Top Floor Summit' },
-        { icon: 'bed', label: 'Seating', value: 'Hand-Woven Loungers' },
-        { icon: 'pool', label: 'Ambiance', value: 'Custom Bronze Fire Pits' },
-        { icon: 'car', label: 'Bar Service', value: 'Private Mixologist Station' },
-      ],
-    },
+
   ];
 
   const filteredItems =
@@ -244,20 +228,8 @@ export default function ExperienceSection({
             isDark ? 'text-white' : 'text-black'
           }`}
         >
-          The Villa Interiors &amp; Suites
+          Interiors &amp; Suites
         </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.85, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className={`text-xs sm:text-sm font-light max-w-lg mx-auto mb-6 ${
-            isDark ? 'text-white/70' : 'text-black/70'
-          }`}
-        >
-          Swipe right or use controls to rotate 360° through our sanctuary spaces.
-        </motion.p>
-
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -303,11 +275,11 @@ export default function ExperienceSection({
             const isActive = diff === 0;
 
             let translateX = '0%';
-            let translateZ = '0px';
+            let translateZ = '-300px';
             let rotateY = '0deg';
-            let opacity = 0.35;
+            let opacity = 0;
             let zIndex = 1;
-            let scale = 0.8;
+            let scale = 0.6;
 
             if (isActive) {
               translateX = '0%';
@@ -317,17 +289,17 @@ export default function ExperienceSection({
               zIndex = 30;
               scale = 1;
             } else if (diff === -1 || diff === count - 1) {
-              translateX = '-48%';
-              translateZ = '-160px';
+              translateX = '-55%';
+              translateZ = '-200px';
               rotateY = '24deg';
-              opacity = 0.55;
+              opacity = 0.15;
               zIndex = 20;
               scale = 0.8;
             } else if (diff === 1 || diff === -(count - 1)) {
-              translateX = '48%';
-              translateZ = '-160px';
+              translateX = '55%';
+              translateZ = '-200px';
               rotateY = '-24deg';
-              opacity = 0.55;
+              opacity = 0.15;
               zIndex = 20;
               scale = 0.8;
             }
@@ -335,14 +307,10 @@ export default function ExperienceSection({
             return (
               <div
                 key={item.id}
-                className={`absolute w-[86%] max-w-[350px] sm:w-[68%] sm:max-w-[500px] md:w-[58%] md:max-w-[620px] h-[390px] sm:h-[460px] md:h-[500px] rounded-[30px] border backdrop-blur-2xl shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col justify-between p-5 sm:p-7 md:p-8 overflow-hidden group ${
-                  isDark
-                    ? isActive
-                      ? 'border-gold/50 bg-[#141B24] text-white shadow-black/90'
-                      : 'border-white/15 bg-gradient-to-b from-white/15 via-black/85 to-black/95 text-white'
-                    : isActive
-                    ? 'border-gold/60 bg-[#FFFFFF] text-black shadow-black/15'
-                    : 'border-black/15 bg-gradient-to-b from-[#EDE9E0]/95 to-[#E2DDD3]/95 text-black'
+                className={`absolute w-[86%] max-w-[350px] sm:w-[68%] sm:max-w-[500px] md:w-[58%] md:max-w-[620px] h-[390px] sm:h-[460px] md:h-[500px] rounded-[30px] flex flex-col justify-between p-5 sm:p-7 md:p-8 overflow-hidden group transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isDark ? 'glass-card text-foreground' : 'bg-white/80 backdrop-blur-2xl border border-black/10 shadow-2xl text-black'
+                } ${
+                  isActive ? (isDark ? 'glass-gold shadow-2xl' : 'glass-gold shadow-[0_20px_50px_rgba(0,0,0,0.2)]') : ''
                 }`}
                 style={{
                   transform: `translate3d(${translateX}, 0, ${translateZ}) rotateY(${rotateY}) scale(${scale})`,
@@ -377,7 +345,11 @@ export default function ExperienceSection({
                   <img
                     src={item.animatedSrc}
                     alt={`${item.title} Silhouette`}
-                    className="w-full max-h-[190px] sm:max-h-[250px] object-contain floating-anim drop-shadow-2xl opacity-90 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
+                    className={`w-full max-h-[190px] sm:max-h-[250px] object-contain floating-anim drop-shadow-2xl opacity-90 group-hover:opacity-100 transition-all duration-700 ${
+                      item.id === 'outdoor-barbeque-lounge'
+                        ? 'scale-[1.5] group-hover:scale-[1.55]'
+                        : 'group-hover:scale-105'
+                    }`}
                   />
                 </div>
 
@@ -391,13 +363,6 @@ export default function ExperienceSection({
                     >
                       {item.title}
                     </h3>
-                    <p
-                      className={`text-xs sm:text-sm line-clamp-2 font-light max-w-sm ${
-                        isDark ? 'text-white/70' : 'text-black/70'
-                      }`}
-                    >
-                      {item.description}
-                    </p>
                   </div>
 
                   <button
@@ -458,13 +423,7 @@ export default function ExperienceSection({
             />
           ))}
         </div>
-        <span
-          className={`text-[11px] uppercase tracking-wider font-light ${
-            isDark ? 'text-white/55' : 'text-black/55'
-          }`}
-        >
-          Scroll horizontally, drag slider, or swipe to rotate 360°
-        </span>
+        {/* Removed instruction text as requested */}
       </div>
 
       {/* Detail View Modal (Actual Photo + Animated Icon + Specs) */}
@@ -582,7 +541,9 @@ export default function ExperienceSection({
                     <img
                       src={selectedItem.animatedSrc}
                       alt={`${selectedItem.title} Animated Silhouette`}
-                      className="w-full h-full object-contain floating-anim drop-shadow-2xl"
+                      className={`w-full h-full object-contain floating-anim drop-shadow-2xl ${
+                        selectedItem.id === 'outdoor-barbeque-lounge' ? 'scale-[1.5]' : ''
+                      }`}
                     />
                   </div>
 

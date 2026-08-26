@@ -218,7 +218,7 @@ export const ReservationGrid: React.FC<ReservationGridProps> = ({
 
     weekdays.forEach((day) => {
       tiles.push(
-        <div key={`header-${day}`} className="text-center text-xs font-semibold text-[var(--text-sec-dark)] py-2 uppercase tracking-wider">
+        <div key={`header-${day}`} className="text-center text-xs font-semibold text-muted-foreground py-2 uppercase tracking-wider">
           {day}
         </div>
       );
@@ -274,26 +274,26 @@ export const ReservationGrid: React.FC<ReservationGridProps> = ({
   const legend = mode === 'CUSTOMER' ? customerLegend : ownerLegend;
 
   return (
-    <div className="w-full max-w-4xl mx-auto liquid-glass rounded-2xl p-6 md:p-8">
+    <div className="w-full max-w-4xl mx-auto bg-card border border-border shadow-sm rounded-2xl p-6 md:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-serif text-[var(--text-dark)]">
+          <h2 className="text-2xl font-serif text-foreground">
             {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
           </h2>
-          <p className="text-sm text-[var(--text-sec-dark)] mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Click individual dates one by one to select check-in days.
           </p>
         </div>
         <div className="flex gap-2">
           <button 
             onClick={handlePrevMonth}
-            className="p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold transition-colors text-[var(--text-dark)]"
+            className="p-2 rounded-full bg-muted border border-border hover:bg-muted hover:border-gold transition-colors text-foreground"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button 
             onClick={handleNextMonth}
-            className="p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold transition-colors text-[var(--text-dark)]"
+            className="p-2 rounded-full bg-muted border border-border hover:bg-muted hover:border-gold transition-colors text-foreground"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -311,23 +311,23 @@ export const ReservationGrid: React.FC<ReservationGridProps> = ({
             <div className="flex items-center gap-2 text-gold font-bold text-sm">
               <CalendarIcon size={16} /> Selected Stay Timings
             </div>
-            <div className="text-white font-mono text-sm font-bold">
+            <div className="text-foreground font-mono text-sm font-bold">
               {totalNights} {totalNights === 1 ? 'Night' : 'Nights'} • Est. ₹{totalPrice.toLocaleString()}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {staySegments.map((seg, idx) => (
-              <div key={idx} className="p-3 bg-black/40 border border-white/10 rounded-lg space-y-1">
+              <div key={idx} className="p-3 bg-card border border-border rounded-lg space-y-1">
                 <div className="text-xs text-gold font-semibold uppercase tracking-wider">
                   Stay Segment #{idx + 1} ({seg.nights} {seg.nights === 1 ? 'night' : 'nights'})
                 </div>
-                <div className="text-xs text-white flex items-center gap-1.5">
+                <div className="text-xs text-foreground flex items-center gap-1.5">
                   <Clock size={12} className="text-green-400" />
                   <span className="font-semibold text-green-400">Check-In:</span>
                   <span>{seg.checkIn.toLocaleDateString()} at 12:00 PM</span>
                 </div>
-                <div className="text-xs text-white flex items-center gap-1.5">
+                <div className="text-xs text-foreground flex items-center gap-1.5">
                   <Clock size={12} className="text-red-400" />
                   <span className="font-semibold text-red-400">Check-Out:</span>
                   <span>{seg.checkOut.toLocaleDateString()} at 10:00 AM</span>
@@ -339,11 +339,11 @@ export const ReservationGrid: React.FC<ReservationGridProps> = ({
       )}
 
       {/* Legend — mode-aware */}
-      <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-4 items-center justify-center text-xs">
+      <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-4 items-center justify-center text-xs">
         {legend.map(({ color, label }) => (
           <div key={label} className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded ${color} border`}></div>
-            <span className="text-[var(--text-sec-dark)]">{label}</span>
+            <span className="text-muted-foreground">{label}</span>
           </div>
         ))}
       </div>

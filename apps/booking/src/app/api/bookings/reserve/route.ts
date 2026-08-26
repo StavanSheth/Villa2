@@ -70,8 +70,8 @@ export async function POST(req: Request) {
         throw new Error('Villa already booked for these dates.');
       }
 
-      // 3. Create lock (15 minute expiration)
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      // 3. Create lock (5 minute expiration — matches frontend booking timer)
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
       
       const newLock = await tx.reservationLock.create({
         data: {

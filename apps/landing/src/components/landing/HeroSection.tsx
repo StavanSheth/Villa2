@@ -9,9 +9,10 @@ interface HeroSectionProps {
   isDark: boolean;
   onToggleTheme: (toDark: boolean) => void;
   onOpenBooking?: () => void;
+  startAnimation?: boolean;
 }
 
-export default function HeroSection({ isDark }: HeroSectionProps) {
+export default function HeroSection({ isDark, startAnimation = true }: HeroSectionProps) {
   const dayVideoRef = useRef<HTMLVideoElement>(null);
   const nightVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -20,9 +21,11 @@ export default function HeroSection({ isDark }: HeroSectionProps) {
     const inactiveRef = isDark ? dayVideoRef : nightVideoRef;
 
     if (activeRef.current) {
+      activeRef.current.loop = true;
       activeRef.current.play().catch(() => {});
     }
     if (inactiveRef.current) {
+      inactiveRef.current.loop = true;
       inactiveRef.current.pause();
     }
   }, [isDark]);
@@ -68,7 +71,7 @@ export default function HeroSection({ isDark }: HeroSectionProps) {
       <div className="hero-content relative z-10 flex flex-col items-center justify-center min-h-[100dvh] sm:min-h-screen w-full px-4 sm:px-6 md:px-8 text-center max-w-5xl mx-auto py-16 sm:py-24 md:py-28 overflow-hidden">
         {/* Hero Title */}
         <div className="flex flex-col items-center justify-center w-full text-center">
-          <h1 className="animate-fade-in animate-title-shimmer text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-normal tracking-tight mb-8 sm:mb-12 leading-[1.08] sm:leading-[1.05] drop-shadow-2xl px-2 w-full text-center flex flex-col items-center justify-center">
+          <h1 className="text-white animate-fade-in animate-title-shimmer text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[9rem] font-serif font-normal tracking-tight mb-8 sm:mb-12 leading-[1.08] sm:leading-[1.05] drop-shadow-2xl px-2 w-full text-center flex flex-col items-center justify-center">
             <TextGenerateEffect
               words="Chunawala's"
               className="block font-serif font-normal text-center w-full"
@@ -76,14 +79,16 @@ export default function HeroSection({ isDark }: HeroSectionProps) {
               staggerDelay={0.12}
               splitBy="character"
               delay={0.2}
+              startAnimation={startAnimation}
             />
             <TextGenerateEffect
               words="Seven C Villa"
-              className="italic font-light text-gold font-serif block text-center w-full"
+              className="italic font-light font-serif text-gold text-4xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[8rem] mt-2 sm:mt-4 block text-center w-full"
               duration={1.4}
               staggerDelay={0.11}
               splitBy="character"
               delay={2.9}
+              startAnimation={startAnimation}
             />
           </h1>
         </div>
@@ -91,7 +96,7 @@ export default function HeroSection({ isDark }: HeroSectionProps) {
         {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.9, delay: 6.0, ease: [0.16, 1, 0.3, 1] }}
           className="absolute bottom-6 sm:bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
         >

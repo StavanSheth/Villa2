@@ -17,6 +17,40 @@ export async function PUT(
   return handleBookingUpdate(req, { params });
 }
 
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    const booking = await prisma.booking.findFirst({
+      where: {
+        OR: [
+          { bookingCode: id },
+          { id: id }
+        ]
+      }
+    });
+
+    if (!booking) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    }
+
+    // Prisma's onDelete: Cascade should handle related records if set up, 
+    // but just in case we can delete related logs manually if needed.
+    // However, schema uses Cascade for most Booking relations.
+    await prisma.booking.delete({
+      where: { id: booking.id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Error deleting booking:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 async function handleBookingUpdate(
   req: Request,
   { params }: { params: Promise<{ id: string }> }

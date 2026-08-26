@@ -14,10 +14,10 @@ export default async function InvoicesPage() {
     <div className="space-y-6 p-4 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif text-white">My Invoices</h1>
-          <p className="text-sm text-white/50 mt-1">View and download invoices for your bookings</p>
+          <h1 className="text-2xl font-serif text-foreground">My Invoices</h1>
+          <p className="text-sm text-muted-foreground mt-1">View and download invoices for your bookings</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <FileText size={14} />
           <span>{bookings.length} invoices</span>
         </div>
@@ -25,7 +25,7 @@ export default async function InvoicesPage() {
 
       <div className="space-y-4">
         {bookings.length === 0 && (
-          <div className="p-8 text-center border border-white/10 rounded-xl bg-black/60 text-white/50">
+          <div className="p-8 text-center border border-border rounded-xl bg-card shadow-sm text-muted-foreground">
             No invoices available.
           </div>
         )}
@@ -36,15 +36,15 @@ export default async function InvoicesPage() {
           dueDate.setDate(dueDate.getDate() - 2); // Due 2 days before check-in
 
           return (
-            <div key={booking.id} className="liquid-glass rounded-2xl overflow-hidden">
+            <div key={booking.id} className="bg-card border border-border shadow-sm rounded-2xl overflow-hidden">
               <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-[#D4AF37]/10 text-[#D4AF37]">
+                  <div className="p-3 rounded-xl bg-primary/10 text-primary">
                     <FileText size={22} />
                   </div>
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <h2 className="text-lg font-medium text-white">INV-{booking.bookingCode}</h2>
+                      <h2 className="text-lg font-medium text-foreground">INV-{booking.bookingCode}</h2>
                       <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
                         status === 'PAID' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' :
                         'bg-amber-500/15 text-amber-400 border-amber-500/30'
@@ -52,8 +52,8 @@ export default async function InvoicesPage() {
                         {status}
                       </span>
                     </div>
-                    <p className="text-sm text-white/50">{booking.villa.name}</p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
+                    <p className="text-sm text-muted-foreground">{booking.villa.name}</p>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Calendar size={12} /> {new Date(booking.createdAt).toLocaleDateString()}</span>
                       <span className="flex items-center gap-1"><CreditCard size={12} /> Booking: {booking.bookingCode}</span>
                     </div>
@@ -62,8 +62,8 @@ export default async function InvoicesPage() {
 
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-xl font-mono font-semibold text-white">₹{Number(booking.currentTotal).toLocaleString()}</p>
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider">
+                    <p className="text-xl font-mono font-semibold text-foreground">₹{Number(booking.currentTotal).toLocaleString()}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
                       {status === 'PAID' ? 'Amount Paid' : `Due: ${dueDate.toLocaleDateString()}`}
                     </p>
                   </div>
@@ -71,7 +71,7 @@ export default async function InvoicesPage() {
                     <Link
                       href={`/invoices/${booking.bookingCode}/print`}
                       target="_blank"
-                      className="px-4 py-2 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10 rounded-lg transition text-sm font-medium"
+                      className="px-4 py-2 border border-primary text-primary hover:bg-primary/10 rounded-lg transition text-sm font-medium"
                     >
                       Download PDF
                     </Link>

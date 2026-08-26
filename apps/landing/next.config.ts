@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     "@villa-platform/validation",
     "@villa-platform/invoices",
   ],
+  compiler: {
+    styledComponents: true,
+  },
 };
 
 export default nextConfig;

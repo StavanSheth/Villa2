@@ -44,14 +44,14 @@ export function BookingFilters() {
   const hasActiveFilters = Boolean(status || paymentType || dateStart || dateEnd);
 
   return (
-    <form onSubmit={handleApply} className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6 flex flex-wrap gap-4 items-end">
+    <form onSubmit={handleApply} className="bg-muted border border-border rounded-xl p-4 mb-6 flex flex-wrap gap-4 items-end">
       
       <div className="flex-1 min-w-[150px]">
-        <label className="block text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider mb-1">Status</label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Status</label>
         <select 
           value={status}
           onChange={e => setStatus(e.target.value)}
-          className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-gold"
+          className="w-full bg-card border border-border rounded-lg p-2 text-sm text-foreground focus:outline-none focus:border-gold"
         >
           <option value="">All Statuses</option>
           <option value="NEW">New</option>
@@ -65,11 +65,11 @@ export function BookingFilters() {
       </div>
 
       <div className="flex-1 min-w-[150px]">
-        <label className="block text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider mb-1">Payment Type</label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Payment Type</label>
         <select 
           value={paymentType}
           onChange={e => setPaymentType(e.target.value)}
-          className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-gold"
+          className="w-full bg-card border border-border rounded-lg p-2 text-sm text-foreground focus:outline-none focus:border-gold"
         >
           <option value="">All Payments</option>
           <option value="CARD">Credit/Debit Card</option>
@@ -80,22 +80,22 @@ export function BookingFilters() {
       </div>
 
       <div className="flex-1 min-w-[150px]">
-        <label className="block text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider mb-1">Start Date (Check-in)</label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Start Date (Check-in)</label>
         <input 
           type="date" 
           value={dateStart}
           onChange={e => setDateStart(e.target.value)}
-          className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-gold"
+          className="w-full bg-card border border-border rounded-lg p-2 text-sm text-foreground focus:outline-none focus:border-gold"
         />
       </div>
 
       <div className="flex-1 min-w-[150px]">
-        <label className="block text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider mb-1">End Date (Check-in)</label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">End Date (Check-in)</label>
         <input 
           type="date" 
           value={dateEnd}
           onChange={e => setDateEnd(e.target.value)}
-          className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-gold"
+          className="w-full bg-card border border-border rounded-lg p-2 text-sm text-foreground focus:outline-none focus:border-gold"
         />
       </div>
 

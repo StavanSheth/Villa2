@@ -1,0 +1,23 @@
+{
+  "name": "@villa-platform/design-system",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Villa Platform Design System — semantic tokens, themes, and glass materials",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./index.css": "./index.css",
+    "./tokens/*": "./tokens/*",
+    "./themes/*": "./themes/*",
+    "./tailwind.preset": "./tailwind.preset.ts"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

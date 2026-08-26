@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server';
 import { prisma, validateTransition, validateSideAction, calculateBookingPrice } from '@villa-platform/database';
 import { calcOrderTotal, calcNetPaid, FinancialState } from '../../../../../../../packages/database/queries/financial-engine';
 import type { RoleName } from '@villa-platform/database';
-import { razorpayClient } from '@villa-platform/payment';
+import { razorpayClient } from '@villa-platform/payments';
+import { authenticateApiRequest } from '@villa-platform/middleware';
 import crypto from 'node:crypto';
 
 export async function GET(
@@ -13,6 +14,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Auth check
+    const auth = await authenticateApiRequest(_req);
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const booking = await prisma.booking.findUnique({
       where: { bookingCode: id },
@@ -32,6 +39,11 @@ export async function GET(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
+    // ── SECURITY: IDOR Check ──
+    if (auth.role === 'CUSTOMER' && booking.userId !== auth.uid) {
+      return NextResponse.json({ error: 'Forbidden - Access Denied' }, { status: 403 });
+    }
+
     return NextResponse.json(booking);
   } catch (error) {
     console.error('GET booking error:', error);
@@ -44,6 +56,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Auth check
+    const auth = await authenticateApiRequest(req);
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await req.json();
     const { action, actorRole, metadata } = body as {
@@ -52,27 +70,19 @@ export async function PATCH(
       metadata?: Record<string, unknown>;
     };
 
-    const cookieHeader = req.headers.get('cookie') || '';
-    const matchAccess = cookieHeader.match(/access_token=([^;]+)/);
-    
-    let resolvedRole = actorRole;
-    let resolvedUserId = 'system';
-    
-    if (matchAccess) {
-      const token = matchAccess[1];
-      const payloadBase64 = token.split('.')[1];
-      try {
-        const payload = JSON.parse(atob(payloadBase64));
-        if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
-          return NextResponse.json({ error: 'Token expired' }, { status: 401 });
-        }
-        resolvedUserId = payload.id;
-        resolvedRole = payload.role as RoleName;
-      } catch (e) {}
+    let resolvedRole = auth.role as string;
+    let resolvedUserId = auth.uid;
+
+    // ── SECURITY: IDOR Check for actions that modify the booking ──
+    if (resolvedRole === 'CUSTOMER') {
+      const existingBooking = await prisma.booking.findUnique({ where: { bookingCode: id }, select: { userId: true } });
+      if (!existingBooking || existingBooking.userId !== resolvedUserId) {
+        return NextResponse.json({ error: 'Forbidden - Access Denied' }, { status: 403 });
+      }
     }
 
     if (action === 'CANCEL' || action === 'CANCEL_STAY_SEGMENT') {
-      const { CancellationService } = await import('@villa-platform/booking-logic');
+      const { CancellationService } = await import('@villa-platform/bookings');
       const result = await CancellationService.cancelBooking({
         bookingId: id,
         action: action,

@@ -1,0 +1,20 @@
+{
+  "name": "@villa-platform/theme",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/ThemeProvider.tsx",
+  "exports": {
+    ".": "./src/ThemeProvider.tsx"
+  },
+  "dependencies": {
+    "@villa-platform/hooks": "workspace:*",
+    "@villa-platform/design-system": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "typescript": "^5.6.3"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19"
+  }
+}

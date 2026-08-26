@@ -51,8 +51,8 @@ export default async function ReviewsPage() {
     <div className="space-y-8 animate-fade-in pb-20 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[var(--text-dark)]">Guest Reviews</h1>
-          <p className="text-[var(--text-sec-dark)] mt-1">Read and respond to feedback from your past guests.</p>
+          <h1 className="text-3xl font-serif text-foreground">Guest Reviews</h1>
+          <p className="text-muted-foreground mt-1">Read and respond to feedback from your past guests.</p>
         </div>
       </div>
 

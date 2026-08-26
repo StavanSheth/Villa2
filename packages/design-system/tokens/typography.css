@@ -1,0 +1,58 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Villa Design System — Typography Tokens
+   Apple-like system font stack with consistent weight/size scale.
+   
+   Usage:
+     font-sans (body), font-display (headings)
+     text-display, text-heading, text-body, text-caption
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Font Families ── */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    Inter, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    Inter, system-ui, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+
+  /* ── Font Weights ── */
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ── Type Scale ── */
+  /* Display — Page titles, hero text */
+  --text-display-size: 2rem;       /* 32px */
+  --text-display-weight: 600;
+  --text-display-line-height: 1.2;
+  --text-display-letter-spacing: -0.02em;
+
+  /* Heading — Card headings, section titles */
+  --text-heading-size: 1.125rem;   /* 18px */
+  --text-heading-weight: 600;
+  --text-heading-line-height: 1.4;
+  --text-heading-letter-spacing: -0.01em;
+
+  /* Subheading — Secondary headings */
+  --text-subheading-size: 0.9375rem; /* 15px */
+  --text-subheading-weight: 600;
+  --text-subheading-line-height: 1.4;
+
+  /* Body — Primary body text */
+  --text-body-size: 0.875rem;      /* 14px */
+  --text-body-weight: 400;
+  --text-body-line-height: 1.5;
+
+  /* Caption — Metadata, timestamps, labels */
+  --text-caption-size: 0.75rem;    /* 12px */
+  --text-caption-weight: 400;
+  --text-caption-line-height: 1.4;
+  --text-caption-letter-spacing: 0.02em;
+
+  /* Overline — Uppercase labels, badges */
+  --text-overline-size: 0.6875rem; /* 11px */
+  --text-overline-weight: 600;
+  --text-overline-line-height: 1.2;
+  --text-overline-letter-spacing: 0.08em;
+}

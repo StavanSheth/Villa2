@@ -86,39 +86,39 @@ export const BookingDetailsDrawer: React.FC<BookingDetailsDrawerProps> = ({
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+          className="fixed inset-0 bg-card backdrop-blur-sm z-40 transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Drawer */}
       <div className={`
-        fixed top-0 right-0 h-full w-full max-w-md bg-[var(--bg-dark)] border-l border-white/10
+        fixed top-0 right-0 h-full w-full max-w-md bg-[var(--bg-dark)] border-l border-border
         z-50 transform transition-transform duration-300 ease-out overflow-y-auto
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         {/* Header */}
-        <div className="sticky top-0 bg-[var(--bg-dark)]/95 backdrop-blur-md border-b border-white/10 p-6 z-10">
+        <div className="sticky top-0 bg-[var(--bg-dark)]/95 backdrop-blur-md border-b border-border p-6 z-10">
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-sm text-[var(--text-sec-dark)]">{booking.bookingCode}</span>
+                <span className="font-mono text-sm text-muted-foreground">{booking.bookingCode}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full border ${STATUS_COLORS[booking.status] || ''}`}>
                   {booking.status}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-[var(--text-sec-dark)]">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {rules?.label || booking.bookingType}
                 </span>
-                <span className="text-xs text-[var(--text-sec-dark)]">
+                <span className="text-xs text-muted-foreground">
                   via {booking.bookingSource}
                 </span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/10 text-[var(--text-sec-dark)] transition"
+              className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition"
             >
               <X className="w-5 h-5" />
             </button>
@@ -127,37 +127,37 @@ export const BookingDetailsDrawer: React.FC<BookingDetailsDrawerProps> = ({
 
         <div className="p-6 space-y-6">
           {/* ── Dates ── */}
-          <div className="liquid-glass rounded-xl p-4">
+          <div className="bg-card border border-border shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-gold" />
-              <span className="text-sm font-medium text-[var(--text-dark)]">Dates</span>
+              <span className="text-sm font-medium text-foreground">Dates</span>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="text-xs text-[var(--text-sec-dark)]">Check-in</div>
-                <div className="text-[var(--text-dark)] font-medium">
+                <div className="text-xs text-muted-foreground">Check-in</div>
+                <div className="text-foreground font-medium">
                   {checkIn.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-sec-dark)]">Check-out</div>
-                <div className="text-[var(--text-dark)] font-medium">
+                <div className="text-xs text-muted-foreground">Check-out</div>
+                <div className="text-foreground font-medium">
                   {checkOut.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </div>
               </div>
             </div>
-            <div className="text-xs text-[var(--text-sec-dark)] mt-2">{nights} Night{nights !== 1 ? 's' : ''}</div>
+            <div className="text-xs text-muted-foreground mt-2">{nights} Night{nights !== 1 ? 's' : ''}</div>
           </div>
 
           {/* ── Guests ── */}
-          <div className="liquid-glass rounded-xl p-4">
+          <div className="bg-card border border-border shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-gold" />
-              <span className="text-sm font-medium text-[var(--text-dark)]">Guests</span>
+              <span className="text-sm font-medium text-foreground">Guests</span>
             </div>
-            <div className="text-sm text-[var(--text-dark)]">{booking.totalGuests} Guest{booking.totalGuests !== 1 ? 's' : ''}</div>
+            <div className="text-sm text-foreground">{booking.totalGuests} Guest{booking.totalGuests !== 1 ? 's' : ''}</div>
             {booking.guestName && (
-              <div className="text-xs text-[var(--text-sec-dark)] mt-1">
+              <div className="text-xs text-muted-foreground mt-1">
                 {booking.guestName} {booking.guestEmail ? `(${booking.guestEmail})` : ''}
               </div>
             )}
@@ -165,35 +165,35 @@ export const BookingDetailsDrawer: React.FC<BookingDetailsDrawerProps> = ({
 
           {/* ── Services ── */}
           {booking.services && booking.services.length > 0 && (
-            <div className="liquid-glass rounded-xl p-4">
-              <div className="text-sm font-medium text-[var(--text-dark)] mb-3">Services</div>
+            <div className="bg-card border border-border shadow-sm rounded-xl p-4">
+              <div className="text-sm font-medium text-foreground mb-3">Services</div>
               {booking.services.map((svc, i) => (
                 <div key={i} className="flex justify-between text-sm py-1">
-                  <span className="text-[var(--text-sec-dark)]">{svc.name}</span>
-                  <span className="text-[var(--text-dark)]">₹{svc.totalPrice.toLocaleString()}</span>
+                  <span className="text-muted-foreground">{svc.name}</span>
+                  <span className="text-foreground">₹{svc.totalPrice.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* ── Payment ── */}
-          <div className="liquid-glass rounded-xl p-4">
+          <div className="bg-card border border-border shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <CreditCard className="w-4 h-4 text-gold" />
-              <span className="text-sm font-medium text-[var(--text-dark)]">Payment</span>
+              <span className="text-sm font-medium text-foreground">Payment</span>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[var(--text-sec-dark)]">Total Amount</span>
-                <span className="text-[var(--text-dark)] font-bold">₹{booking.totalAmount.toLocaleString()}</span>
+                <span className="text-muted-foreground">Total Amount</span>
+                <span className="text-foreground font-bold">₹{booking.totalAmount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-sec-dark)]">Paid</span>
+                <span className="text-muted-foreground">Paid</span>
                 <span className="text-green-400">₹{booking.paidAmount.toLocaleString()}</span>
               </div>
               {balance > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-sec-dark)]">Balance</span>
+                  <span className="text-muted-foreground">Balance</span>
                   <span className="text-red-400">₹{balance.toLocaleString()}</span>
                 </div>
               )}
@@ -205,37 +205,37 @@ export const BookingDetailsDrawer: React.FC<BookingDetailsDrawerProps> = ({
 
           {/* ── Reason (Maintenance, Blocked) ── */}
           {booking.bookingReason && (
-            <div className="liquid-glass rounded-xl p-4">
-              <div className="text-sm font-medium text-[var(--text-dark)] mb-2">Reason</div>
-              <div className="text-sm text-[var(--text-sec-dark)]">{booking.bookingReason}</div>
+            <div className="bg-card border border-border shadow-sm rounded-xl p-4">
+              <div className="text-sm font-medium text-foreground mb-2">Reason</div>
+              <div className="text-sm text-muted-foreground">{booking.bookingReason}</div>
             </div>
           )}
 
           {/* ── Internal Notes (Owner/Staff only) ── */}
           {mode !== 'CUSTOMER' && booking.internalNotes && (
-            <div className="liquid-glass rounded-xl p-4">
+            <div className="bg-card border border-border shadow-sm rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <StickyNote className="w-4 h-4 text-gold" />
-                <span className="text-sm font-medium text-[var(--text-dark)]">Internal Notes</span>
+                <span className="text-sm font-medium text-foreground">Internal Notes</span>
               </div>
-              <div className="text-xs text-[var(--text-sec-dark)] whitespace-pre-line">{booking.internalNotes}</div>
+              <div className="text-xs text-muted-foreground whitespace-pre-line">{booking.internalNotes}</div>
             </div>
           )}
 
           {/* ── Timeline ── */}
           {booking.events && booking.events.length > 0 && (
-            <div className="liquid-glass rounded-xl p-4">
+            <div className="bg-card border border-border shadow-sm rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-gold" />
-                <span className="text-sm font-medium text-[var(--text-dark)]">Timeline</span>
+                <span className="text-sm font-medium text-foreground">Timeline</span>
               </div>
               <div className="space-y-3">
                 {booking.events.map((event, i) => (
                   <div key={i} className="flex gap-3">
                     <div className="w-2 h-2 rounded-full bg-gold mt-1.5 shrink-0" />
                     <div>
-                      <div className="text-xs text-[var(--text-dark)] font-medium">{event.action}</div>
-                      <div className="text-[10px] text-[var(--text-sec-dark)]">
+                      <div className="text-xs text-foreground font-medium">{event.action}</div>
+                      <div className="text-[10px] text-muted-foreground">
                         {event.actorRole} · {new Date(event.createdAt).toLocaleString('en-IN')}
                       </div>
                     </div>
@@ -247,8 +247,8 @@ export const BookingDetailsDrawer: React.FC<BookingDetailsDrawerProps> = ({
 
           {/* ── Owner Actions ── */}
           {mode !== 'CUSTOMER' && (
-            <div className="space-y-2 pt-4 border-t border-white/10">
-              <div className="text-xs text-[var(--text-sec-dark)] uppercase tracking-wider mb-3">Actions</div>
+            <div className="space-y-2 pt-4 border-t border-border">
+              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Actions</div>
 
               <div className="grid grid-cols-2 gap-2">
                 <ActionButton icon={Edit3} label="Edit Dates" onClick={() => handleAction('EDIT_DATES')} />
@@ -286,7 +286,7 @@ const ActionButton: React.FC<{
       ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}
       ${variant === 'danger'
         ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-        : 'bg-white/5 text-[var(--text-dark)] border border-white/10 hover:bg-white/10'}
+        : 'bg-muted text-foreground border border-border hover:bg-muted'}
     `}
   >
     <Icon className="w-3.5 h-3.5" />

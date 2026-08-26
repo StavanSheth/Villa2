@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { requireAuth } from '../../lib/auth';
 
 import { BookingFilters } from './BookingFilters';
+import { ReportGenerator } from './ReportGenerator';
 
 export default async function OwnerBookingsPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const auth = await requireAuth();
@@ -52,16 +53,19 @@ export default async function OwnerBookingsPage({ searchParams }: { searchParams
     <div className="space-y-8 animate-fade-in pb-20 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[var(--text-dark)]">All Bookings</h1>
-          <p className="text-[var(--text-sec-dark)] mt-1">Manage and view all customer reservations.</p>
+          <h1 className="text-3xl font-serif text-foreground">All Bookings</h1>
+          <p className="text-muted-foreground mt-1">Manage and view all customer reservations.</p>
+        </div>
+        <div>
+          <ReportGenerator />
         </div>
       </div>
 
-      <div className="liquid-glass rounded-2xl overflow-hidden mt-8">
-        <div className="p-6 border-b border-white/10 bg-white/5 flex items-center justify-between gap-4">
+      <div className="bg-card border border-border shadow-sm rounded-2xl overflow-hidden mt-8">
+        <div className="p-6 border-b border-border bg-muted flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <CalendarDays className="w-5 h-5 text-gold" />
-            <h2 className="text-lg font-medium text-[var(--text-dark)]">Master Ledger</h2>
+            <h2 className="text-lg font-medium text-foreground">Master Ledger</h2>
           </div>
         </div>
         
@@ -72,20 +76,20 @@ export default async function OwnerBookingsPage({ searchParams }: { searchParams
         <div className="overflow-x-auto pb-4">
           <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
-            <tr className="border-b border-white/10">
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Booking Code</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Dates</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Total Paid</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Final Amount</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Refund</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider">Status</th>
-              <th className="p-4 text-xs font-semibold text-[var(--text-sec-dark)] uppercase tracking-wider text-right">Actions</th>
+            <tr className="border-b border-border">
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Booking Code</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dates</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Paid</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Final Amount</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Refund</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+              <th className="p-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {bookings.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-[var(--text-sec-dark)]">No bookings found in the database.</td>
+                <td colSpan={7} className="p-8 text-center text-muted-foreground">No bookings found in the database.</td>
               </tr>
             )}
             {bookings.map(booking => {
@@ -100,34 +104,34 @@ export default async function OwnerBookingsPage({ searchParams }: { searchParams
               }
 
               return (
-              <tr key={booking.id} className="hover:bg-white/5 transition-colors group">
+              <tr key={booking.id} className="hover:bg-muted transition-colors group">
                 <td className="p-4">
-                  <div className="font-mono font-bold text-[var(--text-dark)] bg-white/10 px-2 py-1 rounded inline-block">{booking.bookingCode}</div>
+                  <div className="font-mono font-bold text-foreground bg-muted px-2 py-1 rounded inline-block">{booking.bookingCode}</div>
                 </td>
-                <td className="p-4 text-sm text-[var(--text-dark)] font-medium">
+                <td className="p-4 text-sm text-foreground font-medium">
                   {datesStr}
                 </td>
-                <td className="p-4 text-sm text-[var(--text-dark)]">
+                <td className="p-4 text-sm text-foreground">
                   ₹{Number(booking.totalPaid).toLocaleString()}
                 </td>
-                <td className="p-4 text-sm text-[var(--text-dark)] font-medium">
+                <td className="p-4 text-sm text-foreground font-medium">
                   ₹{Number(booking.currentTotal).toLocaleString()}
                 </td>
-                <td className="p-4 text-sm text-[var(--text-sec-dark)]">
+                <td className="p-4 text-sm text-muted-foreground">
                   {pendingRefundAmount > 0 ? (
                     <span className="text-red-400 font-medium">₹{pendingRefundAmount.toLocaleString()}</span>
                   ) : (
-                    <span className="text-white/30">-</span>
+                    <span className="text-muted-foreground">-</span>
                   )}
                 </td>
                 <td className="p-4">
                   {(() => {
-                    let colorClass = "bg-gray-500/10 text-gray-400 border-gray-500/20";
+                    let colorClass = "bg-muted0/10 text-muted-foreground border-gray-500/20";
                     if (booking.status === 'CONFIRMED') colorClass = "bg-green-500/10 text-green-400 border-green-500/20";
                     else if (booking.status === 'ADVANCE_PAID') colorClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
                     else if (booking.status === 'CANCELLED') colorClass = "bg-red-500/10 text-red-400 border-red-500/20";
                     else if (booking.status === 'PARTIALLY_CANCELLED') colorClass = "bg-orange-500/10 text-orange-400 border-orange-500/20";
-                    else if (booking.status === 'REFUNDED') colorClass = "bg-gray-500/10 text-gray-400 border-gray-500/20";
+                    else if (booking.status === 'REFUNDED') colorClass = "bg-muted0/10 text-muted-foreground border-gray-500/20";
                     
                     return (
                       <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
@@ -137,21 +141,21 @@ export default async function OwnerBookingsPage({ searchParams }: { searchParams
                   })()}
                 </td>
                 <td className="p-4 text-right">
-                  <Link href={`/bookings/${booking.bookingCode}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-[var(--text-sec-dark)] hover:text-gold hover:bg-gold/10 transition">
+                  <Link href={`/bookings/${booking.bookingCode}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
                     <Edit className="w-4 h-4" /> Manage
                   </Link>
                 </td>
               </tr>
             )})}
             {bookings.length > 0 && (
-              <tr className="bg-white/5 border-t border-white/20">
-                <td colSpan={2} className="p-4 text-right font-bold text-[var(--text-sec-dark)] uppercase tracking-widest text-xs">
+              <tr className="bg-muted border-t border-border">
+                <td colSpan={2} className="p-4 text-right font-bold text-muted-foreground uppercase tracking-widest text-xs">
                   Totals
                 </td>
-                <td className="p-4 text-sm font-bold text-[var(--text-dark)]">
+                <td className="p-4 text-sm font-bold text-foreground">
                   ₹{totalFilteredPaid.toLocaleString()}
                 </td>
-                <td className="p-4 text-sm font-bold text-[var(--text-dark)]">
+                <td className="p-4 text-sm font-bold text-foreground">
                   ₹{totalFilteredFinalAmount.toLocaleString()}
                 </td>
                 <td className="p-4 text-sm font-bold text-red-400">

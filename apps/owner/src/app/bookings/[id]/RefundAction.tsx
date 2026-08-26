@@ -61,13 +61,13 @@ export function RefundAction({ bookingId, refundAmount, hasRefundedEvent }: { bo
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-card p-4">
           <div className="bg-[#18181b] border border-zinc-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-zinc-800/60">
-              <h2 className="text-xl font-bold text-white font-serif">Refund & Settlement Method</h2>
+              <h2 className="text-xl font-bold text-foreground font-serif">Refund & Settlement Method</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-white transition-colors p-1"
+                className="text-zinc-400 hover:text-foreground transition-colors p-1"
               >
                 <X size={20} />
               </button>
@@ -95,7 +95,7 @@ export function RefundAction({ bookingId, refundAmount, hasRefundedEvent }: { bo
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 font-bold text-white text-base">
+                    <div className="flex items-center gap-2 font-bold text-foreground text-base">
                       <Zap size={18} className="text-orange-400 fill-orange-400/20" />
                       Payment Gateway (Razorpay API)
                     </div>
@@ -121,7 +121,7 @@ export function RefundAction({ bookingId, refundAmount, hasRefundedEvent }: { bo
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 font-bold text-white text-base">
+                    <div className="flex items-center gap-2 font-bold text-foreground text-base">
                       <Landmark size={18} className="text-zinc-300" />
                       Manual Bank / UPI Settlement
                     </div>
@@ -136,7 +136,7 @@ export function RefundAction({ bookingId, refundAmount, hasRefundedEvent }: { bo
             <div className="p-5 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-900/30">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium text-sm transition-colors"
+                className="px-4 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-foreground font-medium text-sm transition-colors"
                 disabled={loading}
               >
                 Cancel
@@ -144,7 +144,7 @@ export function RefundAction({ bookingId, refundAmount, hasRefundedEvent }: { bo
               <button
                 onClick={handleRefund}
                 disabled={loading}
-                className="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-foreground font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 {loading && <RefreshCw size={16} className="animate-spin" />}
                 Confirm & Process Refund
