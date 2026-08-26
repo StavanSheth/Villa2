@@ -17,7 +17,7 @@
     "@villa-platform/payments": "workspace:*",
     "@villa-platform/storage": "workspace:*",
     "@villa-platform/theme": "workspace:*",
-    "@villa-platform/types": "workspace:^",
+    "@villa-platform/types": "workspace:*",
     "@villa-platform/ui": "workspace:*",
     "lucide-react": "^1.30.0",
     "next": "16.3.0",

@@ -6,7 +6,9 @@ const nextConfig = {
     "@villa-platform/middleware",
     "@villa-platform/payments",
     "@villa-platform/ui",
-    "@villa-platform/storage"
+    "@villa-platform/storage",
+    "@villa-platform/types",
+    "@villa-platform/hooks"
   ],
   reactStrictMode: true,
   devIndicators: false,

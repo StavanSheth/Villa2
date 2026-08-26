@@ -10,7 +10,9 @@ const nextConfig = {
     "@villa-platform/storage",
     "@villa-platform/validation",
     "@villa-platform/invoices",
-    "@villa-platform/authorization"
+    "@villa-platform/authorization",
+    "@villa-platform/types",
+    "@villa-platform/hooks"
   ],
   reactStrictMode: true,
   devIndicators: false,
