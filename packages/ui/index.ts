@@ -14,3 +14,5 @@ export * from './glass/glass-panel';
 export * from './glass/glass-nav';
 export * from './glass/glass-modal';
 export * from './SessionTimer';
+export * from './layouts/GlobalNetworkBoundary';
+

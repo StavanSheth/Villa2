@@ -10,9 +10,12 @@
     "db:seed": "tsx seed/index.ts && tsx seed-7.ts && tsx seed-stress-scenarios.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0"
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^5.22.0",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.23.1",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
