@@ -7,7 +7,8 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx seed/index.ts && tsx seed-7.ts && tsx seed-stress-scenarios.ts"
+    "db:seed": "tsx seed/index.ts && tsx seed-7.ts && tsx seed-stress-scenarios.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^5.22.0",

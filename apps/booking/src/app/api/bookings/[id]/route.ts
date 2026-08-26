@@ -70,7 +70,7 @@ export async function PATCH(
       metadata?: Record<string, unknown>;
     };
 
-    let resolvedRole = auth.role as string;
+    let resolvedRole = auth.role as RoleName;
     let resolvedUserId = auth.uid;
 
     // ── SECURITY: IDOR Check for actions that modify the booking ──

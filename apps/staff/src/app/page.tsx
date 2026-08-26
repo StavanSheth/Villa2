@@ -74,7 +74,7 @@ export default async function StaffDashboardPage() {
       });
 
       if (dbBookings.length > 0) {
-        upcomingBookings = dbBookings.map(b => {
+        upcomingBookings = dbBookings.map((b: any) => {
           const nights = b.nightlyBreakdown ? (b.nightlyBreakdown as any[]).length : 1;
           const accommodation = Number(b.currentTotal) - Number(b.cleaningFee) - Number(b.gstAmount);
           const advancePaid = Number(b.totalAdvancePaid);
@@ -83,15 +83,15 @@ export default async function StaffDashboardPage() {
           let expectedAdults = 1;
           let expectedChildren = 0;
           if (b.segments && b.segments.length > 0) {
-            expectedAdults = b.segments.reduce((acc, seg) => acc + seg.adults, 0);
-            expectedChildren = b.segments.reduce((acc, seg) => acc + seg.children, 0);
+            expectedAdults = b.segments.reduce((acc: number, seg: any) => acc + seg.adults, 0);
+            expectedChildren = b.segments.reduce((acc: number, seg: any) => acc + seg.children, 0);
           }
 
           const missingCount = Math.max(0, expectedAdults - b.guestIdProofs.length);
 
           let guests: any[] = [
             { name: `${b.user.firstName} ${b.user.lastName} (Primary Guest)`, photoUrl: null },
-            ...b.guestIdProofs.map(g => ({ name: g.guestName || "Guest", photoUrl: g.fileUrl }))
+            ...b.guestIdProofs.map((g: any) => ({ name: g.guestName || "Guest", photoUrl: g.fileUrl }))
           ];
 
           if (guests.length < expectedAdults) {
@@ -101,7 +101,7 @@ export default async function StaffDashboardPage() {
             }
           }
 
-          let mappedServices = b.services.map(s => ({ name: s.name }));
+          let mappedServices = b.services.map((s: any) => ({ name: s.name }));
           if (mappedServices.length === 0 && b.servicesSnapshot) {
             let snapshot: any = b.servicesSnapshot;
             if (typeof snapshot === 'string') {

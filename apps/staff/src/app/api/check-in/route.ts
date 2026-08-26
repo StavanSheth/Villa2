@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     // Wrap in a transaction to ensure both status updates and events log
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       
       // If cash is collected during check-in, record it
       if (collectCash && collectCash > 0) {

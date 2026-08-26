@@ -5,6 +5,7 @@
   "main": "index.ts",
   "dependencies": {
     "@react-email/components": "0.0.32",
+    "@villa-platform/types": "workspace:^",
     "react": "19.2.8",
     "resend": "^4.0.1"
   },

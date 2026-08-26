@@ -115,6 +115,9 @@ importers:
       '@villa-platform/theme':
         specifier: workspace:*
         version: link:../../packages/theme
+      '@villa-platform/types':
+        specifier: workspace:^
+        version: link:../../packages/types
       '@villa-platform/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -564,6 +567,9 @@ importers:
       '@react-email/components':
         specifier: 0.0.32
         version: 0.0.32(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@villa-platform/types':
+        specifier: workspace:^
+        version: link:../types
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -622,6 +628,9 @@ importers:
       '@villa-platform/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@villa-platform/types':
+        specifier: workspace:^
+        version: link:../types
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
