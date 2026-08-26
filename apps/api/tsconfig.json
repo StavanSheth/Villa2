@@ -6,7 +6,11 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ES2022"],
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@villa-platform/*": ["../../packages/*", "../../domains/*"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../domains/**/*", "../../packages/**/*"]
 }
