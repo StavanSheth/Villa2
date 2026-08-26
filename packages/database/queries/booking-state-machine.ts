@@ -58,7 +58,7 @@ export type BookingAction = (typeof BOOKING_ACTIONS)[number];
 // Role Permissions per State
 // ---------------------------------------------------------------------------
 
-export type RoleName = "CUSTOMER" | "OWNER" | "ADMIN" | "STAFF" | "SUPER_ADMIN";
+export type RoleName = "CUSTOMER" | "OWNER" | "STAFF";
 
 interface Transition {
   from: BookingStatus;
@@ -77,30 +77,30 @@ export const TRANSITIONS: Transition[] = [
 
   // --- Payment Flow ---
   { from: "PENDING", to: "AWAITING_PAYMENT", action: "INITIATE_PAYMENT", allowedRoles: ["CUSTOMER"] },
-  { from: "AWAITING_PAYMENT", to: "ADVANCE_PAID", action: "ADVANCE_PAYMENT_RECEIVED", allowedRoles: ["CUSTOMER", "ADMIN", "OWNER"] },
-  { from: "AWAITING_PAYMENT", to: "FULLY_PAID", action: "FULL_PAYMENT_RECEIVED", allowedRoles: ["CUSTOMER", "ADMIN", "OWNER"] },
-  { from: "ADVANCE_PAID", to: "FULLY_PAID", action: "COLLECT_REMAINING", allowedRoles: ["OWNER", "ADMIN", "STAFF"] },
+  { from: "AWAITING_PAYMENT", to: "ADVANCE_PAID", action: "ADVANCE_PAYMENT_RECEIVED", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { from: "AWAITING_PAYMENT", to: "FULLY_PAID", action: "FULL_PAYMENT_RECEIVED", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { from: "ADVANCE_PAID", to: "FULLY_PAID", action: "COLLECT_REMAINING", allowedRoles: ["OWNER", "STAFF"] },
 
   // --- Confirmation ---
-  { from: "ADVANCE_PAID", to: "CONFIRMED", action: "CONFIRM", allowedRoles: ["OWNER", "ADMIN"] },
-  { from: "FULLY_PAID", to: "CONFIRMED", action: "CONFIRM", allowedRoles: ["OWNER", "ADMIN"] },
+  { from: "ADVANCE_PAID", to: "CONFIRMED", action: "CONFIRM", allowedRoles: ["OWNER"] },
+  { from: "FULLY_PAID", to: "CONFIRMED", action: "CONFIRM", allowedRoles: ["OWNER"] },
 
   // --- Stay Flow ---
-  { from: "CONFIRMED", to: "UPCOMING", action: "MARK_UPCOMING", allowedRoles: ["ADMIN", "OWNER", "STAFF"] },
-  { from: "UPCOMING", to: "CHECKED_IN", action: "CHECK_IN", allowedRoles: ["OWNER", "STAFF", "ADMIN"] },
-  { from: "CHECKED_IN", to: "CHECKED_OUT", action: "CHECK_OUT", allowedRoles: ["OWNER", "STAFF", "ADMIN"] },
-  { from: "CHECKED_OUT", to: "COMPLETED", action: "COMPLETE", allowedRoles: ["OWNER", "ADMIN"] },
+  { from: "CONFIRMED", to: "UPCOMING", action: "MARK_UPCOMING", allowedRoles: ["OWNER", "STAFF"] },
+  { from: "UPCOMING", to: "CHECKED_IN", action: "CHECK_IN", allowedRoles: ["OWNER", "STAFF"] },
+  { from: "CHECKED_IN", to: "CHECKED_OUT", action: "CHECK_OUT", allowedRoles: ["OWNER", "STAFF"] },
+  { from: "CHECKED_OUT", to: "COMPLETED", action: "COMPLETE", allowedRoles: ["OWNER"] },
 
   // --- Post-Stay ---
   { from: "COMPLETED", to: "REVIEWED", action: "SUBMIT_REVIEW", allowedRoles: ["CUSTOMER"] },
-  { from: "REVIEWED", to: "ARCHIVED", action: "ARCHIVE", allowedRoles: ["ADMIN", "SUPER_ADMIN"] },
-  { from: "COMPLETED", to: "ARCHIVED", action: "ARCHIVE", allowedRoles: ["ADMIN", "SUPER_ADMIN"] },
+  { from: "REVIEWED", to: "ARCHIVED", action: "ARCHIVE", allowedRoles: ["OWNER"] },
+  { from: "COMPLETED", to: "ARCHIVED", action: "ARCHIVE", allowedRoles: ["OWNER"] },
 
   // --- Cancellation (from multiple states) ---
-  { from: "PENDING", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
-  { from: "AWAITING_PAYMENT", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
-  { from: "ADVANCE_PAID", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
-  { from: "CONFIRMED", to: "CANCELLED", action: "CANCEL", allowedRoles: ["OWNER", "ADMIN"] },
+  { from: "PENDING", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { from: "AWAITING_PAYMENT", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { from: "ADVANCE_PAID", to: "CANCELLED", action: "CANCEL", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { from: "CONFIRMED", to: "CANCELLED", action: "CANCEL", allowedRoles: ["OWNER"] },
 ];
 
 // ---------------------------------------------------------------------------
@@ -115,14 +115,14 @@ interface SideAction {
 
 export const SIDE_ACTIONS: SideAction[] = [
   { states: ["DRAFT", "PENDING"], action: "EDIT_DATES", allowedRoles: ["CUSTOMER"] },
-  { states: ["ADVANCE_PAID", "CONFIRMED"], action: "EDIT_DATES", allowedRoles: ["OWNER", "ADMIN"] },
-  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "EDIT_BOOKING", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
+  { states: ["ADVANCE_PAID", "CONFIRMED"], action: "EDIT_DATES", allowedRoles: ["OWNER"] },
+  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "EDIT_BOOKING", allowedRoles: ["CUSTOMER", "OWNER"] },
   { states: ["DRAFT", "PENDING"], action: "EDIT_GUESTS", allowedRoles: ["CUSTOMER"] },
-  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "ADD_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
-  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "REMOVE_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
+  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "ADD_SERVICE", allowedRoles: ["CUSTOMER", "OWNER"] },
+  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "CONFIRMED"], action: "REMOVE_SERVICE", allowedRoles: ["CUSTOMER", "OWNER"] },
   { states: ["CHECKED_IN"], action: "ADD_SERVICE", allowedRoles: ["CUSTOMER", "OWNER", "STAFF"] },
-  { states: ["ADVANCE_PAID", "FULLY_PAID", "CONFIRMED", "CANCELLED"], action: "ISSUE_REFUND", allowedRoles: ["OWNER", "ADMIN"] },
-  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "FULLY_PAID", "CONFIRMED"], action: "CANCEL_STAY_SEGMENT", allowedRoles: ["CUSTOMER", "OWNER", "ADMIN"] },
+  { states: ["ADVANCE_PAID", "FULLY_PAID", "CONFIRMED", "CANCELLED"], action: "ISSUE_REFUND", allowedRoles: ["OWNER"] },
+  { states: ["DRAFT", "PENDING", "ADVANCE_PAID", "FULLY_PAID", "CONFIRMED"], action: "CANCEL_STAY_SEGMENT", allowedRoles: ["CUSTOMER", "OWNER"] },
 ];
 
 // ---------------------------------------------------------------------------

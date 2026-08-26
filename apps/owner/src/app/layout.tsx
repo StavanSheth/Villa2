@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <ThemeProvider initialRole="ADMIN" defaultTheme="dark">
+        <ThemeProvider initialRole="STAFF" defaultTheme="dark">
           <GlobalDashboardLayout navItems={ownerNavItems} title="Mavon Owner" userProfile={{ name: 'Owner', email: 'owner.mavon.online' }}>
             {children}
           </GlobalDashboardLayout>

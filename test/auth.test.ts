@@ -115,12 +115,12 @@ describe('Category 1: Authentication Resilience', () => {
   });
 
   it('Scenario 1C: Role changed while logged in is reflected on refresh', async () => {
-    // 1. Change role to ADMIN in DB
+    // 1. Change role to STAFF in DB
     await prisma.userRole.deleteMany({ where: { userId: user.id } });
     await prisma.userRole.create({
       data: {
         userId: user.id,
-        roleId: (await prisma.role.findUnique({ where: { name: 'ADMIN' } }))!.id
+        roleId: (await prisma.role.findUnique({ where: { name: 'STAFF' } }))!.id
       }
     });
 
@@ -138,10 +138,10 @@ describe('Category 1: Authentication Resilience', () => {
     const accessCookie = cookies.find(c => c.startsWith('access_token='))!;
     const newAccessToken = accessCookie.split(';')[0].split('=')[1];
 
-    // 3. Decode new JWT and verify role is ADMIN
+    // 3. Decode new JWT and verify role is STAFF
     const decoded = jose.decodeJwt(newAccessToken);
-    expect(decoded.role).toBe('ADMIN');
-    expect((decoded.domains as string[]).includes('admin')).toBe(true);
+    expect(decoded.role).toBe('STAFF');
+    expect((decoded.domains as string[]).includes('staff')).toBe(true);
 
     // Update refreshToken for next test
     const refreshCookie = cookies.find(c => c.startsWith('refresh_token='))!;

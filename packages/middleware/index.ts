@@ -67,14 +67,14 @@ export async function protectRoute(req: NextRequest, allowedRoles?: string[]) {
     // Role checking for real JWTs
     const role = payload.role as string;
     if (allowedRoles && allowedRoles.length > 0) {
-      if (!allowedRoles.includes(role) && role !== 'SUPER_ADMIN') {
+      if (!allowedRoles.includes(role)) {
         return new NextResponse('403 Forbidden - Role Not Authorized', { status: 403 });
       }
     }
 
     // Domain enforcement for production subdomains
     const allowedDomains = (payload.domains as string[]) || [];
-    if (domain !== 'localhost' && !allowedDomains.includes(domain) && role !== 'SUPER_ADMIN') {
+    if (domain !== 'localhost' && !allowedDomains.includes(domain)) {
       return new NextResponse('403 Forbidden - Subdomain Access Denied', { status: 403 });
     }
 

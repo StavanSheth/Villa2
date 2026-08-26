@@ -55,13 +55,13 @@ describe('Category 2: Authorization & RBAC', () => {
     expect(promo).not.toBeNull();
   });
 
-  it('Scenario 2B: Owner/Admin accessing admin endpoint -> 200 OK', async () => {
-    // Mock requirePermission to resolve successfully for ADMIN
+  it('Scenario 2B: Owner accessing protected endpoint -> 200 OK', async () => {
+    // Mock requirePermission to resolve successfully for OWNER
     vi.mocked(requirePermission).mockResolvedValueOnce({
-      id: 'demo_admin_id',
-      email: 'admin@mavon.online',
-      name: 'Administrator',
-      role: 'ADMIN',
+      id: 'demo_owner_id',
+      email: 'owner@mavon.online',
+      name: 'Owner',
+      role: 'OWNER',
       isGuest: false
     });
 

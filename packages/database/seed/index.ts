@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding roles...');
-  const roleNames = ['SUPER_ADMIN', 'ADMIN', 'STAFF', 'CUSTOMER', 'GUEST'];
+  const roleNames = ['STAFF', 'CUSTOMER', 'GUEST'];
   const roles = [];
 
   for (const name of roleNames) {
@@ -21,8 +21,6 @@ async function main() {
   // Note: Password is 'Villa@1234'. In production, this would be handled by Firebase Auth,
   // but we store a mock firebaseUid for testing relationships.
   const usersToSeed = [
-    { email: 'superadmin@mavon.online', role: 'SUPER_ADMIN', firstName: 'Super', lastName: 'Admin' },
-    { email: 'admin@mavon.online', role: 'ADMIN', firstName: 'System', lastName: 'Admin' },
     { email: 'staff@mavon.online', role: 'STAFF', firstName: 'Support', lastName: 'Staff' },
     { email: 'customer1@mavon.online', role: 'CUSTOMER', firstName: 'John', lastName: 'Doe' },
     { email: 'customer2@mavon.online', role: 'CUSTOMER', firstName: 'Jane', lastName: 'Smith' },

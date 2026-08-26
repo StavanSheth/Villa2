@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 
-describe('RBAC-001: Customer accesses admin dashboard', () => {
+describe('RBAC-001: Customer accesses staff dashboard', () => {
   it('should return 403 Forbidden', async () => {
     // Simulated backend API endpoint guard behavior
     const fetchAdminData = async (role: string) => {
-      if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+      if (role !== 'STAFF') {
         const error: any = new Error('Forbidden');
         error.status = 403;
         throw error;

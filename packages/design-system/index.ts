@@ -26,7 +26,7 @@ export type Theme = 'light' | 'dark' | 'system';
 /**
  * Role themes for multi-tenant theming.
  */
-export type RoleTheme = 'CUSTOMER' | 'STAFF' | 'ADMIN' | 'SUPER_ADMIN';
+export type RoleTheme = 'CUSTOMER' | 'STAFF';
 
 /**
  * Design system radius scale values.

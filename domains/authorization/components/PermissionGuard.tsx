@@ -28,10 +28,7 @@ export function PermissionGuard({ children, fallback = null, resource, action }:
     // or rely on a pre-fetched permissions object from the API.
     const checkPermission = async () => {
       // Mocked rules matching the architecture design
-      if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') {
-        setIsAllowed(true);
-        return;
-      }
+
       
       if (currentRole === 'STAFF') {
         const staffAllowed = [

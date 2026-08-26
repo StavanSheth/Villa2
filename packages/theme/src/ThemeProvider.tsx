@@ -10,8 +10,6 @@ import type { RoleTheme } from '@villa-platform/design-system';
 const roleThemeMap: Record<RoleTheme, string> = {
   CUSTOMER: 'theme-customer',
   STAFF: 'theme-staff',
-  ADMIN: 'theme-admin',
-  SUPER_ADMIN: 'theme-superadmin',
 };
 
 interface ThemeProviderProps {

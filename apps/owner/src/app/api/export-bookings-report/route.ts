@@ -101,7 +101,7 @@ export async function POST(req: Request) {
 
         // Shared or common fields mapped based on column
         if (columns.includes('orderId')) row['Order ID'] = booking.bookingCode;
-        if (columns.includes('customer')) row['Customer'] = booking.user?.name || booking.user?.email || booking.userId;
+        if (columns.includes('customer')) row['Customer'] = (booking.user?.firstName ? `${booking.user.firstName} ${booking.user.lastName}` : '') || booking.user?.email || booking.userId;
         if (columns.includes('villa')) row['Villa'] = booking.villa?.name || booking.villaId;
         if (columns.includes('checkIn')) row['Check-in'] = new Date(booking.checkIn).toLocaleDateString();
         if (columns.includes('checkOut')) row['Check-out'] = new Date(booking.checkOut).toLocaleDateString();
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
         if (columns.includes('originalPaidAmount')) row['Original Paid Amount'] = Number(latestTx?.previousTotalPaid || booking.totalPaid);
         if (columns.includes('refundTier')) row['Refund Tier'] = latestTx?.refundTier || '-';
         if (columns.includes('refundStatus')) row['Refund Status'] = latestTx?.refundStatus || '-';
-        if (columns.includes('refundAmount')) row['Refund Amount'] = Number(booking.cancellationRefund || booking.pendingRefund + booking.totalRefunded);
+        if (columns.includes('refundAmount')) row['Refund Amount'] = Number(booking.cancellationRefund || (Number(booking.pendingRefund) + Number(booking.totalRefunded)));
         if (columns.includes('pendingRefund')) row['Pending Refund'] = Number(booking.pendingRefund);
         
         if (columns.includes('bookingDates')) row['Booking Dates'] = `${new Date(booking.checkIn).toLocaleDateString()} to ${new Date(booking.checkOut).toLocaleDateString()}`;
