@@ -13,6 +13,8 @@
     "@villa-platform/cache": "workspace:*",
     "@villa-platform/database": "workspace:*",
     "@villa-platform/identity": "workspace:*",
+    "@villa-platform/types": "workspace:*",
+    "@villa-platform/validation": "workspace:*",
     "hono": "^4.6.4",
     "jose": "^5.2.3"
   },
